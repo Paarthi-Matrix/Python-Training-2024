@@ -8,6 +8,33 @@
 import sys
 
 
+
+def is_palindrome(num):
+    # Skip single-digit inputs
+    if num // 10 == 0:
+        return False
+    temp = num
+    reversed_num = 0
+
+    while temp != 0:
+        reversed_num = (reversed_num * 10) + (temp % 10)
+        temp = temp // 10
+
+    if num == reversed_num:
+        return True
+    else:
+        return False
+
+def infinite_palindromes():
+    num = 0
+    while True:
+        if is_palindrome(num):
+            i = (yield num)
+            if i is not None:
+                num = i
+        num += 1
+
+
 def count_no_of_character_occurrence(input_str):
     """
     Count the number of characters in a string. Go to the editor
@@ -135,29 +162,34 @@ def get_words_with_more_than_one_occurrence(word_list):
     return answer
 
 
-str_list = ["abc", "xyz", "aba", "1221", "ww", "1222e31", "1234567"]
+# str_list = ["abc", "xyz", "aba", "1221", "ww", "1222e31", "1234567"]
 word_list = ["apple", "banana", "apple", "orange", "banana", "grape"]
-input_str = "Mo"
-input_list = [(2, 5), (1, 2), (4, 4), (2, 3), (2, 1), (3, 4)]
-number_list = [2, 6, 5, 7, 8, 33, 450, 1, -90]
-list1 = [1, 2, 345, "name", "Paarthiban", "Mark", 90]
-list2 = [2, 4, 345, "Paarthiban"]
-set_1 = {'foo', 'bar', 'baz'}
-set_2 = {'baz', 'qux', 'quux'}
-tuple_1 = (2, 3, "Paarthiban", 4)
-tuple_2 = (4, "Ranjith", 3, 9, 10)
-word_list = ["Paarthi", "Ranjith", "Paarthi", "Ram", "Ranjith"]
-print(count_no_of_character_occurrence(input_str))  # 1
-print(get_number_of_strings_with_condition(str_list)) #
-print(generate_string_form_first_and_last_char(input_str))
-print(generate_list_of_squares(1, 21))
-print(sort_list_by_tuple_last_element(input_list))
-print(modify_string(input_str))
-min, max = find_min_max_of_list(number_list)
-print("Minimum in list", min, " Maximum in list", max)
-print(get_set_of_two_lists(list1, list2))
-print(get_set_of_list(word_list))
-print(perform_set_operations(set_1, set_2))
-print(perform_set_operations(set_2, set_1))
-print(get_set_of_merged_tuple(tuple_1, tuple_2))
-print("word_count", get_words_with_more_than_one_occurrence(word_list))
+# input_str = "Mo"
+# input_list = [(2, 5), (1, 2), (4, 4), (2, 3), (2, 1), (3, 4)]
+# number_list = [2, 6, 5, 7, 8, 33, 450, 1, -90]
+# list1 = [1, 2, 345, "name", "Paarthiban", "Mark", 90]
+# list2 = [2, 4, 345, "Paarthiban"]
+# set_1 = {'foo', 'bar', 'baz'}
+# set_2 = {'baz', 'qux', 'quux'}
+# tuple_1 = (2, 3, "Paarthiban", 4)
+# tuple_2 = (4, "Ranjith", 3, 9, 10)
+# word_list = ["Paarthi", "Ranjith", "Paarthi", "Ram", "Ranjith"]
+# print(count_no_of_character_occurrence(input_str))  # 1
+# print(get_number_of_strings_with_condition(str_list)) #
+# print(generate_string_form_first_and_last_char(input_str))
+# print(generate_list_of_squares(1, 21))
+# print(sort_list_by_tuple_last_element(input_list))
+# print(modify_string(input_str))
+# min, max = find_min_max_of_list(number_list)
+# print("Minimum in list", min, " Maximum in list", max)
+# print(get_set_of_two_lists(list1, list2))
+# print(get_set_of_list(word_list))
+# print(perform_set_operations(set_1, set_2))
+# print(perform_set_operations(set_2, set_1))
+# print(get_set_of_merged_tuple(tuple_1, tuple_2))
+# print("word_count", get_words_with_more_than_one_occurrence(word_list))
+pal_gen = infinite_palindromes()
+for i in pal_gen:
+    print(i)
+    digits = len(str(i))
+    pal_gen.send(10 ** (digits))
