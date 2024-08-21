@@ -40,18 +40,15 @@ def find_cumulative_sum_of_sequence(number_list, window_size):
 
 def cumulative_sum_with_sliding_window_generator(number_list, window_size):
     start = 0
-    end = window_size
+    end = window_size -1
     cumulative_sum_of_window = find_cumulative_sum_of_sequence(number_list, window_size)
-
-    while True:
+    yield cumulative_sum_of_window
+    loop_range = (len(number_list) + 1) - window_size
+    for r in range(0, loop_range):
+        cumulative_sum_of_window -= number_list[start]
         start += 1
         end += 1
-        if end > len(number_list):
-            raise StopIteration
-        cumulative_sum_of_window -= number_list[start]
+        if end > len(number_list) - 1:
+            break
         cumulative_sum_of_window += number_list[end]
         yield cumulative_sum_of_window
-
-        
-
-

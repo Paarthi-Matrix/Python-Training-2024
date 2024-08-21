@@ -9,7 +9,7 @@ class AlternateIterator:
         return self
 
     def __next__(self):
-        if self.index > len(self.sequence_1) and self.index > len(self.sequence_2):
+        if self.index >= len(self.sequence_1) or self.index >= len(self.sequence_2):
             raise StopIteration
         if self.toggle_sequence:
             self.toggle_sequence = not self.toggle_sequence

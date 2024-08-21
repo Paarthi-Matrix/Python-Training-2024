@@ -3,7 +3,7 @@ class CombinationIterator:
     def __init__(self, sequence, length):
         self.sequence = sequence
         self.length = length
-        self.answer = self.combination_generator([], self.sequence, 0, [])
+        self.answer = self.combination_generator([], self.sequence, 0, [], length)
         self.index = 0
 
     def __iter__(self):
@@ -17,15 +17,16 @@ class CombinationIterator:
         else:
             raise StopIteration
 
-    def combination_generator(self, processed, unprocessed, index, answer):
+    def combination_generator(self, processed, unprocessed, index, answer, length):
         # base condition
-        if (len(processed) == self.length) or (index >= len(unprocessed)):
+        if (len(processed) == length) or (index >= len(unprocessed)):
+            if len(processed) != length:
+                return answer
             answer.append(processed)
-            print("answer list", answer)
             return answer
 
         # accept the unprocessed
-        self.combination_generator(processed + [unprocessed[index]], unprocessed, index + 1, answer)
+        self.combination_generator(processed + [unprocessed[index]], unprocessed, index + 1, answer, length)
 
         # reject the unprocessed
-        return self.combination_generator(processed, unprocessed, index + 1, answer)
+        return self.combination_generator(processed, unprocessed, index + 1, answer, length)
