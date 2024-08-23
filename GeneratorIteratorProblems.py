@@ -19,6 +19,7 @@ def print_list_with_generator_by_index(element_list):
         element_list (list) : list of elements. The list may contain any valid values or python literals.
 
     """
+
     list_gen = get_generator_over_list(element_list)
     for index, val in list_gen:
         while index >= 0:
@@ -35,6 +36,7 @@ def get_cumulative_sum_of_list(number_list):
         number_list (list) : list of integers or float. MUST CONTAIN ONLY INTEGERS OR FLOATS
 
     """
+
     for number in CumulativeSumIterator(number_list):
         print(number)
 
@@ -47,6 +49,7 @@ def generate_square_root(number_list):
     Parameters:
         number_list (list) = list of integers. THE LIST MUST ONLY CONTAIN INTEGERS
     """
+
     for number in get_square_root_over_list(number_list):
         print(number)
 
@@ -60,6 +63,7 @@ def generate_two_powers_by_range(n):
         n (int) : Range upto which the powers of 2 need to be calculated.
                   MUST BE INTEGER ONLY.
     """
+
     for num in TwoPowerIterator(range(0, n)):
         print(num)
 
@@ -76,6 +80,7 @@ def generate_combinations_of_two_list(list_1, list_2):
     Returns:
         answer (list) : Contains the combination of given input lists.
     """
+
     answer = []
     for element_1, element_2 in generate_combinations(list_1, list_2):
         answer.append((element_1, element_2))
@@ -92,6 +97,7 @@ def generate_combinations_on_list_by_N(num_list, length):
          length (int) : This represents the length of each combination.
 
      """
+
     for list in CombinationIterator(num_list, length):
         print(list)
 
@@ -104,6 +110,7 @@ def merge_list(list_1, list_2):
         list_1 (list)
         list_2 (list)
     """
+
     for num in merge_list_generator(list_1, list_2):
         print(num)
 
@@ -112,6 +119,7 @@ def get_cumulative_product_of_list(number_list):
     """
     This function returns the list of cumulative products of given list.
     """
+
     answer = []
     for num in cumulative_product_generator(number_list):
         answer.append(num)
@@ -122,11 +130,12 @@ def get_alternate_elements_of_list(list_1, list_2):
     """
     This function returns the alternate elements between the given two lists
     """
+
     for item in AlternateIterator(list_1, list_2):
         print(item)
 
 
-def get_cumulative_sum_of_list_by_window_size(number_list, window_size):
+def get_sum_of_list_by_window_size(number_list, window_size):
     """
     This function returns the cumulative sliding window sums of size N from given list.
 
@@ -135,6 +144,7 @@ def get_cumulative_sum_of_list_by_window_size(number_list, window_size):
         window_size (int) : This represents the sliding window size.
                             Make sure that always windows size is less than length of given list.
     """
+
     answer = []
     for num in cumulative_sum_with_sliding_window_generator(number_list, window_size):
         answer.append(num)
@@ -158,7 +168,7 @@ generate_two_powers_by_range(5)  # 4
 print()
 print(generate_combinations_of_two_list(lst1, lst2))  # 5
 print()
-print(get_cumulative_sum_of_list_by_window_size(number_list, 2))  # 7
+print(get_sum_of_list_by_window_size(number_list, 2))  # 7
 print()
 get_alternate_elements_of_list(list_1, list_2)  # 8
 print()

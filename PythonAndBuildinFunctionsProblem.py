@@ -5,5 +5,8 @@ def positional_and_key_args(x, y, /, *, z, w):
     """
     return x + y + z + w
 
+import sys
 
-print(positional_and_key_args(1, 2, z=3, w=4))  # 1
+empty_list = []
+print(sys.getsizeof(empty_list))
+# print(positional_and_key_args(1, 2, z=3, w=4))  # 1

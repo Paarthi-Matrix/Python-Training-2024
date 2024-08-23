@@ -1,19 +1,23 @@
 import sys
 
 
-def count_no_of_character_occurrence(input_str):
+def count_no_of_character_occurrence(input_str: "String of characters"):
     """
     Count the number of character occurrence in a given string.
 
     Parameters:
-    input_str (string) : Input string to be checked for character occurrence.
+        input_str (string) : Input string to be checked for character occurrence.
 
     Returns:
-    character_occurrence (dict) : Dictionary of characters and their corresponding occurrences.
+        character_occurrence (dict) : Dictionary of characters and their corresponding occurrences.
+                                      Returns None if the input_str ins not string type.
     """
+
     character_occurrence = {}
     if not input_str or input_str == "":
         return character_occurrence
+    if isinstance(input_str, dict) or isinstance(input_str, set):
+        return None
     start = 0
     end = len(input_str) - 1
     while start <= end:
@@ -43,6 +47,7 @@ def get_number_of_strings_with_condition(str_list):
                  The count represents the count of string that satisfies the condition.
                  The answer contains the list of string that satisfies the given condition.
     """
+
     count = 0
     answer = []
     for _str1 in str_list:
@@ -66,6 +71,7 @@ def generate_string_form_first_and_last_char(input_str, size):
         answer (string) : Contains the string that satisfies the given condition.
                           Returns None if len(input_str) < size.
     """
+
     if len(input_str) < size:
         return None
     answer = input_str[:size] + input_str[len(input_str) - size:]
@@ -77,6 +83,7 @@ def generate_list_of_squares(start, end):
     Generates and returns the list comprehension,
     that generates a list of squares of numbers from 1 to 20.
     """
+
     return [num * num for num in range(start, end)]
 
 
@@ -91,6 +98,7 @@ def sort_list_by_tuple_last_element(input_list):
     Returns:
         answer (list) : Returns the list of tuples in given sorted order.
     """
+
     answer = []
     last_element_dict = {}
     for element in input_list:
@@ -111,6 +119,7 @@ def flatten_list(answer):
     """
     This function is used to flatten the given list to one dimensional list.
     """
+
     return [item for sublist in answer for item in sublist]
 
 
@@ -121,6 +130,7 @@ def modify_string(input_str):
     If the given string is already ends with 'ing' then add 'ly' instead.
     If the string length of the given string is less than 3, leaves it unchanged.
     """
+
     if len(input_str) < 3:
         return input_str
     if input_str.endswith("ing"):
@@ -140,6 +150,7 @@ def find_min_max_of_list(number_list):
         answer (list) : List that contains only 2 values. Min and Max.
                         If the list is empty returns [None, None]
     """
+
     answer = [None, None]
     if len(number_list) == 0:
         return answer
@@ -155,6 +166,7 @@ def get_set_of_two_lists(list_1, list_2):
     """
     Returns a set of elements that are common to both lists
     """
+
     return {element for element in list_1 if element in list_2}
 
 
@@ -162,6 +174,7 @@ def get_set_of_list(str_list):
     """
     Return a set of words that appear more than once in the list.
     """
+
     return {word for word in str_list if str_list.count(word) > 1}
 
 
@@ -169,6 +182,7 @@ def perform_set_operations(list_1, list_2):
     """
     This function returns the union, intersection, and difference of the given set.
     """
+
     return {"Union": list_1 | list_2, "Intersection": list_1 & list_2, "Difference": list_1 - list_2}
 
 
@@ -176,6 +190,7 @@ def create_dict_comp(_list):
     """
     This function returns dictionary comprehension that maps each word in a list to its length.
     """
+
     return {len(val): val for val in _list}
 
 

@@ -1,6 +1,9 @@
 class SequenceIterator:
     def __init__(self, sequence):
-        self.sequence = sequence
+        if isinstance(sequence, dict):
+            self.sequence = list(sequence.items())
+        else:
+            self.sequence = list(sequence)
         self.index = 0
 
     def __iter__(self):
