@@ -1,20 +1,11 @@
-# 1st
-a = input("Enter the word to calculate the character count:")
-
-
 def calculate_count(i, a):
-    print(i, a)
     c = 0
     for j in a:
         if j is i:
             c += 1
     return c
 
-sample_dict = {i: calculate_count(i, a) for i in a}
-print(sample_dict)
-
 # 2nd
-sample_l = ["zyx", "aba", "122341", "121", 121]
 
 
 def count_the_strings(a):
@@ -28,7 +19,7 @@ def count_the_strings(a):
             s += 1
     return s
 
-
+sample_l = ["zyx", "aba", "122341", "121", 121]
 print(count_the_strings(sample_l))
 
 # 3rd
@@ -158,3 +149,6 @@ t1 = tuple(x * 2 for x in t)
 
 print(t1)
 
+a = input("Enter the word to calculate the character count:")
+sample_dict = {i: calculate_count(i, a) for i in a}
+print(sample_dict)
