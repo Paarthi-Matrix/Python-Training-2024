@@ -9,8 +9,7 @@ class Restaurant:
         self.email = email
         self.contact_number = contact_number
         self.location = location
-        self.food_items = []
-
+        self.menu = []
 
     def __str__(self):
         return (f"Id: {self.id}, Name: {self.name}, Email: {self.email},"
