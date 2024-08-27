@@ -8,6 +8,7 @@ restaurant_controller = RestaurantController()
 def pick_role():
     print("Enter 1 if you're a Customer: ")
     print("Enter 2 if you're a Restaurant Owner: ")
+    print("Enter 0 to Exit...")
 
 
 def customer_choice():
@@ -29,11 +30,9 @@ def restaurant_choice():
     print("Enter 0 to Exit...")
 
 
-def chow_now():
-    pick_role()
-    choice = int(input("Enter Your Choice: "))
-    if choice == 1:
-        while True:
+def customer_operations():
+    while True:
+        try:
             customer_choice()
             choice = int(input("Enter Your Choice: "))
             if choice == 1:
@@ -49,10 +48,14 @@ def chow_now():
                 print("Exiting....")
                 break
             else:
-                print("Invalid Choice")
+                print("Invalid Choice Enter the Valid input")
+        except ValueError:
+            print("Invalid Input Enter your Choice as Numeric Value")
 
-    elif choice == 2:
-        while True:
+
+def restaurant_operations():
+    while True:
+        try:
             restaurant_choice()
             choice = int(input("Enter Your Choice: "))
             if choice == 1:
@@ -66,8 +69,39 @@ def chow_now():
                     name, email, contact_number, location
                 )
                 print(restaurant)
-    else:
-        print("Invalid Choice")
+            elif choice == 2:
+                restaurant_id = input("Enter Your Restaurant Id")
+                name = input("Enter the Food Item Name: ")
+                price = float(input("Enter the Food Item Price: "))
+                food_item = restaurant_controller.add_food_item_to_restaurant(
+                    restaurant_id, name, price
+                )
+                print(f"Food Item Added Successfully to Restaurant with id :"
+                      f"{restaurant_id}") if food_item else print(
+                    "Unable to Save Food Item"
+                )
+            else:
+                print("Invalid Choice Enter the Valid Input")
+        except ValueError:
+            print("Invalid Input Enter your Choice as Numeric Value")
+
+
+def chow_now():
+    while True:
+        try:
+            pick_role()
+            choice = int(input("Enter Your Choice: "))
+            if choice == 1:
+                customer_operations()
+            elif choice == 2:
+                restaurant_operations()
+            elif choice == 0:
+                print("Exiting...")
+                break
+            else:
+                print("Invalid Choice, Enter the valid input..")
+        except ValueError:
+            print("Invalid Input Enter your Choice as Numeric Value")
 
 
 if __name__ == "__main__":
