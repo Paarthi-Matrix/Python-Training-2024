@@ -1,4 +1,4 @@
-from model.Customer import Customer
+from model.customer import Customer
 
 
 class CustomerService:

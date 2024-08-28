@@ -1,4 +1,4 @@
-from service.CustomerService import CustomerService
+from service.customer_service import CustomerService
 
 
 class CustomerController:
