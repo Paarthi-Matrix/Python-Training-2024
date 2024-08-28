@@ -1,10 +1,7 @@
-import logging
+from resources.logging_config import logger
 
 from dao.user_dao import create, delete_user, get_by_attribute, get_by_user_id, get_users, update
 from constants.biznex_constants import USER_DICT_USER_ID, USER_DICT_USER_PASSWORD
-
-# Initialize the logger
-logger = logging.getLogger(__name__)
 
 
 def add_user(user):

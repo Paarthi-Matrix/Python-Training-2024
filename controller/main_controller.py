@@ -1,24 +1,46 @@
 from constants.biznex_constants import (
-    ASCII_OF_ONE,
     ASCII_OF_EIGHT,
-    CUSTOMER_CATEGORY_NAME,
+    ASCII_OF_ONE,
     CHOICE_MIN_LENGTH,
+    CUSTOMER_CATEGORY_NAME,
     CUSTOMER_VENDOR_CHOICE,
     END_GREETING_MESSAGE,
     INPUT_PLACEHOLDER_MESSAGE,
     INVALID_MESSAGE_FOR_CHOICE,
+    INVALID_MESSAGE_FOR_SEARCH_OPTION,
     INVALID_MESSAGE_FOR_USER_CATEGORY,
     MAIN_MENU_TEXT,
+    USER_DICT_COMPANY_NAME,
+    USER_DICT_COMPANY_TYPE,
+    USER_DICT_DOB,
+    USER_DICT_EMAIL,
+    USER_DICT_GENDER,
+    USER_DICT_NAME,
+    USER_DICT_PHONE_NUMBER,
     USER_DICT_USER_ID,
     USER_DICT_USER_PASSWORD,
-    VENDOR_CATEGORY_NAME,
-    INVALID_MESSAGE_FOR_SEARCH_OPTION,
-    ASCII_OF_FIVE,
+    VENDOR_CATEGORY_NAME, EXCEPTION_MESSAGE_FOR_USER_CATEGORY
 )
+
+from custom_exceptions.id_generation_exception import IdGenerationException
 from dao.user_dao import get_by_user_id
 from resources.logging_config import logger
 from service.user_service import update_password
-from user_controller import display_all_users, delete_user, login_user, register_user, get_by_attribute
+from user_controller import (
+    delete_user,
+    display_all_users,
+    get_by_attribute,
+    login_user,
+    register_user
+)
+from utils.user_input_validation import (
+    user_name_validation,
+    password_validation,
+    email_validation,
+    date_of_birth_validation,
+    gender_validation,
+    phone_number_validation
+)
 
 
 def start_application():
@@ -36,7 +58,7 @@ def start_application():
             print(INVALID_MESSAGE_FOR_CHOICE)
             continue
 
-        # Handle choices
+        # Handling choices
         if int(choice) == 1:
             logger.info("User chose to register.")
             register()
@@ -67,12 +89,15 @@ def start_application():
 def register():
     """
     Registers a new user (CUSTOMER or VENDOR) by collecting their details and confirming.
+    Validations for input fields are done.
+    For more in formation on input validation see :class:`user_input_validation`
+    in the module mod:`utils`
     """
     logger.debug("Entering registration process.")
     while True:
         print(CUSTOMER_VENDOR_CHOICE)
         vendor_customer_choice = input("Select any one option 1 or 2: ")
-        if ((len(vendor_customer_choice) > 1)
+        if ((len(vendor_customer_choice) > CHOICE_MIN_LENGTH)
                 or (ord(vendor_customer_choice) < ASCII_OF_ONE
                     or ord(vendor_customer_choice) > ASCII_OF_ONE + 1)):
 
@@ -85,15 +110,66 @@ def register():
     customer_details = {}
     flag = True
     while flag:
-        customer_details["name"] = input("Your full name: ").strip()
-        customer_details["phone_number"] = input("Phone Number: ").strip()
-        customer_details["email"] = input("Email Address: ").strip()
-        customer_details["gender"] = input("Gender (e.g., Male, Female, Others): ").strip()
-        customer_details["date_of_birth"] = input("Date of Birth (e.g., DD/MM/YYYY): ").strip()
-        customer_details["company_name"] = input("Company Name: ").strip()
-        customer_details["company_type"] = input("Company Type (e.g., LLC, Corporation, Small scale): ").strip()
-        customer_details["password"] = input(
-            "Password (Must be 8 characters long. Use special characters like (!@#$) ): ").strip()
+
+        while True:
+            customer_name = input("Your full name: ").strip()
+            if user_name_validation(customer_name):
+                customer_details[USER_DICT_NAME] = customer_name
+                break
+            else:
+                logger.warning(f"User gave invalid name formate {customer_name}")
+                print("Invalid name format. Please enter a valid full name.")
+
+        while True:
+            phone_number = input("Phone Number: ").strip()
+            if phone_number_validation(phone_number):
+                customer_details[USER_DICT_PHONE_NUMBER] = phone_number
+                break
+            else:
+                logger.warning(f"User gave invalid phone number {phone_number}")
+                print("Invalid phone number format. Please enter a valid phone number.")
+
+        while True:
+            email = input("Email Address: ").strip()
+            if email_validation(email):
+                customer_details[USER_DICT_EMAIL] = email
+                break
+            else:
+                logger.warning(f"User gave invalid email address {email}")
+                print("Invalid email format. Please enter a valid email address.")
+
+        while True:
+            gender = input("Gender (e.g., Male, Female, Others): ").strip()
+            if gender_validation(gender):
+                customer_details[USER_DICT_GENDER] = gender
+                break
+            else:
+                logger.warning(f"User gave invalid gender {gender}")
+                print("Invalid gender. Please enter Male, Female, or Others.")
+
+        while True:
+            dob = input("Date of Birth (e.g., DD/MM/YYYY): ").strip()
+            if date_of_birth_validation(dob):
+                customer_details[USER_DICT_DOB] = dob
+                break
+            else:
+                logger.warning(f"User gave invalid date {dob}")
+                print("Invalid date of birth format. Please enter in DD/MM/YYYY format.")
+
+        customer_details[USER_DICT_COMPANY_NAME] = input("Company Name: ").strip()
+        customer_details[USER_DICT_COMPANY_TYPE] = input("Company Type (e.g., LLC, Corporation, "
+                                                         "Small scale): ").strip()
+
+        while True:
+            password = input("Password (Must be 8 characters long."
+                             " Use special characters like (!@#$) ): ").strip()
+            if password_validation(password):
+                customer_details[USER_DICT_USER_PASSWORD] = password
+                break
+            else:
+                logger.warning(f"User gave invalid password {password}")
+                print("Invalid password. Please ensure it's 8 characters long "
+                      " and contains special characters (!@#$).")
 
         if int(vendor_customer_choice) == 1:
             customer_details["user_category"] = CUSTOMER_CATEGORY_NAME
@@ -110,7 +186,13 @@ def register():
             confirm = input("\nAre these details correct? (yes/no): ").strip().lower()
             if confirm in ['yes', 'no']:
                 if confirm == 'yes':
-                    register_user(customer_details)
+                    try:
+                        register_user(customer_details)
+                    except IdGenerationException as e:
+                        logger.exception(f"Exception arisen while generating user_id "
+                                     f"for customer {customer_details[USER_DICT_NAME]}")
+                        print(EXCEPTION_MESSAGE_FOR_USER_CATEGORY)
+
                     logger.info("User registered successfully: %s", customer_details)
                     flag = False
                     break
@@ -141,7 +223,7 @@ def print_all_users():
     print_data(display_all_users())
 
 
-def print_data(user_details):
+def print_data(user_details, is_header=True):
     try:
         headers = list(user_details[next(iter(user_details))].keys())
     except StopIteration:

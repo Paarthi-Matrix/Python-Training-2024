@@ -5,7 +5,14 @@ VENDOR_CATEGORY_NAME = "VENDOR"
 CUSTOMER_CATEGORY_NAME = "CUSTOMER"
 COLUMN_SPACE = 40
 
-#  user dict value names
+#  user dict key names
+USER_DICT_NAME = "name"
+USER_DICT_PHONE_NUMBER = "phone_number"
+USER_DICT_EMAIL = "email"
+USER_DICT_GENDER = "gender"
+USER_DICT_DOB = "date_of_birth"
+USER_DICT_COMPANY_NAME = "company_name"
+USER_DICT_COMPANY_TYPE = "company_type"
 USER_DICT_USER_CATEGORY = "user_category"
 USER_DICT_USER_ID = "user_id"
 USER_DICT_USER_PASSWORD = "password"
@@ -19,6 +26,15 @@ CHOICE_MIN_LENGTH = 1
 ASCII_OF_ONE = 49
 ASCII_OF_FIVE = 53
 ASCII_OF_EIGHT = 57
+
+
+# user input validation regex
+NAME_VALIDATION_REGEX = r"^[A-Za-z\s]{2,50}$"
+PHONE_NUMBER_VALIDATION_REGEX = r"^\d{10}$"
+EMAIL_VALIDATION_REGEX = r"^[\w\.-]+@[\w\.-]+\.\w+$"
+DOB_VALIDATION_REGEX = r"^(0[1-9]|[12][0-9]|3[01])/(0[1-9]|1[0-2])/\d{4}$"
+PASSWORD_VALIDATION_REGEX = r"^(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$"
+
 
 # Print Menu and UI components
 MAIN_MENU_TEXT = """
@@ -61,4 +77,4 @@ Please enter the following details:
 8. Password (Must be 8 characters long. Used some special characters like (!@#$) ):
 """
 INVALID_CREDENTIAL_MESSAGE = "Invalid credentials. Check the user name and password"
-
+EXCEPTION_MESSAGE_FOR_USER_CATEGORY = "Invalid user category. Kindly check the user_category."
