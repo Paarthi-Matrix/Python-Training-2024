@@ -19,7 +19,7 @@ from constants.biznex_constants import (
     USER_DICT_PHONE_NUMBER,
     USER_DICT_USER_ID,
     USER_DICT_USER_PASSWORD,
-    VENDOR_CATEGORY_NAME, EXCEPTION_MESSAGE_FOR_USER_CATEGORY
+    VENDOR_CATEGORY_NAME, EXCEPTION_MESSAGE_FOR_USER_CATEGORY, USER_DICT_USER_CATEGORY
 )
 
 from custom_exceptions.id_generation_exception import IdGenerationException
@@ -58,7 +58,6 @@ def start_application():
             print(INVALID_MESSAGE_FOR_CHOICE)
             continue
 
-        # Handling choices
         if int(choice) == 1:
             logger.info("User chose to register.")
             register()
@@ -172,9 +171,9 @@ def register():
                       " and contains special characters (!@#$).")
 
         if int(vendor_customer_choice) == 1:
-            customer_details["user_category"] = CUSTOMER_CATEGORY_NAME
+            customer_details[USER_DICT_USER_CATEGORY] = CUSTOMER_CATEGORY_NAME
         else:
-            customer_details["user_category"] = VENDOR_CATEGORY_NAME
+            customer_details[USER_DICT_USER_CATEGORY] = VENDOR_CATEGORY_NAME
 
         logger.info("User details entered: %s", customer_details)
 
@@ -189,8 +188,7 @@ def register():
                     try:
                         register_user(customer_details)
                     except IdGenerationException as e:
-                        logger.exception(f"Exception arisen while generating user_id "
-                                     f"for customer {customer_details[USER_DICT_NAME]}")
+                        logger.exception(e.message)
                         print(EXCEPTION_MESSAGE_FOR_USER_CATEGORY)
 
                     logger.info("User registered successfully: %s", customer_details)
@@ -224,6 +222,9 @@ def print_all_users():
 
 
 def print_data(user_details, is_header=True):
+    """
+    Prints the data in tabular formate on to the console
+    """
     try:
         headers = list(user_details[next(iter(user_details))].keys())
     except StopIteration:
@@ -309,7 +310,6 @@ def change_password():
 
     if user[USER_DICT_USER_PASSWORD] != old_password:
         logger.warning(f"User ID {user_id} entered an incorrect old password.")
-        print("Incorrect old password. Please try again.")
         return
 
     new_password = input("Enter your new password: ").strip()
@@ -317,7 +317,6 @@ def change_password():
 
     update_password(user)
     logger.info(f"Password for user ID {user_id} has been updated successfully.")
-    print("Your password has been updated successfully.")
 
 
 if __name__ == "__main__":

@@ -78,3 +78,4 @@ Please enter the following details:
 """
 INVALID_CREDENTIAL_MESSAGE = "Invalid credentials. Check the user name and password"
 EXCEPTION_MESSAGE_FOR_USER_CATEGORY = "Invalid user category. Kindly check the user_category."
+

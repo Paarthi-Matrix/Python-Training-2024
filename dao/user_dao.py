@@ -8,6 +8,7 @@ from constants.biznex_constants import USER_DICT_USER_ID
 from constants.biznex_constants import VENDOR_CATEGORY_NAME
 from constants.biznex_constants import VENDOR_ID_PREFIX
 from custom_exceptions.id_generation_exception import IdGenerationException
+from resources.logging_config import logger
 
 users = {}
 
@@ -17,7 +18,7 @@ def user_id_generator(user_category):
     Generates a unique user ID based on the user category.
 
     Parameters:
-        user_category (str) : This string represents the category of the user. (VENDOR or USER)
+        user_category (str) : This string represents the category of the user. (VENDOR or Customer)
 
     Returns:
         user_id (str) : Returns a unique user id for every user based on their category
