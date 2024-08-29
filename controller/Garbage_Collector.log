@@ -1,0 +1,17 @@
+2024-08-29 15:56:54,380 - Garbage_Collector - ERROR - ValueError in update profile: invalid literal for int() with base 10: 'ewrty'
+2024-08-29 16:04:32,689 - Garbage_Collector - ERROR - No customer found by this Id: 8f98af6b-a910-48c5-9908-7d8f83e
+2024-08-29 16:05:59,148 - Garbage_Collector - WARNING - Email should contain lowercase letters, numbers, and end with the suffix (@gmail.com).
+2024-08-29 16:06:28,222 - Garbage_Collector - INFO - Registered customer with ID: 11ab119d-93cc-4dbc-8896-95cdc967d87f
+2024-08-29 16:06:34,168 - Garbage_Collector - INFO - Redirecting you to home
+2024-08-29 16:07:26,113 - Garbage_Collector - ERROR - No customer found by this Id: 11ab119d-93cc-4dbc-8896-95cdc96
+2024-08-29 16:07:31,393 - Garbage_Collector - ERROR - No customer found by this Id: 11ab119d-93cc-4dbc-8896-95cdc9
+2024-08-29 16:07:37,053 - Garbage_Collector - INFO - Customer found with ID: 11ab119d-93cc-4dbc-8896-95cdc967d87f
+2024-08-29 16:09:10,280 - Garbage_Collector - ERROR - ValueError in update profile: invalid literal for int() with base 10: 'ertyu'
+2024-08-29 16:16:18,258 - Garbage_Collector - INFO - Registered customer with ID: 1d9c08bf-dd6c-40f4-8be2-6a3be395c31a
+2024-08-29 16:16:26,389 - Garbage_Collector - INFO - Redirecting you to home
+2024-08-29 16:16:49,726 - Garbage_Collector - INFO - Search has been ended
+2024-08-29 16:17:07,156 - Garbage_Collector - ERROR - No customer found by this Id: werty
+2024-08-29 16:17:29,195 - Garbage_Collector - ERROR - ValueError in update profile: invalid literal for int() with base 10: 'iuytrew'
+2024-08-29 16:17:38,492 - Garbage_Collector - INFO - Customer found with ID: 1d9c08bf-dd6c-40f4-8be2-6a3be395c31a
+2024-08-29 16:18:05,642 - Garbage_Collector - INFO - Updated customer 1d9c08bf-dd6c-40f4-8be2-6a3be395c31a: set name to kedhar Jadhav
+2024-08-29 16:18:05,643 - Garbage_Collector - INFO - Customer name updated for ID: 1d9c08bf-dd6c-40f4-8be2-6a3be395c31a

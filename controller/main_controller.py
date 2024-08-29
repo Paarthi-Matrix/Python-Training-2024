@@ -1,10 +1,42 @@
-from service.customer_service import (search_customer, register_customer,
-                                      get_all_customer, remove_customer, is_customer_present,
-                                      update_customer)
-from util.validation import (is_valid_name, is_valid_email,
-                             is_valid_password, is_valid_mobile)
+from helper.logger_constant import (
+    LOG_VALUE_ERROR_IN_CUSTOMER_MENU,
+    LOG_VALUE_ERROR_IN_UPDATE_PROFILE,
+    LOG_CUSTOMER_DELETED_WITH_ID,
+    LOG_VALUE_ERROR_IN_ADMIN_MENU,
+    LOG_NO_CUSTOMER_SIGNED_UP,
+    LOG_APPLICATION_END, LOG_ERROR_CHOICE_RANGE_1_4, LOG_ERROR_ROLE_INTEGER,
+    LOG_REDIRECTING_HOME, LOG_END_SEARCH,
+    LOG_ERROR_CHOICE_RANGE_1_5, LOG_ERROR_CHOICE_RANGE_1_6,
+    LOG_ERROR_INVALID_NAME, LOG_ERROR_INVALID_EMAIL,
+    LOG_ERROR_INVALID_PASSWORD, LOG_ERROR_INVALID_MOBILE
+)
 
-from admin_controller import register_admin
+from helper.menu_constant import (
+    CUSTOMER_MENU, UPDATE_CUSTOMER_MENU, ADMIN_MENU, SEARCH_CUSTOMER_MENU,
+    MAIN_MENU
+)
+
+from helper.prompt_constant import (
+    PROMPT_CUSTOMER_NAME, PROMPT_EMAIL, PROMPT_PASSWORD,
+    PROMPT_MOBILE, PROMPT_ACCOUNT_NO, PROMPT_CHOICE,
+    PROMPT_CUSTOMER_ID, PROMPT_NAME_TO_UPDATE, PROMPT_EMAIL_TO_UPDATE,
+    PROMPT_PASSWORD_TO_UPDATE, PROMPT_MOBILE_TO_UPDATE,
+    PROMPT_SEARCH_NAME, PROMPT_SEARCH_CUSTOMER_ID, PROMPT_ROLE
+)
+
+from resources.logger_configuration import logger
+
+from service.customer_service import (
+    search_customer, register_customer, get_all_customer,
+    remove_customer, is_customer_present, update_customer
+)
+
+from util.validation import (
+    is_valid_name, is_valid_email,
+    is_valid_password, is_valid_mobile
+)
+
+from custom_exception.resource_not_found_exception import ResourceNotFoundException
 
 
 def get_valid_input(prompt, validation_func, error_message):
@@ -14,209 +46,212 @@ def get_valid_input(prompt, validation_func, error_message):
         if validation_func(value):
             return value
         else:
-            print(error_message)
+            logger.warning(error_message)
+            print()
 
 
 def collect_customer_details():
+    """
+    Collects and validates customer details such as name, email, password, mobile number, and account number.
+
+    Prompts the user to input customer details and validates the input using predefined functions.
+    Returns the validated customer details.
+
+    Returns:
+        tuple: A tuple containing customer_name, customer_email, password, mobile_no, and account_no.
+    """
     customer_name = get_valid_input(
-        "Enter the customer name: ",
+        PROMPT_CUSTOMER_NAME,
         is_valid_name,
-        "Name should only contain lowercase, uppercase letters, and spaces."
+        LOG_ERROR_INVALID_NAME
     )
 
     customer_email = get_valid_input(
-        "Enter the email: ",
+        PROMPT_EMAIL,
         is_valid_email,
-        "Email should contain lowercase letters, numbers, "
-        "and end with the suffix (@gmail.com)."
+        LOG_ERROR_INVALID_EMAIL
     )
 
     password = get_valid_input(
-        "Enter the password: ",
+        PROMPT_PASSWORD,
         is_valid_password,
-        "Password must be at least 8 characters long, contain one uppercase "
-        "letter, one lowercase letter, one number, and no spaces."
+        LOG_ERROR_INVALID_PASSWORD
     )
 
     mobile_no = get_valid_input(
-        "Enter the mobile number: ",
+        PROMPT_MOBILE,
         is_valid_mobile,
-        "Mobile number should have 10 digits, and start with 6, 7, 8, or 9."
+        LOG_ERROR_INVALID_MOBILE
     )
 
-    account_no = input("Enter the account number: ")
+    account_no = input(PROMPT_ACCOUNT_NO)
 
     return customer_name, customer_email, password, mobile_no, account_no
 
 
 def customer():
+    """
+    Displays the customer menu and processes customer-related actions based on user input.
+
+    The customer menu allows the user to register, view or update their profile, or exit.
+    Logs user actions and handles errors related to invalid input.
+
+    Raises:
+        ValueError: If the input provided is not a valid integer.
+    """
     try:
         while True:
-            print("Pick your choice")
-            print("1. Sign Up Customer")
-            print("2. Register Bin")
-            print("3. Raise Complaint")
-            print("4. Exit")
+            print(CUSTOMER_MENU)
 
-            choice = int(input("Enter your choice:"))
-            if choice >= 1 and choice <= 4:
-                print("hello")
+            choice = int(input(PROMPT_CHOICE))
+            if 1 <= choice <= 4:
                 if choice == 1:
-                    """(customer_name, customer_email, password,
-                     mobile_no, account_no) = customer_validation()"""
-                    customer_name, customer_email, password, mobile_no, account_no = collect_customer_details()
-                    generated_id = register_customer(
-                        customer_name, customer_email, password, mobile_no, account_no
+                    (customer_name, customer_email, password, mobile_no,
+                     account_no) = collect_customer_details()
+                    register_customer(
+                        customer_name, customer_email,
+                        password, mobile_no, account_no
                     )
-                    print("Customer registered successfully with ID", generated_id)
                 elif choice == 2:
                     pass
                 elif choice == 3:
                     pass
                 elif choice == 4:
-                    print("Redirect to Home")
+                    logger.info(LOG_REDIRECTING_HOME)
                     break
             else:
-                print("Choice should ranges between 1 to 4")
-    except ValueError:
-        raise ValueError
+                logger.warning(LOG_ERROR_CHOICE_RANGE_1_4)
+    except ValueError as e:
+        logger.error(LOG_VALUE_ERROR_IN_CUSTOMER_MENU.format(e=e))
 
 
 def update_profile():
-    try:
-        customer_id = input("Enter the Customer Id:")
-        if is_customer_present(customer_id):
-            while True:
-                print("Choose your choice:")
-                print("1. Update name")
-                print("2. Update email")
-                print("3. Update password")
-                print("4. Update mobile")
-                print("5. Exit")
-                choice = int(input("Enter your choice:"))
-                if choice >= 1 and choice <= 5:
+    """
+    Updates the profile information of a customer based on the provided customer ID.
+
+    Raises:
+        ValueError: If a non-integer input is provided where an integer is expected.
+    """
+    while True:
+        try:
+            print(UPDATE_CUSTOMER_MENU)
+            choice = int(input(PROMPT_CHOICE))
+            if 1 <= choice <= 5:
+                customer_id = input(PROMPT_CUSTOMER_ID)
+                if is_customer_present(customer_id):
                     if choice == 1:
-                        name = input("Enter the name to update:")
+                        name = input(PROMPT_NAME_TO_UPDATE)
                         update_customer(customer_id, name, "name")
-                        print("Customer detail successfully updated for Id:", customer_id)
                     elif choice == 2:
-                        email = input("Enter the email to update:")
+                        email = input(PROMPT_EMAIL_TO_UPDATE)
                         update_customer(customer_id, email, "email")
-                        print("Customer detail successfully updated for Id:", customer_id)
                     elif choice == 3:
-                        password = input("Enter the password to update:")
+                        password = input(PROMPT_PASSWORD_TO_UPDATE)
                         update_customer(customer_id, password, "password")
-                        print("Customer detail successfully updated for Id:", customer_id)
                     elif choice == 4:
-                        mobile = input("Enter the mobile number to update:")
+                        mobile = input(PROMPT_MOBILE_TO_UPDATE)
                         update_customer(customer_id, mobile, "mobile")
-                        print("Customer detail successfully updated for Id:", customer_id)
                     elif choice == 5:
-                        print("Redirect to home")
+                        logger.info(LOG_REDIRECTING_HOME)
                         break
-                else:
-                    print("Enter the choice ranges between (1-5)")
-        else:
-            print("No Customer found by this Id: ", customer_id)
-    except ValueError:
-        raise ValueError
+            else:
+                logger.warning(LOG_ERROR_CHOICE_RANGE_1_5)
+
+        except ValueError as e:
+            logger.error(LOG_VALUE_ERROR_IN_UPDATE_PROFILE.format(e=e))
+        except ResourceNotFoundException as e:
+            logger.error(e)
 
 
 def admin():
-    try:
-        while True:
-            print("Pick your choice")
-            print("1. Sign Up Admin")
-            print("2. Sign Up Driver")
-            print("3. Search Customer")
-            print("4. Delete Customer")
-            print("5. Update Customer")
-            print("6. Exit")
+    """
+    Displays the admin menu and processes admin-related actions based on user input.
 
-            choice = int(input("Enter the choice"))
-            if choice >= 1 and choice <= 6:
+    The admin menu allows the admin to register, search, remove customers, update profiles, or exit.
+    Logs actions and handles errors related to invalid input.
+
+    Raises:
+        ValueError: If the input provided is not a valid integer.
+    """
+    while True:
+        try:
+            print(ADMIN_MENU)
+            choice = int(input(PROMPT_CHOICE))
+            if 1 <= choice <= 6:
                 if choice == 1:
-                    name = input("Enter the name:")
-                    email = input("Enter the email:")
-                    password = input("Enter the password:")
-
-                    admin_id = register_admin(name, email, password)
-                    if admin_id is None:
-                        print("Unauthorized, Not allowed to sign up as Admin")
-                    else:
-                        print("Admin successfully created by this Id: ", admin_id)
+                    pass
                 elif choice == 2:
                     pass
                 elif choice == 3:
                     while True:
-                        print()
-                        print("Pick the choice below to search by")
-                        print("1. Search by First Name or Last Name")
-                        print("2. Search by Id")
-                        print("3. Search All")
-                        print("4. End the Search")
-                        search_choice = int(input("Enter your choice: "))
-                        if 1 <= search_choice <= 4:
-                            if search_choice == 1:
-                                name = input("Enter the name to search:")
-                                customers = search_customer(name)
-                                if customers is None:
-                                    print("No customer found by this name: ", name)
-                                else:
+                        try:
+                            print(SEARCH_CUSTOMER_MENU)
+                            search_choice = int(input(PROMPT_CHOICE))
+                            if 1 <= search_choice <= 4:
+                                if search_choice == 1:
+                                    name = input(PROMPT_SEARCH_NAME)
+                                    customers = search_customer(name)
                                     for detail in customers:
                                         for key in detail:
                                             print(key, "-", detail[key])
-                            elif search_choice == 2:
-                                customer_id = input("Enter the customer Id:")
-                                customer_detail = search_customer(customer_id)
-                                if customer_detail is None:
-                                    print("No customer found by this Id: ", customer_id)
-                                else:
+                                elif search_choice == 2:
+                                    customer_id = input(PROMPT_SEARCH_CUSTOMER_ID)
+                                    customer_detail = search_customer(customer_id)
                                     for detail in customer_detail:
-                                        print(detail, "-", customer_detail[detail])
-                            elif search_choice == 3:
-                                for customer_detail in get_all_customer():
-                                    if customer_detail is None:
-                                        print("No customers signed up yet")
-                                    else:
-                                        for key, value in customer_detail.items():
-                                            print(key, "-", value)
-                            elif search_choice == 4:
-                                print("You have ended the search")
-                                break
-                        else:
-                            print("Enter the choice ranges between (1-5)")
+                                        print(detail, "-",
+                                              customer_detail[detail])
+                                elif search_choice == 3:
+                                    for customer_detail in get_all_customer():
+                                        if customer_detail is None:
+                                            logger.warning(LOG_NO_CUSTOMER_SIGNED_UP)
+                                        else:
+                                            for key, value in (customer_detail
+                                                    .items()):
+                                                print(key, "-", value)
+                                elif search_choice == 4:
+                                    logger.info(LOG_END_SEARCH)
+                                    break
+                            else:
+                                logger.warning(LOG_ERROR_CHOICE_RANGE_1_5)
+                        except ResourceNotFoundException as e:
+                            logger.error(e)
+                        except ValueError as e:
+                            logger.error(LOG_VALUE_ERROR_IN_ADMIN_MENU
+                                         .format(e=e))
 
                 elif choice == 4:
-                    customer_id = input("Enter the customer Id:")
-                    result = remove_customer(customer_id)
-                    if result is None:
-                        print("Customer deleted successfully with Id:", customer_id)
-                    else:
-                        print("No customer found by this Id:", customer_id)
-
+                    customer_id = input(PROMPT_SEARCH_CUSTOMER_ID)
+                    remove_customer(customer_id)
+                    logger.info(LOG_CUSTOMER_DELETED_WITH_ID.format(customer_id=customer_id))
                 elif choice == 5:
                     update_profile()
                 elif choice == 6:
-                    print("Redirecting you to home")
+                    logger.info(LOG_REDIRECTING_HOME)
                     break
             else:
-                print("Choice should ranges between 1 to 6")
-    except ValueError:
-        raise ValueError
+                logger.warning(LOG_ERROR_CHOICE_RANGE_1_6)
+        except ValueError as e:
+            logger.error(LOG_VALUE_ERROR_IN_ADMIN_MENU.format(e=e))
+        except ResourceNotFoundException as e:
+            logger.error(e)
 
 
 def main():
-    try:
-        while True:
-            print("Enter the choice:")
-            print("1. Customer")
-            print("2. Admin")
-            print("3. Driver")
-            print("4. Exit")
-            role = int(input("Choose the Role:"))
+    """
+    Displays the main menu and routes the user to the appropriate role-based menu.
 
-            if role >= 1 and role <= 4:
+    The main menu allows the user to select a role: customer, admin, or exit.
+    Logs actions and handles errors related to invalid input.
+
+    Raises:
+        ValueError: If the input provided is not a valid integer.
+    """
+    while True:
+        try:
+            print(MAIN_MENU)
+            role = int(input(PROMPT_ROLE))
+
+            if 1 <= role <= 4:
                 if role == 1:
                     customer()
                 elif role == 2:
@@ -224,12 +259,12 @@ def main():
                 elif role == 3:
                     pass
                 elif role == 4:
-                    print("Thank You")
+                    logger.info(LOG_APPLICATION_END)
                     break
             else:
-                print("Choice should ranges between 1 to 4")
-    except ValueError:
-        print("Role choice should be integer")
+                logger.warning(LOG_ERROR_CHOICE_RANGE_1_4)
+        except ValueError as e:
+            logger.error(LOG_ERROR_ROLE_INTEGER, ": ", e)
 
 
 if __name__ == "__main__":
