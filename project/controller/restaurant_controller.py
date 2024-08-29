@@ -28,3 +28,4 @@ def update_food_item(restaurant_id: str, name: str, price: float):
 
 def delete_food_item(restaurant_id: str, name: str):
     return delete_food_item_details(restaurant_id, name.lower())
+

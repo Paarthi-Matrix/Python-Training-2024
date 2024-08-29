@@ -1,7 +1,8 @@
 from common.common_constants import (
     AUTH_CUSTOMER, AUTH_RESTAURANT, EXIT_APPLICATION,
     PICK_CHOICE, INPUT_NAME, EXITING,
-    INPUT_EMAIL, INPUT_LOCATION, INPUT_CONTACT, INVALID_CHOICE
+    INPUT_EMAIL, INPUT_LOCATION, INPUT_CONTACT, INVALID_CHOICE,
+    INVALID_INPUT, ENTER_CHOICE_AS_NUMERIC
 )
 from common.customer_constants import (
     ADD_CUSTOMER, SEARCH_RESTAURANT, PLACE_ORDER,
@@ -10,14 +11,20 @@ from common.customer_constants import (
 from common.restaurant_constants import (
     ADD_RESTAURANT, ADD_FOOD_ITEM, SHOW_MENU,
     UPDATE_FOOD_ITEM, REMOVE_FOOD_ITEM, INPUT_RESTAURANT_ID,
-    RESTAURANT_CONTACT_COUNT, INPUT_FOOD_PRICE, INPUT_FOOD_NAME
+    RESTAURANT_CONTACT_COUNT, INPUT_FOOD_PRICE, INPUT_FOOD_NAME,
+    RESTAURANT_ADDED_SUCCESSFULLY, INVALID_NAME, INVALID_EMAIL,
+    INVALID_CONTACT, INVALID_LOCATION, UNABLE_TO_ADD_FOOD,
+    FOOD_ADDED_SUCCESSFULLY, FOOD_ALREADY_EXISTS,
+    RESTAURANT_NOT_FOUND, FOOD_UPDATED_SUCCESSFULLY,
+    FOOD_NOT_FOUND, FOOD_DELETED_SUCCESSFULLY
 )
 from controller.customer_controller import CustomerController
 from controller.restaurant_controller import (
     add_restaurant, add_food_item, get_menu,
     update_food_item, delete_food_item
 )
-from utils.validator import is_valid_email
+from resources.logging_config import logger
+from utils.validator import is_valid_email, is_valid_mobile, is_valid_name
 
 customer_controller = CustomerController()
 
@@ -69,9 +76,8 @@ def customer_operations():
                 break
             else:
                 print(INVALID_CHOICE)
-        except ValueError:
-            print("Invalid Input Enter your Choice"
-                  " as Numeric Value Between 0 to 6")
+        except ValueError as ve:
+            logger.error(INVALID_INPUT)
 
 
 def restaurant_operations():
@@ -84,67 +90,113 @@ def restaurant_operations():
                 raise ValueError
             choice = int(choice)
             if choice == 1:
-                name = input(INPUT_NAME)
-                email = input(INPUT_EMAIL)
-                if not is_valid_email(email):
-                    raise ValueError
-                contact_count = input(RESTAURANT_CONTACT_COUNT)
-                if not (contact_count.isnumeric() and len(contact_count) == 1
-                        and 1 <= int(contact_count) <= 2):
-                    raise ValueError("Enter Your choice as numeric")
+                while True:
+                    name = input(INPUT_NAME)
+                    if is_valid_name(name):
+                        break
+                    else:
+                        logger.warning(INVALID_NAME)
+                while True:
+                    email = input(INPUT_EMAIL)
+                    if is_valid_email(email):
+                        break
+                    else:
+                        logger.warning(INVALID_EMAIL)
+                while True:
+                    contact_count = input(RESTAURANT_CONTACT_COUNT)
+                    if (contact_count.isnumeric() and len(contact_count) == 1
+                            and 1 <= int(contact_count) <= 2):
+                        break
+                    else:
+                        logger.warning(ENTER_CHOICE_AS_NUMERIC)
                 contact_numbers = []
-                for _ in range(int(contact_count)):
+                count = 0
+                while count < int(contact_count):
                     contact_number = input(INPUT_CONTACT)
-                    contact_numbers.append(contact_number.lower())
-                location = input(INPUT_LOCATION)
+                    if is_valid_mobile(contact_number):
+                        contact_numbers.append(contact_number.lower())
+                        count += 1
+                    else:
+                        logger.warning(INVALID_CONTACT)
+                    if len(contact_numbers) == int(contact_count):
+                        break
+                while True:
+                    location = input(INPUT_LOCATION)
+                    if is_valid_name(location):
+                        break
+                    else:
+                        logger.warning(INVALID_LOCATION)
                 id = add_restaurant(
                     name, email, contact_numbers, location
                 )
-                print(f"Restaurant '{name}' created successfully"
-                      f" with ID {id}.")
+                logger.info(RESTAURANT_ADDED_SUCCESSFULLY.format(name=name, id=id))
             elif choice == 2:
                 restaurant_id = input(INPUT_RESTAURANT_ID)
-                name = input(INPUT_FOOD_NAME)
+                while True:
+                    name = input(INPUT_FOOD_NAME)
+                    if is_valid_name(name):
+                        break
+                    else:
+                        logger.warning(INVALID_NAME)
                 price = float(input(INPUT_FOOD_PRICE))
                 is_added = add_food_item(
                     restaurant_id, name, price
                 )
-                print(
-                    f"Food Item Added Successfully to Restaurant with"
-                    f" id :{restaurant_id}"
-                ) if is_added else print(
-                    "Unable to Save Food Item"
-                )
+                if is_added:
+                    logger.warning(UNABLE_TO_ADD_FOOD.
+                                   format(restaurant_id=restaurant_id))
+                elif is_added:
+                    logger.info(FOOD_ADDED_SUCCESSFULLY.
+                                format(restaurant_id=restaurant_id))
+                else:
+                    logger.warning(FOOD_ALREADY_EXISTS.format(name=name))
             elif choice == 3:
                 restaurant_id = input(INPUT_RESTAURANT_ID)
-                print(get_menu(restaurant_id))
+                restaurant_menu = get_menu(restaurant_id)
+                logger.info(
+                    restaurant_menu
+                ) if restaurant_menu else logger.warning(
+                    RESTAURANT_NOT_FOUND.format(restaurant_id=restaurant_id))
             elif choice == 4:
                 restaurant_id = input(INPUT_RESTAURANT_ID)
-                name = input(INPUT_FOOD_NAME)
+                while True:
+                    name = input(INPUT_FOOD_NAME)
+                    if is_valid_name(name):
+                        break
+                    else:
+                        logger.warning(INVALID_NAME)
                 price = float(input(INPUT_FOOD_PRICE))
                 updated = update_food_item(restaurant_id, name, price)
                 if updated is None:
-                    print(f"Restaurant with this id:"
-                          f" {restaurant_id} not found to update")
+                    logger.warning(RESTAURANT_NOT_FOUND)
                 elif updated:
-                    print(f"Food item with name: {name}"
-                          f" updated Successfully")
+                    logger.info(FOOD_UPDATED_SUCCESSFULLY.format(name=name))
                 else:
-                    print(f"Food item with this name: {name}"
-                          f" not found to update")
+                    logger.warning(FOOD_NOT_FOUND)
             elif choice == 5:
                 restaurant_id = input(INPUT_RESTAURANT_ID)
-                name = input(INPUT_FOOD_NAME)
+                while True:
+                    name = input(INPUT_FOOD_NAME)
+                    if is_valid_name(name):
+                        break
+                    else:
+                        logger.warning(INVALID_NAME)
                 is_deleted = delete_food_item(restaurant_id, name)
-                print(is_deleted)
+                if is_deleted is None:
+                    logger.warning(RESTAURANT_NOT_FOUND.format(
+                        restaurant_id=restaurant_id
+                    ))
+                elif is_deleted:
+                    logger.info(FOOD_DELETED_SUCCESSFULLY)
+                else:
+                    logger.warning(FOOD_NOT_FOUND.format(name=name))
             elif choice == 0:
                 print(EXITING)
                 break
             else:
                 print(INVALID_CHOICE)
-        except ValueError:
-            print("Invalid Input Enter your Choice"
-                  " as Numeric Value Between 0 to 5")
+        except ValueError as e:
+            logger.error(INVALID_INPUT)
 
 
 def chow_now():
@@ -165,9 +217,8 @@ def chow_now():
                 break
             else:
                 print(INVALID_CHOICE)
-        except ValueError:
-            print("Invalid Input Enter your Choice"
-                  " as Numeric Value Between 0 to 2")
+        except ValueError as e:
+            logger.error(INVALID_INPUT)
 
 
 if __name__ == "__main__":
