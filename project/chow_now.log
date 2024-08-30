@@ -1,5 +1,15 @@
-2024-08-29 12:34:46,878 - chow_now - INFO - Restaurant 'ram' created successfully with ID 476383b5-80a6-4589-82f7-bdd720d88d81.
-2024-08-29 13:07:52,678 - ChowNow - INFO - Restaurant ram created successfully with ID c8d92e83-a812-47bb-ac40-a2bfb2c084cb.
-2024-08-29 13:09:31,902 - ChowNow - INFO - Restaurant ram created successfully with ID b339e2c2-19b4-40fa-9d80-b7b8f76ae705.
-2024-08-29 13:22:26,133 - ChowNow - DEBUG - {'name': 'ram', 'email': 'ram@gmail.com', 'contact_numbers': ['8234234232', '9324234322'], 'location': 'ram', 'menu': []}
-2024-08-29 13:22:26,133 - ChowNow - INFO - Restaurant ram created successfully with ID d1aa8818-b213-44f3-ad8e-af2068706e97.
+2024-08-29 18:08:31,493 - ChowNow - WARNING - Unable to Save Food Item Restaurant with this id:c3d044ed-1114-4ef6-af46-efcbbb3c02dd not found
+2024-08-29 18:09:53,864 - ChowNow - DEBUG - {'name': 'ramen', 'email': 'ramen@gmail.com', 'contact_numbers': ['8324324223'], 'location': 'chennai', 'menu': []}
+2024-08-29 18:09:53,865 - ChowNow - INFO - Restaurant ramen created successfully with ID 29510995-b7c3-4b7d-9d6a-3eb1cb0c0f97.
+2024-08-29 18:10:10,001 - ChowNow - WARNING - Food item with this name ramen Already exists
+2024-08-29 18:11:21,914 - ChowNow - DEBUG - {'name': 'ram', 'email': 'ram@gmail.com', 'contact_numbers': ['9234324232'], 'location': 'chennai', 'menu': []}
+2024-08-29 18:11:21,915 - ChowNow - INFO - Restaurant ram created successfully with ID 38e15b53-97fa-4461-a990-44d6afcff864.
+2024-08-29 18:11:35,436 - ChowNow - WARNING - Food item with this name ramen Already exists
+2024-08-29 18:12:43,732 - ChowNow - WARNING - Enter Your choice as numeric either 1 or 2
+2024-08-29 18:12:50,771 - ChowNow - DEBUG - {'name': 'ramen', 'email': 'rma@gmail.com', 'contact_numbers': ['9328432432'], 'location': 'chennai', 'menu': []}
+2024-08-29 18:12:50,771 - ChowNow - INFO - Restaurant ramen created successfully with ID 3bbddae1-a71f-4f58-9e3e-91dea819609f.
+2024-08-29 18:13:57,218 - ChowNow - INFO - Food Item Added Successfully to Restaurant with id:3bbddae1-a71f-4f58-9e3e-91dea819609f
+2024-08-29 18:31:52,244 - ChowNow - WARNING - Enter the Valid Contact number
+2024-08-29 18:32:03,963 - ChowNow - DEBUG - {'name': 'ram', 'email': 'ram@gmail.com', 'contact_numbers': ['9442161655'], 'location': 'chennqi', 'menu': []}
+2024-08-29 18:32:03,963 - ChowNow - INFO - Restaurant ram created successfully with ID 3bcb235c-9761-412c-8841-9df4054c5341.
+2024-08-29 18:32:17,628 - ChowNow - INFO - Food Item Added Successfully to Restaurant with id:3bcb235c-9761-412c-8841-9df4054c5341

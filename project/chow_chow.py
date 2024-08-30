@@ -1,22 +1,19 @@
 from common.common_constants import (
-    AUTH_CUSTOMER, AUTH_RESTAURANT, EXIT_APPLICATION,
     PICK_CHOICE, INPUT_NAME, EXITING,
     INPUT_EMAIL, INPUT_LOCATION, INPUT_CONTACT, INVALID_CHOICE,
-    INVALID_INPUT, ENTER_CHOICE_AS_NUMERIC
+    INVALID_INPUT, ENTER_CHOICE_AS_NUMERIC, AUTHORIZATION
 )
 from common.customer_constants import (
-    ADD_CUSTOMER, SEARCH_RESTAURANT, PLACE_ORDER,
-    CANCEL_ORDER, SHOW_MY_ORDER
+    CUSTOMER_CHOICE
 )
 from common.restaurant_constants import (
-    ADD_RESTAURANT, ADD_FOOD_ITEM, SHOW_MENU,
-    UPDATE_FOOD_ITEM, REMOVE_FOOD_ITEM, INPUT_RESTAURANT_ID,
+    INPUT_RESTAURANT_ID,
     RESTAURANT_CONTACT_COUNT, INPUT_FOOD_PRICE, INPUT_FOOD_NAME,
     RESTAURANT_ADDED_SUCCESSFULLY, INVALID_NAME, INVALID_EMAIL,
     INVALID_CONTACT, INVALID_LOCATION, UNABLE_TO_ADD_FOOD,
     FOOD_ADDED_SUCCESSFULLY, FOOD_ALREADY_EXISTS,
     RESTAURANT_NOT_FOUND, FOOD_UPDATED_SUCCESSFULLY,
-    FOOD_NOT_FOUND, FOOD_DELETED_SUCCESSFULLY
+    FOOD_NOT_FOUND, FOOD_DELETED_SUCCESSFULLY, RESTAURANT_CHOICE
 )
 from controller.customer_controller import CustomerController
 from controller.restaurant_controller import (
@@ -30,30 +27,47 @@ customer_controller = CustomerController()
 
 
 def pick_role():
-    print(AUTH_CUSTOMER)
-    print(AUTH_RESTAURANT)
-    print(EXIT_APPLICATION)
+    """
+    Displays the options for selecting a role: Customer, Restaurant, or Exit.
+
+    This function prints out the choices for the user to either authenticate
+    as a customer,authenticate as a restaurant, or exit the application.
+    """
+    print(AUTHORIZATION)
 
 
 def customer_choice():
-    print(ADD_CUSTOMER)
-    print(SEARCH_RESTAURANT)
-    print(PLACE_ORDER)
-    print(CANCEL_ORDER)
-    print(SHOW_MY_ORDER)
-    print(EXIT_APPLICATION)
+    """
+    Displays the available operations for a customer.
+
+    This function prints out the options for customer-related operations
+    such as adding a new customer,searching for a restaurant,
+    placing an order, canceling an order, showing orders,
+    or exiting the application.
+    """
+    print(CUSTOMER_CHOICE)
 
 
 def restaurant_choice():
-    print(ADD_RESTAURANT)
-    print(ADD_FOOD_ITEM)
-    print(SHOW_MENU)
-    print(UPDATE_FOOD_ITEM)
-    print(REMOVE_FOOD_ITEM)
-    print(EXIT_APPLICATION)
+    """
+    Displays the available operations for a restaurant.
+
+    This function prints out the options for restaurant-related operations
+    such as adding a new restaurant,adding a food item, showing the menu,
+    updating a food item, removing a food item, or exiting the application.
+    """
+    print(RESTAURANT_CHOICE)
 
 
 def customer_operations():
+    """
+    Handles customer operations based on user input.
+
+    This function continuously prompts the user to select and
+    perform customer-related operations such as adding
+    a new customer or exiting the application.
+    It validates user input and logs any errors or warnings.
+    """
     while True:
         try:
             customer_choice()
@@ -75,12 +89,20 @@ def customer_operations():
                 print(EXITING)
                 break
             else:
-                print(INVALID_CHOICE)
+                logger.warning(INVALID_CHOICE)
         except ValueError as ve:
             logger.error(INVALID_INPUT)
 
 
 def restaurant_operations():
+    """
+    Handles restaurant operations based on user input.
+
+    This function continuously prompts the user to select and perform
+    restaurant-related operations such as adding a restaurant,
+    managing food items, showing the menu, or exiting the application.
+    It validates user input and logs any errors or warnings.
+    """
     while True:
         try:
             restaurant_choice()
@@ -142,7 +164,7 @@ def restaurant_operations():
                 is_added = add_food_item(
                     restaurant_id, name, price
                 )
-                if is_added:
+                if is_added is None:
                     logger.warning(UNABLE_TO_ADD_FOOD.
                                    format(restaurant_id=restaurant_id))
                 elif is_added:
@@ -194,12 +216,19 @@ def restaurant_operations():
                 print(EXITING)
                 break
             else:
-                print(INVALID_CHOICE)
+                logger.warning(INVALID_CHOICE)
         except ValueError as e:
             logger.error(INVALID_INPUT)
 
 
 def chow_now():
+    """
+    Main function to start the application and handle role selection.
+
+    This function allows the user to pick a role (customer or restaurant)
+    and then directs them to the appropriate set of operations.
+    The function continues to loop until the user decides to exit the application.
+    """
     while True:
         try:
             pick_role()
@@ -216,7 +245,7 @@ def chow_now():
                 print(EXITING)
                 break
             else:
-                print(INVALID_CHOICE)
+                logger.warning(INVALID_CHOICE)
         except ValueError as e:
             logger.error(INVALID_INPUT)
 

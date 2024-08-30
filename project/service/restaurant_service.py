@@ -2,7 +2,7 @@ import uuid
 
 from common.restaurant_constants import (
     NAME_KEY, EMAIL_KEY, CONTACT_KEY,
-    LOCATION_KEY, MENU_KEY, PRICE_KEY
+    LOCATION_KEY, MENU_KEY, PRICE_KEY, IS_DELETE
 )
 from resources.logging_config import logger
 
@@ -46,18 +46,20 @@ def add_new_food_item(restaurant_id: str,
     - price (float): The price of the food item.
 
     Returns:
-    - bool: True if the food item was added successfully, False otherwise.
+    - bool: True if the food item was added successfully, False if the item already exists.
+    - None: If the restaurant was not found.
     """
     restaurant = find_by_id(restaurant_id)
     if restaurant:
         for item in restaurant[MENU_KEY]:
-            if item[NAME_KEY] != name:
-                restaurant[MENU_KEY].append({
-                    NAME_KEY: name,
-                    PRICE_KEY: price
-                })
-                return True
-        return False
+            if item[NAME_KEY] == name:
+                return False
+        restaurant[MENU_KEY].append({
+            NAME_KEY: name,
+            PRICE_KEY: price,
+            IS_DELETE: "True"
+        })
+        return True
     return None
 
 
@@ -123,15 +125,15 @@ def delete_food_item_details(restaurant_id: str, name: str):
     - name (str): The name of the food item to delete.
 
     Returns:
-    - None: If the restaurant or food item was not found.
+    - bool: True if the food item was deleted successfully, False if the item was not found.
+    - None: If the restaurant was not found.
     """
     restaurant = find_by_id(restaurant_id)
     if restaurant:
         for item in restaurant[MENU_KEY]:
             if item[NAME_KEY] == name:
+                # item[IS_DELETE] = "False"
                 restaurant[MENU_KEY].remove(item)
                 return True
         return False
     return None
-
-

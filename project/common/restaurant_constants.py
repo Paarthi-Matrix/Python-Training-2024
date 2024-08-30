@@ -1,9 +1,18 @@
 # Restaurant choice
-ADD_RESTAURANT = "Enter 1 to Add Restaurant: "
-ADD_FOOD_ITEM = "Enter 2 to Add Food Item to Restaurant: "
-SHOW_MENU = "Enter 3 to Show Restaurant Menu: "
-UPDATE_FOOD_ITEM = "Enter 4 to Update Restaurant Food Menu: "
-REMOVE_FOOD_ITEM = "Enter 5 to Remove Food Item from Restaurant: "
+RESTAURANT_CHOICE = '''
+==================================
+         WELCOME TO CHOWNOW       
+==================================
+Please select an operation:
+----------------------------------
+1. Add Restaurant
+2. Add Food Item to Restaurant
+3. Show Restaurant Menu
+4. Update Restaurant Food Menu
+5. Remove Food Item from Restaurant
+0. Exit
+----------------------------------
+Enter your choice (0-5): '''
 
 # Variable Constants
 INPUT_RESTAURANT_ID = "Enter Your Restaurant Id: "
@@ -36,3 +45,5 @@ INVALID_NAME = "Invalid Name, Enter the Valid Name"
 INVALID_EMAIL = "Invalid Email, Enter the Valid Email"
 INVALID_CONTACT = "Enter the Valid Contact number"
 INVALID_LOCATION = "Invalid location, Enter only non numeric values"
+
+IS_DELETE = "is_delete"

@@ -1,5 +1,15 @@
-ADD_CUSTOMER = "Enter 1 to Create Customer: "
-SEARCH_RESTAURANT = "Enter 2 to Search Restaurant by Name or Food: "
-PLACE_ORDER = "Enter 4 Place Order: "
-CANCEL_ORDER = "Enter 5 Cancel Order: "
-SHOW_MY_ORDER = "Enter 6 Show My Orders: "
+CUSTOMER_CHOICE ='''
+==================================
+         WELCOME TO CHOWNOW       
+==================================
+Customer Menu:
+----------------------------------
+1. Create Customer
+2. Search Restaurant by Name or Food
+3. Place Order
+4. Cancel Order
+5. Show My Orders
+0. Exit
+----------------------------------
+Enter your choice (0-5): 
+'''
