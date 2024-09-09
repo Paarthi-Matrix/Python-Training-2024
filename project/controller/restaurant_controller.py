@@ -1,84 +1,220 @@
+from common.common_constants import (
+    PICK_CHOICE, INPUT_NAME, EXITING,
+    INPUT_EMAIL, INPUT_LOCATION, INPUT_CONTACT, INVALID_CHOICE,
+    INVALID_INPUT, INPUT_ALTERNATE_CONTACT,
+    INPUT_PASSWORD, NAME_UPDATED, EMAIL_UPDATED, INPUT_ID,
+    MOBILE_NUMBER_UPDATED,
+    LOCATION_UPDATED, ZERO, ONE, TWO,
+    THREE, FOUR, FIVE, SIX, SEVEN, EIGHT, PASSWORD_UPDATED, PASSWORD_KEY
+)
+from common.restaurant_constants import (
+    INPUT_RESTAURANT_ID, INPUT_FOOD_PRICE, INPUT_FOOD_NAME,
+    RESTAURANT_ADDED_SUCCESSFULLY, INVALID_NAME, INVALID_EMAIL,
+    INVALID_CONTACT, INVALID_LOCATION, UNABLE_TO_ADD_FOOD,
+    FOOD_ADDED_SUCCESSFULLY, FOOD_ALREADY_EXISTS,
+    RESTAURANT_NOT_FOUND, FOOD_UPDATED_SUCCESSFULLY,
+    FOOD_NOT_FOUND, FOOD_DELETED_SUCCESSFULLY,
+    RESTAURANT_CHOICE, INVALID_PASSWORD, NAME_KEY,
+    LOCATION_KEY, EMAIL_KEY, RESTAURANT_DELETED,
+    RESTAURANT_UPDATE_CHOICE, UPDATE_RESTAURANT_NOT_FOUND,
+    INVALID_PRICE, CONTACT_KEY
+)
+from resources.logging_config import logger
 from service.restaurant_service import (
-    add_new_restaurant, add_new_food_item,
-    get_restaurant_menu, update_food_item_details, delete_food_item_details
+    find_by_id, remove_restaurant,
+    update_restaurant_details, add_new_restaurant,
+    add_new_food_item, get_restaurant_menu, update_food_item_details,
+    delete_food_item_details)
+from utils.validator import (
+    is_valid_email, is_valid_mobile, is_valid_name,
+    is_valid_password, update_entity, input_validation
 )
 
 
-def add_restaurant(name: str, email: str,
-                   contact_numbers: list[str], location: str):
+def update_restaurant():
     """
-    Adds a new restaurant to the restaurants dictionary with a unique ID.
+    Manages the update process for restaurant details based on user input.
 
-    Parameters:
-    - name (str): The name of the restaurant.
-    - email (str): The email address of the restaurant.
-    - contact_number (str): The contact number of the restaurant.
-    - location (str): The physical location of the restaurant.
+    Prompts the user to select the detail to update and performs the update
+    if the restaurant is found. Uses `handle_update` for updating specific
+    fields of the restaurant.
 
-    Returns:
-    - str: A unique ID of the new restaurant.
+    The user is prompted to select from updating the name, email, contact number,
+    location, or password. Handles invalid choices and restaurant not found scenarios.
     """
-    return add_new_restaurant(
-        name.lower(), email.lower(), contact_numbers, location.lower()
-    )
+    while True:
+        try:
+            print(RESTAURANT_UPDATE_CHOICE)
+            choice = input(PICK_CHOICE)
+            if not (choice.isnumeric() and len(choice) == ONE and ZERO <= int(choice) <= FIVE):
+                raise ValueError
+            choice = int(choice)
+
+            if choice in range(ONE, SIX):
+                unique_id = input(INPUT_ID)
+                restaurant = find_by_id(unique_id)
+                if restaurant:
+                    if choice == ONE:
+                        update_entity(restaurant, NAME_KEY, INPUT_NAME, is_valid_name, NAME_UPDATED, INVALID_NAME,
+                                      update_restaurant_details)
+                    elif choice == TWO:
+                        update_entity(restaurant, EMAIL_KEY, INPUT_EMAIL, is_valid_email, EMAIL_UPDATED, INVALID_EMAIL,
+                                      update_restaurant_details)
+                    elif choice == THREE:
+                        update_entity(restaurant, CONTACT_KEY, INPUT_CONTACT, is_valid_mobile, MOBILE_NUMBER_UPDATED,
+                                      INVALID_CONTACT, update_restaurant_details)
+                    elif choice == FOUR:
+                        update_entity(restaurant, LOCATION_KEY, INPUT_LOCATION, is_valid_name, LOCATION_UPDATED,
+                                      INVALID_LOCATION, update_restaurant_details)
+                    elif choice == FIVE:
+                        update_entity(restaurant, PASSWORD_KEY, INPUT_PASSWORD, is_valid_password, PASSWORD_UPDATED,
+                                      INVALID_PASSWORD, update_restaurant_details)
+                else:
+                    logger.warning(UPDATE_RESTAURANT_NOT_FOUND.format(unique_id=unique_id))
+            elif choice == ZERO:
+                logger.debug(EXITING)
+                break
+            else:
+                logger.warning(INVALID_CHOICE)
+        except ValueError:
+            logger.error(INVALID_INPUT)
 
 
-def add_food_item(restaurant_id: str,
-                  name: str, price: float):
+def create_restaurant():
     """
-    Adds a new food item to the menu of a specified restaurant.
-
-    Parameters:
-    - restaurant_id (str): The unique ID of the restaurant.
-    - name (str): The name of the food item.
-    - price (float): The price of the food item.
-
-    Returns:
-    - bool: True if the food item was added successfully, False if the item already exists.
-    - None: If the restaurant was not found.
+    Prompts the user to input details for creating a new restaurant and adds it.
     """
-    return add_new_food_item(
-        restaurant_id, name.lower(), price
-    )
+    name = input_validation(INPUT_NAME, is_valid_name, INVALID_NAME)
+    password = input_validation(INPUT_PASSWORD, is_valid_password, INVALID_PASSWORD)
+    email = input_validation(INPUT_EMAIL, is_valid_email, INVALID_EMAIL)
+    contact_numbers = []
+    primary_contact = input_validation(INPUT_CONTACT, is_valid_mobile, INVALID_CONTACT)
+    contact_numbers.append(primary_contact)
+    alternate_contact = input_validation(INPUT_ALTERNATE_CONTACT,
+                                         lambda value: value.isnumeric() and int(value) == ZERO or is_valid_mobile(value),
+                                         INVALID_CONTACT)
+    if alternate_contact.isnumeric() and int(alternate_contact) != ZERO:
+        contact_numbers.append(alternate_contact)
+    location = input_validation(INPUT_LOCATION, is_valid_name, INVALID_LOCATION)
+    unique_id = add_new_restaurant(name.lower(), password, email.lower(), contact_numbers, location.lower())
+    logger.info(RESTAURANT_ADDED_SUCCESSFULLY.format(name=name, id=unique_id))
 
 
-def get_menu(restaurant_id: str):
+def restaurant_operations():
     """
-    Finds a restaurant by its unique ID.
+    Handles restaurant operations based on user input.
 
-    Parameters:
-    - restaurant_id (str): The unique ID of the restaurant.
-
-    Returns:
-    - dict: The restaurant details if found, None otherwise.
+    This function continuously prompts the user to select and perform
+    restaurant-related operations such as adding a restaurant,
+    managing food items, showing the menu, or exiting the application.
+    It validates user input and logs any errors or warnings.
     """
-    return get_restaurant_menu(restaurant_id)
-
-
-def update_food_item(restaurant_id: str, name: str, price: float):
-    """
-    Retrieves the menu of a specified restaurant.
-
-    Parameters:
-    - restaurant_id (str): The unique ID of the restaurant.
-
-    Returns:
-    - list: The menu of the restaurant if found, None otherwise.
-    """
-    return update_food_item_details(restaurant_id, name.lower(), price)
-
-
-def delete_food_item(restaurant_id: str, name: str):
-    """
-    Updates the details of a specific food item in a restaurant's menu.
-
-    Parameters:
-    - restaurant_id (str): The unique ID of the restaurant.
-    - name (str): The name of the food item to update.
-    - price (float): The new price for the food item.
-
-    Returns:
-    - bool: True if the food item was updated successfully, False if the item was not found.
-    - None: If the restaurant was not found.
-    """
-    return delete_food_item_details(restaurant_id, name.lower())
+    while True:
+        try:
+            print(RESTAURANT_CHOICE)
+            choice = input(PICK_CHOICE)
+            if not (choice.isnumeric()
+                    and len(choice) == ONE and ZERO <= int(choice) <= EIGHT):
+                raise ValueError
+            choice = int(choice)
+            if choice == ONE:
+                create_restaurant()
+            elif choice == TWO:
+                restaurant_id = input(INPUT_RESTAURANT_ID)
+                restaurant = find_by_id(restaurant_id)
+                if restaurant:
+                    while True:
+                        name = input(INPUT_FOOD_NAME)
+                        if is_valid_name(name):
+                            break
+                        else:
+                            logger.warning(INVALID_NAME)
+                    while True:
+                        price = input(INPUT_FOOD_PRICE)
+                        if price.isnumeric():
+                            break
+                        else:
+                            logger.warning(INVALID_PRICE)
+                    is_added = add_new_food_item(
+                        restaurant_id, name.lower(), float(price)
+                    )
+                    if is_added:
+                        logger.info(FOOD_ADDED_SUCCESSFULLY.
+                                    format(restaurant_id=restaurant_id))
+                    else:
+                        logger.warning(FOOD_ALREADY_EXISTS.format(name=name))
+                else:
+                    logger.warning(UNABLE_TO_ADD_FOOD.
+                                   format(restaurant_id=restaurant_id))
+            elif choice == THREE:
+                restaurant_id = input(INPUT_RESTAURANT_ID)
+                restaurant_menu = get_restaurant_menu(restaurant_id)
+                logger.info(
+                    restaurant_menu
+                ) if restaurant_menu else logger.warning(
+                    RESTAURANT_NOT_FOUND.format(restaurant_id=restaurant_id))
+            elif choice == FOUR:
+                restaurant_id = input(INPUT_RESTAURANT_ID)
+                restaurant = find_by_id(restaurant_id)
+                if restaurant:
+                    while True:
+                        name = input(INPUT_FOOD_NAME)
+                        if is_valid_name(name):
+                            break
+                        else:
+                            logger.warning(INVALID_NAME)
+                    while True:
+                        price = input(INPUT_FOOD_PRICE)
+                        if price.isnumeric():
+                            break
+                        else:
+                            logger.warning(INVALID_PRICE)
+                    updated = update_food_item_details(restaurant_id, name.lower(), float(price))
+                    if updated:
+                        logger.info(FOOD_UPDATED_SUCCESSFULLY.format(name=name))
+                    else:
+                        logger.warning(FOOD_NOT_FOUND)
+                else:
+                    logger.warning(RESTAURANT_NOT_FOUND.format(restaurant_id=restaurant_id))
+            elif choice == FIVE:
+                restaurant_id = input(INPUT_RESTAURANT_ID)
+                restaurant = find_by_id(restaurant_id)
+                if restaurant:
+                    while True:
+                        name = input(INPUT_FOOD_NAME)
+                        if is_valid_name(name):
+                            break
+                        else:
+                            logger.warning(INVALID_NAME)
+                    is_deleted = delete_food_item_details(restaurant_id, name.lower())
+                    if is_deleted:
+                        logger.info(FOOD_DELETED_SUCCESSFULLY)
+                    else:
+                        logger.warning(FOOD_NOT_FOUND.format(name=name))
+                else:
+                    logger.warning(RESTAURANT_NOT_FOUND.format(
+                        restaurant_id=restaurant_id
+                    ))
+            elif choice == SIX:
+                restaurant_id = input(INPUT_RESTAURANT_ID)
+                restaurant = find_by_id(restaurant_id)
+                if restaurant:
+                    logger.info(restaurant)
+                else:
+                    logger.warning(RESTAURANT_NOT_FOUND.format(restaurant_id=restaurant_id))
+            elif choice == SEVEN:
+                unique_id = input(INPUT_RESTAURANT_ID)
+                is_deleted = remove_restaurant(unique_id)
+                if is_deleted:
+                    logger.info(RESTAURANT_DELETED.format(unique_id=unique_id))
+                else:
+                    logger.warning(RESTAURANT_NOT_FOUND.format(restaurant_id=unique_id))
+            elif choice == EIGHT:
+                update_restaurant()
+            elif choice == ZERO:
+                logger.debug(EXITING)
+                break
+            else:
+                logger.warning(INVALID_CHOICE)
+        except ValueError:
+            logger.error(INVALID_INPUT)
