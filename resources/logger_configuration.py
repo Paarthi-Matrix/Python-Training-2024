@@ -6,7 +6,7 @@ logger = logging.getLogger("Garbage_Collector")
 logger.setLevel(logging.DEBUG)
 
 
-log_directory = "Application_logs"
+log_directory = "logs"
 if not os.path.exists(log_directory):
     os.makedirs(log_directory)
 
