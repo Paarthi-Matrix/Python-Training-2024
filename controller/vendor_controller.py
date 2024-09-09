@@ -1,16 +1,21 @@
 import datetime
 
+from tabulate import tabulate
+
 from constants.biznex_constants import (
     CUSTOMER_QUOTATION_NUMBER, FORM_ITEMS,
     USER_DICT_EMAIL, USER_DICT_NAME,
-    USER_DICT_PHONE_NUMBER,USER_DICT_USER_ID,
+    USER_DICT_PHONE_NUMBER, USER_DICT_USER_ID,
     VENDOR_MENU, VENDOR_ID, STATUS,
     TOTAL_PRICE, NO_ACTIVE_QUOTATION,
     YOUR_ACTIVE_QUOTATIONS, SELECT_ONE_QUOTATION,
-    ENTER_TOTAL_PRICE, VALID_TOTAL_PRICE_ERROR, STATUS_SENT)
+    ENTER_TOTAL_PRICE, VALID_TOTAL_PRICE_ERROR, STATUS_SENT, CUSTOMER_QUOTATION_HEADERS, USER_DICT_COMPANY_NAME,
+    DELIVERY_DATE, DELIVERY_ADDRESS, ENTER_PO_NUMBER, PO_STATUS_UPDATE_PROMPT, PO_STATUS, PO_STATUS_ITEM_SHIPPED,
+    PO_STATUS_CANCELLED, PO_STATUS_PROCESSING, PO_STATUS_OUT_FOR_DELIVERY, PO_STATUS_DELIVERED)
+from controller.p2p_controller import get_purchase_order_by_po_number
 from resources.logging_config import logger
 from service.customer_service import set_vendor_quotations
-from service.p2p_service import get_po_by_id
+from service.p2p_service import get_po_by_id, update_purchase_order
 from service.user_service import get_by_user_id
 from service.vendor_service import get_quotation, get_all_quotations
 from utils.user_input_validation import is_valid_number
@@ -40,19 +45,15 @@ def vendor_management(user):
             case 1:
                 view_active_quotation_request(user)
             case 2:
-                pass
-                # view_purchase_order()
-            case 3:
                 issue_quotation(user)
+            case 3:
+                edit_po_status(user)
             case 4:
-                pass
-                # edit_purchase_order()
-            case 5:
                 get_purchase_order(user)
-            case 6:
+            case 5:
                 return
             case _:
-                logger.error(f"User gave invalid input {choice}, Must be only numbers ranging from 1 to 3")
+                logger.error(f"User gave invalid input {choice}, Must be only numbers ranging from 1 to 5")
 
 
 def view_active_quotation_request(user):
@@ -65,7 +66,7 @@ def view_active_quotation_request(user):
        This function retrieves and prints active quotations for the vendor specified by
        the user ID from the `user` dictionary.
     """
-    print(get_active_quotations(user[USER_DICT_USER_ID]))
+    (print_active_customer_quotations(get_active_quotations(user[USER_DICT_USER_ID])))
 
 
 def print_quotation_by_id():
@@ -144,12 +145,12 @@ def generate_quotation(user):
         logger.warning(NO_ACTIVE_QUOTATION)
         return
     print(YOUR_ACTIVE_QUOTATIONS)
-    print(active_quotations)
+    print_active_customer_quotations(active_quotations)
     print(SELECT_ONE_QUOTATION)
 
     while True:
         flag = 0
-        quotation_id = input("Enter the quotation id")
+        quotation_id = input("Enter the customer quotation id")
         for quotation in active_quotations:
             if quotation_id in quotation:
                 vendor_quotation[CUSTOMER_QUOTATION_NUMBER] = quotation_id
@@ -211,3 +212,83 @@ def get_purchase_order(user):
     """
     purchase_order = get_po_by_id(user[USER_DICT_USER_ID])
     print(purchase_order)
+
+
+def print_active_customer_quotations(quotations_list):
+    headers = CUSTOMER_QUOTATION_HEADERS
+    table_data = []
+    for quotation in quotations_list:
+        for customer_quotation_id, details in quotation.items():
+            items_string = ', '.join([f"{item}: {quantity}" for item, quantity in details['items'].items()])
+            row = [
+                customer_quotation_id,
+                details.get(VENDOR_ID, ''),
+                details.get(USER_DICT_NAME, ''),
+                details.get(USER_DICT_EMAIL, ''),
+                details.get(USER_DICT_PHONE_NUMBER, ''),
+                details.get(USER_DICT_COMPANY_NAME, ''),
+                details.get(STATUS, ''),
+                items_string,
+                details.get(DELIVERY_DATE, ''),
+                details.get(DELIVERY_ADDRESS, '')
+            ]
+            table_data.append(row)
+    print(tabulate(table_data, headers=headers, tablefmt='grid'))
+
+
+def view_purchase_order(user):
+    """
+    This is used to view the purchase order given by customer
+    """
+    purchase_order_number = input(ENTER_PO_NUMBER)
+    purchase_order = get_purchase_order_by_po_number(purchase_order_number, user[USER_DICT_USER_ID])
+    if purchase_order is None:
+        logger.error(f"No such purchase order number present in db {purchase_order_number}")
+    print(purchase_order)
+
+
+def edit_po_status(user):
+    """
+    This function is used to edit the purchase order status
+
+    Parameters:
+        user (dict) : User details of the logged in user.
+    """
+    purchase_order_id = input(ENTER_PO_NUMBER)
+    purchase_order = get_purchase_order_by_po_number(purchase_order_id, user[USER_DICT_USER_ID])
+    if purchase_order is None:
+        logger.error(f"No such purchase order is found with id {purchase_order_id}")
+        return
+    choice = ""
+    flag = True
+    while True:
+        print(PO_STATUS_UPDATE_PROMPT)
+        try:
+            choice = int(input("Enter your choice"))
+        except ValueError as e:
+            logger.exception(f"User gave a invalid choice {choice}, Must give only numbers")
+            continue
+
+        match choice:
+            case 1:
+                purchase_order[PO_STATUS] = PO_STATUS_ITEM_SHIPPED
+                flag = False
+            case 2:
+                purchase_order[PO_STATUS] = PO_STATUS_CANCELLED
+                flag = False
+            case 3:
+                purchase_order[PO_STATUS] = PO_STATUS_PROCESSING
+                flag = False
+            case 4:
+                purchase_order[PO_STATUS] = PO_STATUS_OUT_FOR_DELIVERY
+                flag = False
+            case 5:
+                purchase_order[PO_STATUS] = PO_STATUS_DELIVERED
+                flag = False
+            case 6:
+                if not flag:
+                    update_purchase_order(purchase_order, purchase_order_id)
+                    return
+                return
+            case _:
+                logger.error(f"User gave invalid input {choice}, Must be only numbers ranging from 1 to 5")

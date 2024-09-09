@@ -21,8 +21,8 @@ def get_purchase_order_by_po_number(po_number, user_id):
     Retrieves a purchase order based on the provided purchase order number.
 
     Parameters:
-        po_number (str): The purchase order number to retrieve.
-
+        po_number (str) : The purchase order number to retrieve.
+        user_id (str) : User id of the user.
     Returns:
         dict: The details of the purchase order if found, otherwise None.
     """

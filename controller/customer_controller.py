@@ -1,6 +1,8 @@
+import datetime
+
 from constants.biznex_constants import (
     ADDRESS, CRITICAL_LEVEL_PROMPT, CUSTOMER_MENU,
-    CUSTOMER_QUOTATION_EDIT, CUSTOMER_QUOTATION_HEADERS, DELIVERY_DATE,
+    CUSTOMER_QUOTATION_EDIT, CUSTOMER_QUOTATION_ITEM_HEADERS, DELIVERY_DATE,
     DONE, ENTER_CUSTOMER_QUOTATION_ID, ENTER_DELIVERY_ADDRESS,
     ENTER_DELIVERY_DATE, ENTER_ITEMS, ENTER_PAYMENT_METHOD,
     ENTER_PHONE_NUMBER, ENTER_PO_NUMBER, ENTER_VENDOR_QUOTATION_ID,
@@ -17,7 +19,8 @@ from constants.biznex_constants import (
     USER_DICT_EMAIL, USER_DICT_NAME, USER_DICT_PHONE_NUMBER,
     USER_DICT_USER_ID, VENDOR_ID, VENDOR_P2P_MANAGEMENT,
     VENDOR_QUOTATION_ID, VALID_PAYMENT_METHODS, WAREHOUSE_ITEM_ZERO_LOGGER,
-    WAREHOUSE_MANAGEMENT, CUSTOMER_QUOTATION_ID, STATUS_PROCESSING, CUSTOMER_ID, PURCHASE_ORDER_EDIT, STATUS_INACTIVE
+    WAREHOUSE_MANAGEMENT, CUSTOMER_QUOTATION_ID, STATUS_PROCESSING, CUSTOMER_ID, PURCHASE_ORDER_EDIT, STATUS_INACTIVE,
+    VENDOR_QUOTATION_HEADERS, DATE
 )
 from custom_exceptions.warehouse_exception import WarehouseException
 from p2p_controller import generate_purchase_order, get_purchase_order_by_po_number
@@ -27,6 +30,7 @@ from service.customer_service import (
     get_vendor_quotations_by_customer_id, get_warehouse_by_id,
     get_vendor_quotation_by_id, is_warehouse_available
 )
+from service.p2p_service import update_purchase_order
 from service.user_service import get_by_user_id
 from service.vendor_service import get_quotation, set_quotations, update_customer_quotation
 from tabulate import tabulate
@@ -108,7 +112,8 @@ def warehouse_management(user):
 
 def vendor_and_p2p_management(user):
     """
-    Handles the Vendor and Peer-to-Peer (P2P) management menu, allowing users to perform various operations such as
+    Handles the Vendor and Peer-to-Peer (P2P) management menu,
+    allowing users to perform various operations such as
     requesting quotations, viewing vendor quotations, issuing purchase orders, and editing quotations.
 
     Parameters:
@@ -330,7 +335,7 @@ def View_vendor_quotation():
         logger.error(f"No quotation with such vendor quotation {customer_quotation_id} is found")
         return
     else:
-        print(vendor_quotation)
+        print_vendor_quotations(vendor_quotation)
 
 
 def issue_purchase_order(user):
@@ -529,7 +534,7 @@ def display_data_in_table(data):
                    item_info['critical_level']]
             table_data.append(row)
 
-    print(tabulate(table_data, CUSTOMER_QUOTATION_HEADERS, tablefmt="grid"))
+    print(tabulate(table_data, CUSTOMER_QUOTATION_ITEM_HEADERS, tablefmt="grid"))
 
 
 def get_valid_email():
@@ -585,4 +590,27 @@ def get_valid_payment_method():
             return payment_method
         else:
             logger.error(INVALID_PAYMENT_METHOD)
+
+
+def print_vendor_quotations(vendor_quotations):
+    """
+    This function is used to print the given vendor quotations in tabular column formate
+    This function uses tabulate a third party library.
+    """
+    headers = VENDOR_QUOTATION_HEADERS
+    table_data = []
+    for customer_quotation_id, details in vendor_quotations.items():
+        row = [
+            customer_quotation_id,
+            details.get(CUSTOMER_QUOTATION_ID, ''),
+            details.get(USER_DICT_NAME, ''),
+            details.get(USER_DICT_EMAIL, ''),
+            details.get(USER_DICT_PHONE_NUMBER, ''),
+            details.get(TOTAL_PRICE, ''),
+            details.get(DATE, '').strftime('%d/%m/%Y') if isinstance(details.get('date'), datetime.date) else details.get('date', ''),
+            details.get(VENDOR_ID, ''),
+            details.get(STATUS, '')
+        ]
+        table_data.append(row)
+    print(tabulate(table_data, headers=headers, tablefmt='grid'))
 

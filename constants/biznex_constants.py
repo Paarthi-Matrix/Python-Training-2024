@@ -20,6 +20,7 @@ USER_DICT_USER_PASSWORD = "password"
 USER_DICT_IS_DELETE = "is_deleted"
 USER_DICT_COMPANY_SERVICE = "What Kind of service or product you offer (ex: Grocery, Steel, Electronics)?"
 CUSTOMER_ID = "Customer_id"
+DATE = "date"
 
 # Quotation form dict keys
 FORM_ITEMS = "items"
@@ -93,13 +94,31 @@ VENDOR_MENU = """
 ==================================================
 |    Kindly give the choice to continue:          |
 |    1 - View Customer quotation                  |
-|    2 - View purchase Order                      |
-|    3 - Give Quotation                           |
-|    4 - Update purchase order status             |
-|    5 - Get purchase order                       |
-|    6 - Back                                     |
+|    2 - Give Quotation                           |
+|    3 - Update purchase order status             |
+|    4 - Get purchase order                       |
+|    5 - Back                                     |
 ==================================================
 """
+
+PO_STATUS_UPDATE_PROMPT = """
+|=============================|
+|   Enter the status options  |
+|=============================|
+| 1 . Product shipped         |
+| 2 . PO cancelled            |
+| 3 . Processing              |
+| 4 . Out for delivery        |
+| 5 . Delivered               |
+| 6 . Quit                    |
+===============================
+"""
+
+PO_STATUS_ITEM_SHIPPED = "Item shipped"
+PO_STATUS_CANCELLED = "Cancelled"
+PO_STATUS_PROCESSING = "Processing"
+PO_STATUS_OUT_FOR_DELIVERY = "Out for delivery"
+PO_STATUS_DELIVERED = "Delivered"
 
 WAREHOUSE_MANAGEMENT = """
 1. View Warehouse
@@ -214,7 +233,6 @@ INVALID_CONFIRMATION = "Invalid input. Please enter 'yes' or 'no'."
 INVALID_ITEM_QUANTITY = "Invalid item quantity, Must be a number"
 INVALID_CRITICAL_LEVEL = "Invalid critical level for the item. It must be a number and greater than the item quantity"
 
-
 # keys for warehouse dict
 ITEM_NAME = "item_name"
 ITEM_QUANTITY = "item_quantity"
@@ -226,14 +244,15 @@ CUSTOMER_QUOTATION_NUMBER = "customer_quotation_number"
 ITEM_STATUS_AVAILABLE = "Available"
 ITEM_STATUS_NOT_AVAILABLE = "Not available"
 ITEM_STATUS_CRITICAL = "Critically low stock"
-
+DELIVERY_ADDRESS = "delivery_address"
 # loggers message
 INVALID_CRITICAL_LEVEL_LOGGER = ("User entered invalid critical level, it must be a number and greater than the item "
                                  "quantity")
 WAREHOUSE_ITEM_ZERO_LOGGER = "The changes in item will make the item quantity below zero(0)"
 VALID_PAYMENT_METHODS = ["bank transfer", "credit card", "cheque"]
-CUSTOMER_QUOTATION_HEADERS = ['Item ID', 'Item Name', 'Item Quantity', 'Item Status', 'Critical Level']
-USER_DETAILS_HEADERS = ['User ID', 'Name', 'Phone Number', 'Email', 'Gender', 'Date of Birth', 'Company Name', 'Company Type', 'Service/Product Offered', 'User Category', 'Is Deleted']
+CUSTOMER_QUOTATION_ITEM_HEADERS = ['Item ID', 'Item Name', 'Item Quantity', 'Item Status', 'Critical Level']
+USER_DETAILS_HEADERS = ['User ID', 'Name', 'Phone Number', 'Email', 'Gender', 'Date of Birth', 'Company Name',
+                        'Company Type', 'Service/Product Offered', 'User Category', 'Is Deleted']
 FILE_NOT_FOUND = "File not found to load the data to dictionary"
 NO_USER_FOUND = "No users found in the database."
 NO_ACTIVE_QUOTATION = "No active quotations available"
@@ -252,3 +271,9 @@ PURCHASE_ORDER_EDIT = """
 | 4 . Quit                    |
 |=============================|
 """
+
+CUSTOMER_QUOTATION_HEADERS = [CUSTOMER_QUOTATION_ID, VENDOR_ID, USER_DICT_NAME, USER_DICT_EMAIL, USER_DICT_PHONE_NUMBER,
+                              USER_DICT_COMPANY_NAME, STATUS, FORM_ITEMS,
+                              DELIVERY_DATE, DELIVERY_ADDRESS]
+VENDOR_QUOTATION_HEADERS = [VENDOR_QUOTATION_ID, CUSTOMER_QUOTATION_ID,USER_DICT_NAME, USER_DICT_EMAIL,
+                            USER_DICT_PHONE_NUMBER, TOTAL_PRICE, DATE, VENDOR_ID, STATUS]

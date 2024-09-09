@@ -1,4 +1,4 @@
-from constants.biznex_constants import CUSTOMER_ID, VENDOR_QUOTATION_ID, PO_STATUS, STATUS_INACTIVE
+from constants.biznex_constants import CUSTOMER_ID, VENDOR_QUOTATION_ID, PO_STATUS, STATUS_INACTIVE, VENDOR_ID
 from utils.common_utils import generate_random_string
 
 purchase_orders = {}
@@ -35,7 +35,9 @@ def get_by_po_number(po_number, user_id):
             dict or None: The matching purchase order dictionary if found; otherwise, None.
     """
     purchase_order = purchase_orders.get(po_number)
-    if purchase_order is None or purchase_order[CUSTOMER_ID] != user_id:
+    if (purchase_order is None
+            or purchase_order[CUSTOMER_ID] != user_id
+            or purchase_order[VENDOR_ID] != user_id):
         return None
     else:
         return purchase_order
@@ -81,3 +83,5 @@ def update_purchase_order(edited_purchase_order, purchase_order_number):
     :return:
     """
     purchase_orders[purchase_order_number] = edited_purchase_order
+
+
