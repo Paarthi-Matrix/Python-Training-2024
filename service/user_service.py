@@ -1,24 +1,73 @@
+import json
+import uuid
+
+from constants.biznex_constants import (
+    FILE_PATH, USER_DICT_IS_DELETE,
+    USER_DICT_USER_ID, USER_DICT_USER_PASSWORD
+)
 from resources.logging_config import logger
-
-from dao.user_dao import create, delete_user, get_by_attribute, get_by_user_id, get_users, update
-from constants.biznex_constants import USER_DICT_USER_ID, USER_DICT_USER_PASSWORD
+from utils.password_utils import hash_password
 
 
-def add_user(user):
+users = {}
+
+
+def put_user_to_file(user):
     """
-    Adds a new user by creating a user entry and assigning a unique ID.
+        Writes a user's data to a file in JSON format.
+
+        The function converts the user ID to a string and appends the user's data
+        to the specified file in JSON format, ensuring each user is written on a new line.
+
+        Parameters:
+            user (dict): A dictionary containing user information.
+    """
+    file_path = FILE_PATH
+    user[USER_DICT_USER_ID] = str(user[USER_DICT_USER_ID])
+    with open(file_path, "a") as file:
+        file.write(json.dumps(user) + "\n")
+
+
+def create(user, load=False):
+    """
+    Creates a user and assigns a unique ID.
 
     Parameters:
-        user (dict): Dictionary containing user details.
-                     The dictionary should have user details except the user ID.
+        user (dict) : Dictionary of user details
 
     Returns:
-        dict: Returns the user dictionary with the generated user ID.
+        user (dict) : Returns a dict containing user details with generated user_id.
+        load (bool) : Optional parameter if you don't want to write user to the file
     """
-    logger.debug(f"Attempting to add user with details: {user}")
-    user = create(user)
-    logger.info(f"User {user['name']} added successfully with ID: {user['user_id']}")
+
+    user_id = ""
+    if not load:
+        user_id = uuid.uuid4()
+        user[USER_DICT_USER_ID] = str(user_id)
+        put_user_to_file(user)
+    else:
+        user_id = user[USER_DICT_USER_ID]
+
+    users[str(user_id)] = user
     return user
+
+
+def get_by_user_id(user_id):
+    """
+    Retrieves a user by their ID.
+
+    Parameters:
+        user_id (str) : user id of the user to be retrieved.
+
+    Returns:
+        user (dict) : Returns the user based on the user_id
+                      Returns None if there is no such user id found
+    """
+    print("Current users dictionary:", users)
+
+    if user_id not in users:
+        return None
+    return users[user_id]
 
 
 def check_credential(login_credential):
@@ -31,69 +80,42 @@ def check_credential(login_credential):
     Returns:
         bool: Returns True if the credentials are valid; otherwise, returns False.
     """
-    logger.debug(f"Checking credentials for user ID: {login_credential[USER_DICT_USER_ID]}")
-    user = get_by_user_id(login_credential[USER_DICT_USER_ID])
-    if user is None or user[USER_DICT_USER_PASSWORD] != login_credential[USER_DICT_USER_PASSWORD]:
-        logger.warning(f"Invalid login attempt for user ID: {login_credential[USER_DICT_USER_ID]}")
+    user_id = login_credential[USER_DICT_USER_ID]
+    logger.debug(f"Checking credentials for user ID: {user_id}")
+
+    user = get_by_user_id(user_id)
+
+    if user is None or user[USER_DICT_IS_DELETE] == True:
+        logger.error(f"Invalid user ID: {user_id}. User not found.")
+        return None
+
+    hashed_password = hash_password(login_credential[USER_DICT_USER_PASSWORD])
+    if user[USER_DICT_USER_PASSWORD] != hashed_password:
+        logger.warning(f"Invalid password for user ID: {user_id}.")
+        return None
+
+    logger.info(f"User ID {user_id} logged in successfully.")
+    return user
+
+
+def get_all():
+    return users
+
+
+def delete_by_id(user_id):
+    """
+        This function is used to softly delete the user based on user_id
+
+        Parameters:
+             user_id (str) : User id to be deleted
+
+        Returns:
+            bool : returns True if the user deleted successfully
+                   Else return False
+    """
+    user = users.get(user_id, None)
+    if user is None:
         return False
-    logger.info(f"User ID {login_credential[USER_DICT_USER_ID]} logged in successfully.")
-    return True
-
-
-def get_all_users():
-    """
-    Retrieves all users from the system.
-
-    Returns:
-        dict: Returns a dictionary of all users.
-    """
-    logger.debug("Retrieving all users.")
-    users = get_users()
-    logger.info(f"Retrieved {len(users)} users.")
-    return users
-
-
-def remove_user(user_id):
-    """
-    Removes a user from the system by their user ID.
-
-    Parameters:
-        user_id (str): The ID of the user to be removed.
-
-    Returns:
-        bool: Returns True if the user was successfully removed; otherwise, returns False.
-    """
-    logger.debug(f"Attempting to remove user with ID: {user_id}")
-    result = delete_user(user_id)
-    if result:
-        logger.info(f"User with ID {user_id} removed successfully.")
     else:
-        logger.error(f"Failed to remove user with ID {user_id}. User not found.")
-    return result
-
-
-def get_by_user_attribute(attribute_name, search_term):
-    """
-    Retrieves a user or users based on a specified attribute.
-
-    Parameters:
-        attribute_name (str): The name of the attribute to search by.
-        search_term (str): The value to search for within the specified attribute.
-
-    Returns:
-        dict: Returns a dictionary of users that match the search criteria.
-    """
-    logger.debug(f"Searching for users with {attribute_name} = {search_term}")
-    users = get_by_attribute(attribute_name, search_term)
-    if users:
-        logger.info(f"Found {len(users)} user(s) with {attribute_name} = {search_term}")
-    else:
-        logger.warning(f"No users found with {attribute_name} = {search_term}")
-    return users
-
-
-def update_password(user):
-    """
-    Updates the password of the user
-    """
-    update(user)
+        user[USER_DICT_IS_DELETE] = True
+        return True

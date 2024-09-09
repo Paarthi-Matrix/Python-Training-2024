@@ -1,0 +1,10 @@
+2024-09-03 19:31:53,982 - BizNex - ERROR - User entered invalid item quantity  w
+2024-09-03 19:32:08,412 - BizNex - ERROR - User entered invalid critical level, it must be a number and greater than the item quantity
+2024-09-03 19:37:26,817 - BizNex - ERROR - User entered invalid critical level, it must be a number and greater than the item quantity
+2024-09-03 19:37:32,676 - BizNex - ERROR - User entered invalid critical level, it must be a number and greater than the item quantity
+2024-09-03 19:45:41,317 - BizNex - INFO - Item quantity changed for item numer 7ed69d71-13c2-4e82-a5ce-e69e4fc26ae9
+2024-09-03 19:45:54,721 - BizNex - ERROR - No such item with item number  is found in warehouse
+2024-09-03 22:58:57,009 - BizNex - ERROR - No such user_id be710e27-88dc-4f39-bde1-a435cccd9c60 is present in database 
+2024-09-03 22:59:16,666 - BizNex - DEBUG - Application started.
+2024-09-03 22:59:50,060 - BizNex - ERROR - No such user_id be710e27-88dc-4f39-bde1-a435cccd9c60 is present in database 
+2024-09-03 23:00:07,925 - BizNex - INFO - User chose to display all users.

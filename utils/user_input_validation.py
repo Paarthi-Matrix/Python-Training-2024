@@ -1,10 +1,21 @@
 import re
+from datetime import date, datetime
 
 from constants.biznex_constants import (
-    DOB_VALIDATION_REGEX, EMAIL_VALIDATION_REGEX,
-    NAME_VALIDATION_REGEX, PASSWORD_VALIDATION_REGEX,
+    DOB_VALIDATION_REGEX,
+    EMAIL_VALIDATION_REGEX,
+    GENDER_CATEGORY,
+    INVALID_DATE_FORMATE,
+    NAME_VALIDATION_REGEX,
+    NUMBER_REGEX,
+    PASSWORD_VALIDATION_REGEX,
     PHONE_NUMBER_VALIDATION_REGEX
 )
+from resources.logging_config import logger
+
+
+def is_valid_number(number):
+    return bool(re.match(NUMBER_REGEX, number))
 
 
 def user_name_validation(name):
@@ -60,7 +71,7 @@ def gender_validation(gender):
     Returns:
         bool: True if the gender is valid, False otherwise.
     """
-    return gender.strip().lower() in ["male", "female", "others"]
+    return gender.strip().lower() in GENDER_CATEGORY
 
 
 def date_of_birth_validation(dob):
@@ -90,3 +101,25 @@ def password_validation(password):
     """
 
     return bool(re.match(PASSWORD_VALIDATION_REGEX, password))
+
+
+def is_valid_future_date(date_str):
+    """
+    Validates if the given date string is in the correct format and is not in the past.
+
+    Parameters:
+        date_str (str): The date string to validate, expected in "YYYY-MM-DD" format.
+
+    Returns:
+        bool: True if the date is valid and not in the past, False otherwise.
+    """
+    try:
+        input_date = datetime.strptime(date_str, "%d/%m/%Y").date()
+
+        if input_date >= date.today():
+            return True
+        else:
+            return False
+    except ValueError:
+        logger.error(INVALID_DATE_FORMATE)
+        return False

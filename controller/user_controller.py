@@ -1,21 +1,27 @@
-from resources.logging_config import logger
-from service.user_service import add_user, check_credential, get_users, remove_user, get_by_user_attribute
 from constants.biznex_constants import (
-    INVALID_CREDENTIAL_MESSAGE,
-    USER_DICT_USER_ID,
-    USER_DICT_USER_PASSWORD)
+    CUSTOMER_CATEGORY_NAME,
+    USER_DICT_USER_CATEGORY,
+    USER_DICT_USER_ID
+)
+from customer_controller import customer_menu
+from resources.logging_config import logger
+from service.user_service import check_credential, create, get_all
+from vendor_controller import vendor_management
 
 
-def register_user(user):
+def load_user(user, load):
     """
-    Registers a new user and logs the success message.
+       Creates a new user with the specified details.
 
-    Parameters:
-        user (dict): Dictionary containing user details to be registered.
+       Parameters:
+           user (dict): The user details to be created.
+           load (bool): A flag indicating whether to load additional data.
+
+       Returns:
+           dict: The result of the user creation process.
     """
-    user = add_user(user)
-    logger.info(f"User {user['name']} created successfully. The user ID is {user['user_id']}.")
-    return
+    logger.debug("creating users...")
+    return create(user, load)
 
 
 def login_user(login_credential):
@@ -27,51 +33,28 @@ def login_user(login_credential):
                                  including user ID and password.
 
     """
-    if check_credential(login_credential):
-        logger.info(f"User with user ID {login_credential[USER_DICT_USER_ID]} logged in successfully.")
-        print(f"Login successful, Welcome {login_credential[USER_DICT_USER_ID]}")
-    else:
-        logger.error(f"Invalid credentials provided for user ID {login_credential[USER_DICT_USER_ID]}.")
-        print(INVALID_CREDENTIAL_MESSAGE)
+    while True:
+        user = check_credential(login_credential)
+        if user is not None:
+            logger.info(f"User with user ID {login_credential[USER_DICT_USER_ID]} logged in successfully.")
+            if user[USER_DICT_USER_CATEGORY] == CUSTOMER_CATEGORY_NAME:
+                logger.debug(f"User {user[USER_DICT_USER_CATEGORY]} logged in as customer")
+                return customer_menu(user)
+            else:
+                logger.debug(f"User {user[USER_DICT_USER_CATEGORY]} logged in as vendor")
+                return vendor_management(user)
+        else:
+            logger.error(f"Invalid credentials provided for user ID {login_credential[USER_DICT_USER_ID]}.")
+            return
 
 
-def display_all_users():
+def get_users():
     """
-    Retrieves and returns all registered users.
+        Retrieves all user records from the data source.
 
-    Returns:
-        dict: A dictionary containing all registered users.
+        Returns:
+            list: A list of all users retrieved by the `get_all` function.
     """
-    users = get_users()
-    logger.info("Retrieved all users successfully.")
-    return users
+    return get_all()
 
 
-def delete_user():
-    """
-    Deletes a user based on provided user ID and logs the outcome.
-
-    Prompts the user for a user ID, attempts to delete the corresponding user,
-    and logs whether the deletion was successful or if the user ID was not found.
-
-    """
-    user_id = input("Enter the user ID of the user to be deleted: ").strip()
-    if remove_user(user_id):
-        logger.info(f"User with ID {user_id} has been successfully deleted.")
-    else:
-        logger.error(f"User with ID {user_id} not found.")
-
-
-def get_by_attribute(attribute_name, search_term):
-    """
-    Searches for and retrieves users based on a specified attribute.
-
-    Parameters:
-        attribute_name (str): The attribute's name to search for.
-        search_term (str) : The actual data to be searched
-
-    Returns:
-        list: A list of users that match the search criteria.
-
-    """
-    return get_by_user_attribute(attribute_name, search_term)
