@@ -36,8 +36,8 @@ def main():
                     break
             else:
                 logger.warning(LOG_ERROR_CHOICE_RANGE_1_5)
-        except ValueError as e:
-            logger.error(LOG_ERROR_ROLE_INTEGER, ": ", str(e))
+        except ValueError:
+            logger.error(LOG_ERROR_ROLE_INTEGER)
 
 
 if __name__ == "__main__":

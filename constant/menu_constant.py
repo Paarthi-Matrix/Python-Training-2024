@@ -107,8 +107,7 @@ Please select an option:
 ----------------------------------
 1. Check Wastage
 2. Calculate Rate
-3. View Calculated Report
-4. Exit
+3. Exit
 ----------------------------------
 Enter your choice (1-4): 
 """

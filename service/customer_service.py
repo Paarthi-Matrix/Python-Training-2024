@@ -170,7 +170,7 @@ def is_bin_created_for_customer(customer_id):
     return False
 
 
-def create_bin(area, door_no, locality, landmark, city, load_type,
+def create_bin(area, door_no, landmark, city, load_type,
                cycle_period, wastage_type, driver_email, customer_id):
     """
     Creates a new bin with the provided details and assigns it a unique ID.
@@ -190,7 +190,6 @@ def create_bin(area, door_no, locality, landmark, city, load_type,
     customer_bin = {
         "area": area,
         "door_no": door_no,
-        "locality": locality,
         "landmark": landmark,
         "city": city,
         "load_type": load_type,

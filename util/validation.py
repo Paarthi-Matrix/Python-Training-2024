@@ -173,12 +173,6 @@ def collect_bin_details():
             LOG_ERROR_INVALID_DOOR_NO
         )
         if not is_address_already_available(door_no, area):
-            locality = get_valid_input(
-                PROMPT_CUSTOMER_LOCALITY,
-                is_valid_name,
-                LOG_ERROR_INVALID_LOCALITY
-            )
-
             landmark = get_valid_input(
                 PROMPT_CUSTOMER_LANDMARK,
                 is_valid_name,
@@ -208,7 +202,7 @@ def collect_bin_details():
                 is_valid_wastage_type,
                 LOG_ERROR_INVALID_WASTAGE
             )
-            return area, door_no, locality, landmark, city, load_type, cycle_period, wastage_type, driver_email
+            return area, door_no, landmark, city, load_type, cycle_period, wastage_type, driver_email
 
 
 def collect_admin_details():

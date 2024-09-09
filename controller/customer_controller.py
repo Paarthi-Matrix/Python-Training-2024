@@ -77,9 +77,9 @@ def customer():
                     customer_id = input(PROMPT_SEARCH_CUSTOMER_ID)
                     if is_customer_present(customer_id):
                         if not is_bin_created_for_customer(customer_id):
-                            area, door_no, locality, landmark, city, load_type, cycle_period, wastage_type, driver_email \
+                            area, door_no, landmark, city, load_type, cycle_period, wastage_type, driver_email \
                                 = collect_bin_details()
-                            create_bin(area, door_no, locality, landmark, city, load_type, cycle_period, wastage_type,
+                            create_bin(area, door_no, landmark, city, load_type, cycle_period, wastage_type,
                                        driver_email, customer_id)
                         else:
                             logger.error(LOG_BIN_ALREADY_CREATED.format(customer_id=customer_id))
