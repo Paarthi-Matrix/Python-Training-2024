@@ -1,0 +1,1 @@
+VALID_LOAD_TYPES = {1:'Low', 2:'High'}
