@@ -11,6 +11,7 @@ LOG_ERROR_CHOICE_RANGE_1_5 = "Choice should range between 1 to 5"
 LOG_CUSTOMER_MENU_EXIT = "Customer menu option to exit selected"
 LOG_INVALID_CUSTOMER_MENU_CHOICE = "Invalid customer menu choice: {choice}"
 LOG_VALUE_ERROR_IN_CUSTOMER_MENU = "ValueError in customer menu: {e}"
+LOG_EXCEED_LIMIT = "Exceeding limit, Unable to continue process"
 
 # 3. Admin Menu
 LOG_ADMIN_MENU_CHOICE_SELECTED = "Admin menu choice selected: {choice}"
@@ -70,6 +71,7 @@ LOG_ERROR_DELETING_CUSTOMER = "Error deleting customer with ID: {customer_id}"
 LOG_NO_CUSTOMER_SIGNED_UP = "No customers signed up"
 LOG_REDIRECTING_HOME = "Redirecting you to home"
 LOG_APPLICATION_END = "Application Stop..Thank You"
+LOG_FILE_LOCATION = "C:\Users\ranjithkumar.radhakr\PycharmProjects\Garbage_Collector_logs"
 
 # 10. Error
 # Constants for Error Messages
@@ -100,3 +102,172 @@ LOG_WORK_REPORT = "No work reports added yet"
 LOG_BIN_STATUS_COMPLETED = "Bin status already completed for bin  Id: {bin_id}"
 LOG_INVALID_WEIGHT = "Invalid weight. The weight must be between 1 and 100 kg."
 LOG_WORK_REPORT_INCOMPLETE = "Work report already Incomplete for Id: {bin_id}"
+
+# Menu helper
+MAIN_MENU = """
+==================================
+        WELCOME TO THE SYSTEM      
+==================================
+Please select your role:
+----------------------------------
+1. Customer
+2. Admin
+3. Driver
+4. Recycler
+5. Exit
+----------------------------------
+Enter your choice (1-4): 
+"""
+
+CUSTOMER_MENU = """
+==================================
+          CUSTOMER MENU           
+==================================
+Please select an option:
+----------------------------------
+1. Sign Up Customer
+2. Register Bin
+3. Raise Complaint
+4. View Profits
+5. My Profile
+6. Bin Details
+----------------------------------
+Enter your choice (1-4): 
+"""
+
+ADMIN_MENU = """
+==================================
+            ADMIN MENU            
+==================================
+Please select an option:
+----------------------------------
+1. Sign Up Admin
+2. Sign Up Driver
+3. Search Customer
+4. Delete Customer
+5. Update Customer
+6. Search Driver
+7. View Work reports
+8. View Complaints
+9. Register Recycler
+10. Report to Recycler
+11. View Cost of Garbage
+12. Calculate Profit
+----------------------------------
+Enter your choice (1-6): 
+"""
+
+DRIVER_MENU = """
+==================================
+          DRIVER MENU           
+==================================
+Please select an option:
+----------------------------------
+1. My Profile
+2. My Bins
+3. Add Work Report
+4. Work Reports
+5. Complaints
+----------------------------------
+Enter your choice (1-4): 
+"""
+
+UPDATE_CUSTOMER_MENU = """
+==================================
+         UPDATE PROFILE          
+==================================
+Please select a detail to update:
+----------------------------------
+1. Update name
+2. Update email
+3. Update password
+4. Update mobile
+----------------------------------
+Enter your choice (1-5): 
+"""
+
+SEARCH_CUSTOMER_MENU = """
+==================================
+          SEARCH CUSTOMER         
+==================================
+Search by:
+----------------------------------
+1. Search by First Name or Last Name
+2. Search by Id
+3. Find All
+----------------------------------
+Enter your choice (1-4): 
+"""
+
+RECYCLER_MENU = """
+==================================
+          RECYCLER MENU           
+==================================
+Please select an option:
+----------------------------------
+1. Check Wastage
+2. Calculate Rate
+----------------------------------
+Enter your choice (1-4): 
+"""
+
+# prompt helper
+PROMPT_CUSTOMER_NAME = "Enter the customer name: "
+PROMPT_CUSTOMER_AREA = "Enter the area: "
+PROMPT_CUSTOMER_DOOR_NO = "Enter the door no: "
+PROMPT_ADMIN_NAME = "Enter the admin name: "
+PROMPT_DRIVER_NAME = "Enter the driver name: "
+PROMPT_RECYCLER_NAME = "Enter the recycler name: "
+PROMPT_BIN_STATUS = "Enter the Bin Status(COMPLETED or INCOMPLETE): "
+PROMPT_BIN_COMPLETED = "COMPLETED"
+PROMPT_BIN_INCOMPLETE = "INCOMPLETE"
+PROMPT_DRIVER_AREA = "Enter the area where driver to be enrolled: "
+PROMPT_EMAIL = "Enter the email: "
+PROMPT_BIN_ID = "Enter the Bin Id: "
+PROMPT_RAISE_COMPLAINT = "Enter your complaint:"
+PROMPT_WASTAGE_TYPE = "BOTH"
+PROMPT_BIO_DEGRADABLE = "BIO-DEGRADABLE"
+PROMPT_BIO_DEGRADABLE_WASTE = "Enter the weight for Bio-degradable waste (kg): "
+PROMPT_NON_BIO_DEGRADABLE = "NON BIO-DEGRADABLE"
+PROMPT_NON_BIO_DEGRADABLE_WASTE = "Enter the weight for Non Bio-degradable waste (kg): "
+PROMPT_CUSTOMER_LOCALITY = "Enter the locality: "
+PROMPT_CUSTOMER_LANDMARK = "Enter the landmark: "
+PROMPT_CUSTOMER_CITY = "Enter the City: "
+PROMPT_CUSTOMER_CYCLE_PERIOD = "Enter the cycle period(Daily): "
+PROMPT_CUSTOMER_LOAD = "Enter the Load Type(Low or High): "
+PROMPT_CUSTOMER_WASTAGE_TYPE = "Enter the wastage type(Bio-degradable or Non Nio-degradable or Both): "
+PROMPT_PASSWORD = "Enter the password: "
+PROMPT_MOBILE = "Enter the mobile number: "
+PROMPT_ACCOUNT_NO = "Enter the account number: "
+PROMPT_CUSTOMER_ID = "Enter the Customer Id: "
+PROMPT_NAME_TO_UPDATE = "Enter the name to update: "
+PROMPT_EMAIL_TO_UPDATE = "Enter the email to update: "
+PROMPT_PASSWORD_TO_UPDATE = "Enter the password to update: "
+PROMPT_MOBILE_TO_UPDATE = "Enter the mobile number to update: "
+PROMPT_CHOICE = "Enter your choice:"
+PROMPT_ROLE = "Choose the Role:"
+PROMPT_SEARCH_NAME = "Enter the name to search:"
+PROMPT_SEARCH_CUSTOMER_ID = "Enter the customer Id:"
+PROMPT_CONTINUE_PROCESS = "Do you want to continue? (YES or NO)"
+PROMPT_YES = "YES"
+PROMPT_NO = "NO"
+# regex helper
+REGEX_VALIDATE_STATUS = r'^(COMPLETED|INCOMPLETE)$'
+REGEX_VALIDATE_WASTAGE_TYPE = r'^(Bio-degradable|Non Bio-degradable|Both)$'
+REGEX_VALIDATE_DOOR_N0 = r'^([1-9]|[1-9][0-9]|[1-9][0-9]{2}|[1-2][0-9]{3}|3000)$'
+REGEX_VALID_COMPLAINT = r'^([a-zA-Z\s]+)'
+
+# Number Constant
+ONE = 1
+TWO = 2
+THREE = 3
+FOUR = 4
+FIVE = 5
+SIX = 6
+SEVEN = 7
+EIGHT = 8
+NINE = 9
+TEN = 10
+ELEVEN = 11
+TWELVE = 12
+THIRTEEN = 13

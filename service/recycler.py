@@ -169,7 +169,7 @@ def calculate_profit():
         ResourceNotFoundException: If no wastage reports are found.
     """
 
-    from service.driver_service import calculate_wastage_profit
+    from service.driver import calculate_wastage_profit
     if len(wastage_reports) != 0:
         for wastage_id in wastage_reports:
             if (wastage_reports[wastage_id]["Recycled"] == "Yes" and

@@ -2,11 +2,13 @@ import logging
 from logging.handlers import RotatingFileHandler
 import os
 
+from helper.constant import LOG_FILE_LOCATION
+
 logger = logging.getLogger("Garbage_Collector")
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.INFO)
 
 
-log_directory = "logs"
+log_directory = LOG_FILE_LOCATION
 if not os.path.exists(log_directory):
     os.makedirs(log_directory)
 
@@ -16,7 +18,7 @@ formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(messag
 
 # Create a RotatingFileHandler
 handler = RotatingFileHandler(log_file_path, maxBytes=2000, backupCount=5)
-handler.setLevel(logging.DEBUG)
+handler.setLevel(logging.INFO)
 handler.setFormatter(formatter)
 
 console_handler = logging.StreamHandler()

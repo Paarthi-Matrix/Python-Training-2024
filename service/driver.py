@@ -6,23 +6,18 @@ from exception.custom_exception import (
     GarbageCollectorException, ResourceAlreadyExistsException
 )
 
-from constant.logger_constant import (
+from helper.constant import (
     LOG_DRIVER_REGISTERED,
     LOG_USER_ALREADY_REGISTERED_EMAIL,
     LOG_USER_ALREADY_REGISTERED_PASSWORD,
     LOG_USER_ALREADY_REGISTERED_AREA,
     LOG_NO_DRIVER,
-    LOG_NO_DRIVER_FOUND
-)
-
-from constant.prompt_constant import (
-    PROMPT_BIN_COMPLETED,
-    PROMPT_BIN_INCOMPLETE
+    LOG_NO_DRIVER_FOUND, PROMPT_BIN_COMPLETED, PROMPT_BIN_INCOMPLETE
 )
 
 from resources.logger_configuration import logger
 
-from service.recycler_service import add_wastage_report, is_wastage_report_added
+from service.recycler import add_wastage_report, is_wastage_report_added
 
 driver_details = {}
 work_report = {}

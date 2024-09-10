@@ -1,0 +1,7 @@
+echo ".idea" >> .gitignore
+service/__pycache__
+controller/__pycache__
+util/__pycache__
+helper/__pycache__
+exception/__pycache__
+resources/__pycache__

@@ -1,49 +1,34 @@
 import re
-from constant.logger_constant import (
+
+from exception.custom_exception import ExceedLimitException
+from helper.constant import (
     LOG_ERROR_INVALID_NAME,
     LOG_ERROR_INVALID_EMAIL,
     LOG_ERROR_INVALID_PASSWORD,
     LOG_ERROR_INVALID_MOBILE,
-    LOG_ERROR_INVALID_AREA,LOG_ERROR_INVALID_LOCALITY,
+    LOG_ERROR_INVALID_AREA,
     LOG_ERROR_INVALID_LANDMARK,
     LOG_ERROR_INVALID_CITY,
     LOG_ERROR_INVALID_LOAD, LOG_ERROR_INVALID_CYCLE_PERIOD,
     LOG_ERROR_INVALID_WASTAGE,
-    LOG_ERROR_INVALID_DOOR_NO,
-)
-
-from constant.prompt_constant import (
-    PROMPT_CUSTOMER_NAME,
-    PROMPT_ADMIN_NAME,
-    PROMPT_EMAIL,
-    PROMPT_PASSWORD,
-    PROMPT_MOBILE,
-    PROMPT_DRIVER_AREA,
-    PROMPT_DRIVER_NAME,
-    PROMPT_CUSTOMER_AREA,
-    PROMPT_CUSTOMER_LOCALITY,
-    PROMPT_CUSTOMER_LANDMARK,
-    PROMPT_CUSTOMER_CITY,
-    PROMPT_CUSTOMER_CYCLE_PERIOD,
-    PROMPT_CUSTOMER_WASTAGE_TYPE,
-    PROMPT_CUSTOMER_LOAD,
-    PROMPT_CUSTOMER_DOOR_NO, PROMPT_RECYCLER_NAME,
+    LOG_ERROR_INVALID_DOOR_NO, REGEX_VALIDATE_WASTAGE_TYPE, REGEX_VALIDATE_STATUS, REGEX_VALIDATE_DOOR_N0,
+    REGEX_VALID_COMPLAINT, PROMPT_CUSTOMER_NAME, PROMPT_EMAIL, PROMPT_PASSWORD, PROMPT_MOBILE, PROMPT_CUSTOMER_AREA,
+    PROMPT_CUSTOMER_DOOR_NO, PROMPT_CUSTOMER_LANDMARK, PROMPT_CUSTOMER_CITY, PROMPT_CUSTOMER_LOAD,
+    PROMPT_CUSTOMER_CYCLE_PERIOD, PROMPT_CUSTOMER_WASTAGE_TYPE, PROMPT_ADMIN_NAME, PROMPT_DRIVER_NAME,
+    PROMPT_DRIVER_AREA, PROMPT_RECYCLER_NAME, LOG_EXCEED_LIMIT,
 )
 
 from resources.logger_configuration import logger
 
-from service.customer_service import (
+from service.customer import (
     is_address_already_available
 )
 
-from service.driver_service import (
+from service.driver import (
     get_driver_email
 )
 
 from util.common_util import hash_password
-
-from constant.regex_constant import REGEX_VALIDATE_STATUS, REGEX_VALIDATE_WASTAGE_TYPE, REGEX_VALIDATE_DOOR_N0, \
-    REGEX_VALID_COMPLAINT
 
 
 def is_valid_name(name):
@@ -102,13 +87,20 @@ def is_complaint_valid(complaint):
 
 def get_valid_input(prompt, validation_func, error_message):
     """Helper function to get and validate input."""
-    while True:
+    count = 0
+    while count < 3:
         value = input(prompt)
         if validation_func(value):
             return value
         else:
-            logger.warning(error_message)
-            print()
+            count += 1
+            if count < 3:
+                logger.warning(error_message)
+
+
+def check_valid_detail(customer_name):
+    if customer_name is None:
+        raise ExceedLimitException(LOG_EXCEED_LIMIT)
 
 
 def collect_customer_details():
@@ -126,25 +118,26 @@ def collect_customer_details():
         is_valid_name,
         LOG_ERROR_INVALID_NAME
     )
-
+    check_valid_detail(customer_name)
     customer_email = get_valid_input(
         PROMPT_EMAIL,
         is_valid_email,
         LOG_ERROR_INVALID_EMAIL
     )
-
+    check_valid_detail(customer_email)
     password = get_valid_input(
         PROMPT_PASSWORD,
         is_valid_password,
         LOG_ERROR_INVALID_PASSWORD
     )
+    check_valid_detail(password)
     encoded_password = hash_password(password)
     mobile_no = get_valid_input(
         PROMPT_MOBILE,
         is_valid_mobile,
         LOG_ERROR_INVALID_MOBILE
     )
-
+    check_valid_detail(mobile_no)
     return customer_name, customer_email, encoded_password, mobile_no
 
 
@@ -165,6 +158,7 @@ def collect_bin_details():
         is_valid_name,
         LOG_ERROR_INVALID_AREA
     )
+    check_valid_detail(area)
     driver_email = get_driver_email(area)
     if driver_email:
         door_no = get_valid_input(
@@ -172,36 +166,38 @@ def collect_bin_details():
             is_valid_door_no,
             LOG_ERROR_INVALID_DOOR_NO
         )
+        check_valid_detail(door_no)
         if not is_address_already_available(door_no, area):
             landmark = get_valid_input(
                 PROMPT_CUSTOMER_LANDMARK,
                 is_valid_name,
                 LOG_ERROR_INVALID_LANDMARK
             )
-
+            check_valid_detail(landmark)
             city = get_valid_input(
                 PROMPT_CUSTOMER_CITY,
                 is_valid_city,
                 LOG_ERROR_INVALID_CITY
             )
-
+            check_valid_detail(city)
             load_type = get_valid_input(
                 PROMPT_CUSTOMER_LOAD,
                 is_valid_load,
                 LOG_ERROR_INVALID_LOAD
             )
-
+            check_valid_detail(load_type)
             cycle_period = get_valid_input(
                 PROMPT_CUSTOMER_CYCLE_PERIOD,
                 is_valid_cycle_period,
                 LOG_ERROR_INVALID_CYCLE_PERIOD
             )
-
+            check_valid_detail(cycle_period)
             wastage_type = get_valid_input(
                 PROMPT_CUSTOMER_WASTAGE_TYPE,
                 is_valid_wastage_type,
                 LOG_ERROR_INVALID_WASTAGE
             )
+            check_valid_detail(wastage_type)
             return area, door_no, landmark, city, load_type, cycle_period, wastage_type, driver_email
 
 
@@ -220,18 +216,19 @@ def collect_admin_details():
         is_valid_name,
         LOG_ERROR_INVALID_NAME
     )
-
+    check_valid_detail(admin_name)
     admin_email = get_valid_input(
         PROMPT_EMAIL,
         is_valid_email,
         LOG_ERROR_INVALID_EMAIL
     )
-
+    check_valid_detail(admin_email)
     password = get_valid_input(
         PROMPT_PASSWORD,
         is_valid_password,
         LOG_ERROR_INVALID_PASSWORD
     )
+    check_valid_detail(password)
     encoded_password = hash_password(password)
     return admin_name, admin_email, encoded_password
 
@@ -251,26 +248,32 @@ def collect_driver_details():
         is_valid_name,
         LOG_ERROR_INVALID_NAME
     )
-
+    check_valid_detail(driver_name)
     driver_email = get_valid_input(
         PROMPT_EMAIL,
         is_valid_email,
         LOG_ERROR_INVALID_EMAIL
     )
-
+    check_valid_detail(driver_email)
     password = get_valid_input(
         PROMPT_PASSWORD,
         is_valid_password,
         LOG_ERROR_INVALID_PASSWORD
     )
+    check_valid_detail(password)
     encoded_password = hash_password(password)
     mobile_no = get_valid_input(
         PROMPT_MOBILE,
         is_valid_mobile,
         LOG_ERROR_INVALID_MOBILE
     )
-
-    area = input(PROMPT_DRIVER_AREA)
+    check_valid_detail(mobile_no)
+    area = get_valid_input(
+        PROMPT_DRIVER_AREA,
+        is_valid_name,
+        LOG_ERROR_INVALID_AREA
+    )
+    check_valid_detail(area)
 
     return driver_name, driver_email, encoded_password, mobile_no, area
 
@@ -281,23 +284,24 @@ def collect_recycler_details():
         is_valid_name,
         LOG_ERROR_INVALID_NAME
     )
-
+    check_valid_detail(recycler_name)
     recycler_email = get_valid_input(
         PROMPT_EMAIL,
         is_valid_email,
         LOG_ERROR_INVALID_EMAIL
     )
-
+    check_valid_detail(recycler_email)
     password = get_valid_input(
         PROMPT_PASSWORD,
         is_valid_password,
         LOG_ERROR_INVALID_PASSWORD
     )
+    check_valid_detail(password)
     encoded_password = hash_password(password)
     mobile_no = get_valid_input(
         PROMPT_MOBILE,
         is_valid_mobile,
         LOG_ERROR_INVALID_MOBILE
     )
+    check_valid_detail(mobile_no)
     return recycler_name, recycler_email, encoded_password, mobile_no
-

@@ -6,7 +6,7 @@ from exception.custom_exception import (
     UserAlreadyExistsError
 )
 
-from constant.logger_constant import (
+from helper.constant import (
     LOG_CUSTOMER_REGISTERED_WITH_ID,
     LOG_CUSTOMER_UPDATED,
     LOG_BIN_CREATED_WITH_ID
@@ -71,6 +71,7 @@ def register_customer(name, email, password, mobile_no):
     customer_id = str(uuid.uuid4())
     customer_details[customer_id] = customers
     logger.info(LOG_CUSTOMER_REGISTERED_WITH_ID.format(customer_id=customer_id))
+
 
 
 def search_customer(customer_identifier):
