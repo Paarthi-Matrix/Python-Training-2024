@@ -1,4 +1,4 @@
-from common.common_constants import (
+from common.constant import (
     PICK_CHOICE, INPUT_NAME, EXITING,
     INPUT_EMAIL, INPUT_LOCATION, INPUT_CONTACT, INVALID_CHOICE,
     INVALID_INPUT, INPUT_PASSWORD, NAME_UPDATED, EMAIL_UPDATED, INPUT_ID,
@@ -7,39 +7,34 @@ from common.common_constants import (
     LICENSE_NUMBER_UPDATED, AVAILABLE_ORDERS,
     NO_AVAILABLE_ORDERS, STATUS, STATUS_PLACED, STATUS_IN_TRANSPORT,
     STATUS_ASSIGNED, INPUT_OTP, ORDER_ID_KEY, ZERO, ONE, TWO,
-    THREE, FOUR, FIVE, SIX, SEVEN, INVALID_OTP, PASSWORD_UPDATED, PASSWORD_KEY
-)
-from common.customer_constants import (
+    THREE, FOUR, FIVE, SIX, SEVEN, INVALID_OTP, PASSWORD_UPDATED, PASSWORD_KEY,
     INPUT_ORDER_ID, ORDER_NOT_FOUND_OR_NOT_AVAILABLE,
     ORDER_NOT_FOUND_OR_NOT_ASSIGNED,
     ORDER_DELIVERED, ORDER_NOT_FOUND_OR_NOT_IN_TRANSPORT,
-    ORDER_PICKED_BY_DELIVERY_PERSON, ORDER_ASSIGNED_TO_DELIVERY_PERSON
-)
-from common.delivery_person_constants import (
+    ORDER_PICKED_BY_DELIVERY_PERSON, ORDER_ASSIGNED_TO_DELIVERY_PERSON,
     DELIVERY_PERSON_CHOICE, DELIVERY_PERSON_UPDATE_CHOICE,
     UPDATE_DELIVERY_PERSON_NOT_FOUND, DELIVERY_PERSON_ADDED,
     INPUT_DELIVERY_PERSON_ID, DELIVERY_PERSON_NOT_FOUND,
     CURRENT_ORDER_ID_KEY, DELIVERY_PERSON_HAS_NO_ORDER_TO_DELIVER,
-    DELIVERY_PERSON_HAS_NO_ORDER_TO_PICK
-)
-from common.restaurant_constants import (
+    DELIVERY_PERSON_HAS_NO_ORDER_TO_PICK,
     INVALID_NAME, INVALID_EMAIL,
     INVALID_CONTACT, INVALID_LOCATION, INVALID_PASSWORD, NAME_KEY,
     LOCATION_KEY, EMAIL_KEY, INVALID_LICENSE
 )
-from resources.logging_config import logger
+from resources.config import logger
 from service.customer_service import (
     list_available_orders,
-    get_order_by_id
+    get_order
 )
 from service.delivery_person_service import (
-    add_delivery_person, update_delivery_person_details,
+    add, update,
     pick_up_order, deliver_order, assign_delivery_person,
-    get_delivery_person_by_id)
-from utils.validator import (
+    get)
+from utils.utils import (
     is_valid_email, is_valid_mobile, is_valid_name,
     is_valid_password, is_valid_license, input_validation, update_entity
 )
+
 
 def update_delivery_person():
     """
@@ -63,26 +58,26 @@ def update_delivery_person():
 
             if choice in range(ONE, SEVEN):
                 unique_id = input(INPUT_ID)
-                delivery_person = get_delivery_person_by_id(unique_id)
+                delivery_person = get(unique_id)
                 if delivery_person:
                     if choice == ONE:
                         update_entity(delivery_person, NAME_KEY, INPUT_NAME, is_valid_name, NAME_UPDATED, INVALID_NAME,
-                                      update_delivery_person_details)
+                                      update)
                     elif choice == TWO:
                         update_entity(delivery_person, EMAIL_KEY, INPUT_EMAIL, is_valid_email, EMAIL_UPDATED,
-                                      INVALID_EMAIL, update_delivery_person_details)
+                                      INVALID_EMAIL, update)
                     elif choice == THREE:
                         update_entity(delivery_person, MOBILE_NUMBER_KEY, INPUT_CONTACT, is_valid_mobile,
-                                      MOBILE_NUMBER_UPDATED, INVALID_CONTACT, update_delivery_person_details)
+                                      MOBILE_NUMBER_UPDATED, INVALID_CONTACT, update)
                     elif choice == FOUR:
                         update_entity(delivery_person, LOCATION_KEY, INPUT_LOCATION, is_valid_name, LOCATION_UPDATED,
-                                      INVALID_LOCATION, update_delivery_person_details)
+                                      INVALID_LOCATION, update)
                     elif choice == FIVE:
                         update_entity(delivery_person, LICENSE_NUMBER_KEY, INPUT_LICENSE_NUMBER, is_valid_license,
-                                      LICENSE_NUMBER_UPDATED, INVALID_LICENSE, update_delivery_person_details)
+                                      LICENSE_NUMBER_UPDATED, INVALID_LICENSE, update)
                     elif choice == SIX:
                         update_entity(delivery_person, PASSWORD_KEY, INPUT_PASSWORD, is_valid_password,
-                                      PASSWORD_UPDATED, INVALID_PASSWORD, update_delivery_person_details)
+                                      PASSWORD_UPDATED, INVALID_PASSWORD, update)
                 else:
                     logger.warning(UPDATE_DELIVERY_PERSON_NOT_FOUND.format(unique_id=unique_id))
             elif choice == ZERO:
@@ -92,8 +87,6 @@ def update_delivery_person():
                 logger.warning(INVALID_CHOICE)
         except ValueError:
             logger.error(INVALID_INPUT)
-
-
 
 
 def create_delivery_person():
@@ -106,8 +99,8 @@ def create_delivery_person():
     mobile_number = input_validation(INPUT_CONTACT, is_valid_mobile, INVALID_CONTACT)
     location = input_validation(INPUT_LOCATION, is_valid_name, INVALID_LOCATION)
     license_number = input_validation(INPUT_LICENSE_NUMBER, is_valid_license, INVALID_LICENSE)
-    unique_id = add_delivery_person(name.lower(), password, email.lower(), location.lower(), mobile_number,
-                                    license_number)
+    unique_id = add(name.lower(), password, email.lower(), location.lower(), mobile_number,
+                    license_number)
     logger.info(DELIVERY_PERSON_ADDED.format(unique_id=unique_id))
 
 
@@ -126,7 +119,7 @@ def delivery_person_operations():
                 update_delivery_person()
             elif choice == THREE:
                 unique_id = input(INPUT_DELIVERY_PERSON_ID)
-                delivery_person = get_delivery_person_by_id(unique_id)
+                delivery_person = get(unique_id)
                 if delivery_person:
                     orders = list_available_orders(delivery_person[LOCATION_KEY])
                     if orders:
@@ -143,10 +136,10 @@ def delivery_person_operations():
                     logger.warning(DELIVERY_PERSON_NOT_FOUND.format(unique_id=unique_id))
             elif choice == FOUR:
                 unique_id = input(INPUT_DELIVERY_PERSON_ID)
-                delivery_person = get_delivery_person_by_id(unique_id)
+                delivery_person = get(unique_id)
                 if delivery_person:
                     order_id = input(INPUT_ORDER_ID)
-                    order = get_order_by_id(order_id)
+                    order = get_order(order_id)
                     if order and order[STATUS] == STATUS_PLACED:
                         result = assign_delivery_person(
                             delivery_person, order, unique_id, order_id)
@@ -161,11 +154,11 @@ def delivery_person_operations():
                     logger.warning(DELIVERY_PERSON_NOT_FOUND.format(unique_id=unique_id))
             elif choice == FIVE:
                 unique_id = input(INPUT_DELIVERY_PERSON_ID)
-                delivery_person = get_delivery_person_by_id(unique_id)
+                delivery_person = get(unique_id)
                 if delivery_person:
                     if CURRENT_ORDER_ID_KEY in delivery_person:
                         order_id = delivery_person[CURRENT_ORDER_ID_KEY]
-                        order = get_order_by_id(order_id)
+                        order = get_order(order_id)
                         if order and order[STATUS] == STATUS_ASSIGNED:
                             result = pick_up_order(order)
                             if isinstance(result, dict):
@@ -180,11 +173,11 @@ def delivery_person_operations():
                     logger.warning(DELIVERY_PERSON_NOT_FOUND)
             elif choice == SIX:
                 delivery_person_id = input(INPUT_DELIVERY_PERSON_ID)
-                delivery_person = get_delivery_person_by_id(delivery_person_id)
+                delivery_person = get(delivery_person_id)
                 if delivery_person:
                     if CURRENT_ORDER_ID_KEY in delivery_person:
                         order_id = delivery_person[CURRENT_ORDER_ID_KEY]
-                        order = get_order_by_id(order_id)
+                        order = get_order(order_id)
                         if order and order[STATUS] == STATUS_IN_TRANSPORT:
                             while True:
                                 otp_input = input(INPUT_OTP)
@@ -202,7 +195,7 @@ def delivery_person_operations():
                     logger.warning(DELIVERY_PERSON_NOT_FOUND.format(unique_id=delivery_person_id))
             elif choice == SEVEN:
                 unique_id = input(INPUT_DELIVERY_PERSON_ID)
-                delivery_person = get_delivery_person_by_id(unique_id)
+                delivery_person = get(unique_id)
                 if delivery_person:
                     logger.info(delivery_person)
                 else:

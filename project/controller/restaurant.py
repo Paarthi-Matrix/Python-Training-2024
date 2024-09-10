@@ -1,13 +1,10 @@
-from common.common_constants import (
+from common.constant import (
     PICK_CHOICE, INPUT_NAME, EXITING,
     INPUT_EMAIL, INPUT_LOCATION, INPUT_CONTACT, INVALID_CHOICE,
     INVALID_INPUT, INPUT_ALTERNATE_CONTACT,
     INPUT_PASSWORD, NAME_UPDATED, EMAIL_UPDATED, INPUT_ID,
-    MOBILE_NUMBER_UPDATED,
-    LOCATION_UPDATED, ZERO, ONE, TWO,
-    THREE, FOUR, FIVE, SIX, SEVEN, EIGHT, PASSWORD_UPDATED, PASSWORD_KEY
-)
-from common.restaurant_constants import (
+    MOBILE_NUMBER_UPDATED, LOCATION_UPDATED, ZERO, ONE, TWO,
+    THREE, FOUR, FIVE, SIX, SEVEN, EIGHT, PASSWORD_UPDATED, PASSWORD_KEY,
     INPUT_RESTAURANT_ID, INPUT_FOOD_PRICE, INPUT_FOOD_NAME,
     RESTAURANT_ADDED_SUCCESSFULLY, INVALID_NAME, INVALID_EMAIL,
     INVALID_CONTACT, INVALID_LOCATION, UNABLE_TO_ADD_FOOD,
@@ -19,13 +16,12 @@ from common.restaurant_constants import (
     RESTAURANT_UPDATE_CHOICE, UPDATE_RESTAURANT_NOT_FOUND,
     INVALID_PRICE, CONTACT_KEY
 )
-from resources.logging_config import logger
+from resources.config import logger
 from service.restaurant_service import (
-    find_by_id, remove_restaurant,
-    update_restaurant_details, add_new_restaurant,
-    add_new_food_item, get_restaurant_menu, update_food_item_details,
-    delete_food_item_details)
-from utils.validator import (
+    get, remove,update, add, add_food_item,
+    get_menu, update_food_item_details, delete_food_item_details
+)
+from utils.utils import (
     is_valid_email, is_valid_mobile, is_valid_name,
     is_valid_password, update_entity, input_validation
 )
@@ -46,29 +42,30 @@ def update_restaurant():
         try:
             print(RESTAURANT_UPDATE_CHOICE)
             choice = input(PICK_CHOICE)
-            if not (choice.isnumeric() and len(choice) == ONE and ZERO <= int(choice) <= FIVE):
+            if not (choice.isnumeric()
+                    and len(choice) == ONE and ZERO <= int(choice) <= FIVE):
                 raise ValueError
             choice = int(choice)
 
             if choice in range(ONE, SIX):
                 unique_id = input(INPUT_ID)
-                restaurant = find_by_id(unique_id)
+                restaurant = get(unique_id)
                 if restaurant:
                     if choice == ONE:
                         update_entity(restaurant, NAME_KEY, INPUT_NAME, is_valid_name, NAME_UPDATED, INVALID_NAME,
-                                      update_restaurant_details)
+                                      update)
                     elif choice == TWO:
                         update_entity(restaurant, EMAIL_KEY, INPUT_EMAIL, is_valid_email, EMAIL_UPDATED, INVALID_EMAIL,
-                                      update_restaurant_details)
+                                      update)
                     elif choice == THREE:
                         update_entity(restaurant, CONTACT_KEY, INPUT_CONTACT, is_valid_mobile, MOBILE_NUMBER_UPDATED,
-                                      INVALID_CONTACT, update_restaurant_details)
+                                      INVALID_CONTACT, update)
                     elif choice == FOUR:
                         update_entity(restaurant, LOCATION_KEY, INPUT_LOCATION, is_valid_name, LOCATION_UPDATED,
-                                      INVALID_LOCATION, update_restaurant_details)
+                                      INVALID_LOCATION, update)
                     elif choice == FIVE:
                         update_entity(restaurant, PASSWORD_KEY, INPUT_PASSWORD, is_valid_password, PASSWORD_UPDATED,
-                                      INVALID_PASSWORD, update_restaurant_details)
+                                      INVALID_PASSWORD, update)
                 else:
                     logger.warning(UPDATE_RESTAURANT_NOT_FOUND.format(unique_id=unique_id))
             elif choice == ZERO:
@@ -91,12 +88,13 @@ def create_restaurant():
     primary_contact = input_validation(INPUT_CONTACT, is_valid_mobile, INVALID_CONTACT)
     contact_numbers.append(primary_contact)
     alternate_contact = input_validation(INPUT_ALTERNATE_CONTACT,
-                                         lambda value: value.isnumeric() and int(value) == ZERO or is_valid_mobile(value),
+                                         lambda value: value.isnumeric() and int(value) == ZERO or is_valid_mobile(
+                                             value),
                                          INVALID_CONTACT)
     if alternate_contact.isnumeric() and int(alternate_contact) != ZERO:
         contact_numbers.append(alternate_contact)
     location = input_validation(INPUT_LOCATION, is_valid_name, INVALID_LOCATION)
-    unique_id = add_new_restaurant(name.lower(), password, email.lower(), contact_numbers, location.lower())
+    unique_id = add(name.lower(), password, email.lower(), contact_numbers, location.lower())
     logger.info(RESTAURANT_ADDED_SUCCESSFULLY.format(name=name, id=unique_id))
 
 
@@ -121,7 +119,7 @@ def restaurant_operations():
                 create_restaurant()
             elif choice == TWO:
                 restaurant_id = input(INPUT_RESTAURANT_ID)
-                restaurant = find_by_id(restaurant_id)
+                restaurant = get(restaurant_id)
                 if restaurant:
                     while True:
                         name = input(INPUT_FOOD_NAME)
@@ -135,7 +133,7 @@ def restaurant_operations():
                             break
                         else:
                             logger.warning(INVALID_PRICE)
-                    is_added = add_new_food_item(
+                    is_added = add_food_item(
                         restaurant_id, name.lower(), float(price)
                     )
                     if is_added:
@@ -148,14 +146,14 @@ def restaurant_operations():
                                    format(restaurant_id=restaurant_id))
             elif choice == THREE:
                 restaurant_id = input(INPUT_RESTAURANT_ID)
-                restaurant_menu = get_restaurant_menu(restaurant_id)
+                restaurant_menu = get_menu(restaurant_id)
                 logger.info(
                     restaurant_menu
                 ) if restaurant_menu else logger.warning(
                     RESTAURANT_NOT_FOUND.format(restaurant_id=restaurant_id))
             elif choice == FOUR:
                 restaurant_id = input(INPUT_RESTAURANT_ID)
-                restaurant = find_by_id(restaurant_id)
+                restaurant = get(restaurant_id)
                 if restaurant:
                     while True:
                         name = input(INPUT_FOOD_NAME)
@@ -178,7 +176,7 @@ def restaurant_operations():
                     logger.warning(RESTAURANT_NOT_FOUND.format(restaurant_id=restaurant_id))
             elif choice == FIVE:
                 restaurant_id = input(INPUT_RESTAURANT_ID)
-                restaurant = find_by_id(restaurant_id)
+                restaurant = get(restaurant_id)
                 if restaurant:
                     while True:
                         name = input(INPUT_FOOD_NAME)
@@ -197,14 +195,14 @@ def restaurant_operations():
                     ))
             elif choice == SIX:
                 restaurant_id = input(INPUT_RESTAURANT_ID)
-                restaurant = find_by_id(restaurant_id)
+                restaurant = get(restaurant_id)
                 if restaurant:
                     logger.info(restaurant)
                 else:
                     logger.warning(RESTAURANT_NOT_FOUND.format(restaurant_id=restaurant_id))
             elif choice == SEVEN:
                 unique_id = input(INPUT_RESTAURANT_ID)
-                is_deleted = remove_restaurant(unique_id)
+                is_deleted = remove(unique_id)
                 if is_deleted:
                     logger.info(RESTAURANT_DELETED.format(unique_id=unique_id))
                 else:

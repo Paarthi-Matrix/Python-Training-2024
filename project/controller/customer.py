@@ -1,4 +1,4 @@
-from common.common_constants import (
+from common.constant import (
     PICK_CHOICE, INPUT_NAME, EXITING,
     INPUT_EMAIL, INPUT_LOCATION, INPUT_CONTACT, INVALID_CHOICE,
     INVALID_INPUT, INPUT_PASSWORD, NAME_UPDATED, EMAIL_UPDATED, INPUT_ID,
@@ -7,9 +7,7 @@ from common.common_constants import (
     REMOVE_CHOICE, ZERO, ONE, TWO,
     THREE, FOUR, FIVE, SIX, SEVEN, EIGHT, NINE, TEN, ELEVEN,
     TWELVE, PASSWORD_UPDATED, PASSWORD_KEY,
-    INVALID_CONFIRMATION, INVALID_PAYMENT_MODE
-)
-from common.customer_constants import (
+    INVALID_CONFIRMATION, INVALID_PAYMENT_MODE,
     CUSTOMER_UPDATE_CHOICE, UPDATE_CUSTOMER_NOT_FOUND, CUSTOMER_ADDED,
     CUSTOMER_CHOICE, INPUT_CUSTOMER_ID, ALREADY_HAVE_PENDING_CART,
     ITEMS_ADDED_TO_CART, CUSTOMER_NOT_FOUND, NO_CART_FOUND,
@@ -18,28 +16,25 @@ from common.customer_constants import (
     NO_PENDING_CART, CUSTOMER_DELETED, ORDER_NOT_PLACED,
     VALUE_NO, ORDER_DETAILS, ORDER_PLACED, VALUE_YES, PAYMENT_MODE_CASH,
     PAYMENT_MODE_UPI, INPUT_PAYMENT_MODE,
-    INPUT_WANT_TO_PLACE_ORDER)
-from common.delivery_person_constants import (
+    INPUT_WANT_TO_PLACE_ORDER,
     INPUT_DELIVERY_PERSON_ID, INPUT_RATING, RATING_UPDATED,
-    INVALID_RATING, DELIVERY_PERSON_NOT_FOUND
-)
-from common.restaurant_constants import (
+    INVALID_RATING, DELIVERY_PERSON_NOT_FOUND,
     INPUT_RESTAURANT_ID, INVALID_NAME, INVALID_EMAIL,
     INVALID_CONTACT, INVALID_LOCATION, RESTAURANT_NOT_FOUND,
     INVALID_PASSWORD, NAME_KEY, LOCATION_KEY, EMAIL_KEY,
     INPUT_FOOD_NAME_LIST, NO_VALID_FOOD_ITEMS_RESTAURANT
 )
-from resources.logging_config import logger
+from resources.config import logger
 from service.customer_service import (
-    get_cart_by_customer_id, remove_items_from_cart,
-    place_order, add_to_cart, update_items_to_cart, get_by_id,
-    remove_customer, update_customer_details, get_all_orders, add_new_customer
+    get_cart_by_customer, remove_items_from_cart,
+    place_order, add_to_cart, update_items_to_cart, get,
+    remove, update, get_all_orders, add
 )
 from service.delivery_person_service import (
     update_ratings, get_delivery_person_by_id)
 from service.restaurant_service import (
     find_by_id, get_all_restaurants, get_restaurant_menu)
-from utils.validator import (
+from utils.utils import (
     is_valid_email, is_valid_mobile, is_valid_name,
     is_valid_password, update_entity, input_validation
 )
@@ -66,24 +61,23 @@ def update_customer():
 
             if choice in range(ONE, SIX):
                 unique_id = input(INPUT_ID)
-                customer = get_by_id(unique_id)
+                customer = get(unique_id)
                 if customer:
                     if choice == ONE:
-                        pass
-                    elif choice == TWO:
                         update_entity(customer, NAME_KEY, INPUT_NAME, is_valid_name, NAME_UPDATED, INVALID_NAME,
-                                      update_customer_details)
+                                      update)
+                    elif choice == TWO:
                         update_entity(customer, EMAIL_KEY, INPUT_EMAIL, is_valid_email, EMAIL_UPDATED, INVALID_EMAIL,
-                                      update_customer_details)
+                                      update)
                     elif choice == THREE:
                         update_entity(customer, MOBILE_NUMBER_KEY, INPUT_CONTACT, is_valid_mobile,
-                                      MOBILE_NUMBER_UPDATED, INVALID_CONTACT, update_customer_details)
+                                      MOBILE_NUMBER_UPDATED, INVALID_CONTACT, update)
                     elif choice == FOUR:
                         update_entity(customer, LOCATION_KEY, INPUT_LOCATION, is_valid_name, LOCATION_UPDATED,
-                                      INVALID_LOCATION, update_customer_details)
+                                      INVALID_LOCATION, update)
                     elif choice == FIVE:
                         update_entity(customer, PASSWORD_KEY, INPUT_PASSWORD, is_valid_password, PASSWORD_UPDATED,
-                                      INVALID_PASSWORD, update_customer_details)
+                                      INVALID_PASSWORD, update)
                 else:
                     logger.warning(UPDATE_CUSTOMER_NOT_FOUND.format(unique_id=unique_id))
             elif choice == ZERO:
@@ -104,7 +98,7 @@ def create_customer():
     email = input_validation(INPUT_EMAIL, is_valid_email, INVALID_EMAIL)
     mobile_number = input_validation(INPUT_CONTACT, is_valid_mobile, INVALID_CONTACT)
     location = input_validation(INPUT_LOCATION, is_valid_name, INVALID_LOCATION)
-    customer_id = add_new_customer(name.lower(), password, email.lower(),
+    customer_id = add(name.lower(), password, email.lower(),
                                    mobile_number, location.lower())
     logger.info(CUSTOMER_ADDED.format(customer_id=customer_id))
 
@@ -139,9 +133,9 @@ def customer_operations():
                     RESTAURANT_NOT_FOUND.format(restaurant_id=restaurant_id))
             elif choice == FOUR:
                 customer_id = input(INPUT_CUSTOMER_ID)
-                customer = get_by_id(customer_id)
+                customer = get(customer_id)
                 if customer:
-                    existing_cart = get_cart_by_customer_id(customer_id)
+                    existing_cart = get_cart_by_customer(customer_id)
                     if existing_cart and existing_cart[STATUS] == STATUS_PENDING:
                         logger.warning(ALREADY_HAVE_PENDING_CART)
                     else:
@@ -160,14 +154,14 @@ def customer_operations():
                     logger.warning(CUSTOMER_NOT_FOUND.format(customer_id=customer_id))
             elif choice == FIVE:
                 customer_id = input(INPUT_CUSTOMER_ID)
-                cart = get_cart_by_customer_id(customer_id)
+                cart = get_cart_by_customer(customer_id)
                 if cart:
                     logger.info(f"Cart ID {cart['id']} for Customer {customer_id}: {cart}")
                 else:
                     logger.warning(NO_CART_FOUND.format(customer_id=customer_id))
             elif choice == SIX:
                 customer_id = input(INPUT_CUSTOMER_ID)
-                cart = get_cart_by_customer_id(customer_id)
+                cart = get_cart_by_customer(customer_id)
                 if cart and cart[STATUS] == STATUS_PENDING:
                     edit_choice = input(ADD_OR_REMOVE_ITEM_FROM_CART).lower()
                     if edit_choice == ADD_CHOICE:
@@ -190,7 +184,7 @@ def customer_operations():
                     logger.warning(NO_PENDING_CART)
             elif choice == SEVEN:
                 customer_id = input(INPUT_CUSTOMER_ID)
-                cart = get_cart_by_customer_id(customer_id)
+                cart = get_cart_by_customer(customer_id)
                 if cart and cart[STATUS] == STATUS_PENDING:
                     while True:
                         confirm = input(INPUT_WANT_TO_PLACE_ORDER)
@@ -231,7 +225,7 @@ def customer_operations():
                     logger.warning(DELIVERY_PERSON_NOT_FOUND.format(unique_id=delivery_person_id))
             elif choice == NINE:
                 customer_id = input(INPUT_ID)
-                customer = get_by_id(customer_id)
+                customer = get(customer_id)
                 if customer:
                     orders = get_all_orders()
                     logger.info(
@@ -242,14 +236,14 @@ def customer_operations():
                 update_customer()
             elif choice == ELEVEN:
                 customer_id = input(INPUT_CUSTOMER_ID)
-                is_deleted = remove_customer(customer_id)
+                is_deleted = remove(customer_id)
                 if is_deleted:
                     logger.info(CUSTOMER_DELETED.format(customer_id=customer_id))
                 else:
                     logger.warning(CUSTOMER_NOT_FOUND.format(customer_id=customer_id))
             elif choice == TWELVE:
                 customer_id = input(INPUT_CUSTOMER_ID)
-                customer = get_by_id(customer_id)
+                customer = get(customer_id)
                 if customer:
                     logger.info(customer)
                 else:

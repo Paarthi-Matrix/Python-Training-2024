@@ -1,13 +1,12 @@
 import uuid
 
-from common.common_constants import PASSWORD_KEY
-from common.restaurant_constants import LOCATION_KEY, IS_DELETE
-from service.customer_service import get_by_id
+from common.constant import PASSWORD_KEY, LOCATION_KEY, IS_DELETE
+from service.customer_service import get as get_customer
 
 delivery_persons = {}
 
 
-def add_delivery_person(name: str,password, email: str, location: str,
+def add(name: str,password, email: str, location: str,
                         mobile_number: str, license_number: str):
     """
     Registers a new delivery person and assigns them a unique ID.
@@ -40,7 +39,7 @@ def add_delivery_person(name: str,password, email: str, location: str,
     return unique_id
 
 
-def get_delivery_person_by_id(unique_id: str):
+def get(unique_id: str):
     """
     Retrieves a delivery person's details by their unique ID if they are not marked as deleted.
 
@@ -68,7 +67,7 @@ def filter_delivery_person_info(delivery_person):
     """
     return {key: value for key, value in delivery_person.items() if key not in [PASSWORD_KEY,IS_DELETE]}
 
-def get_all_delivery_persons():
+def get_all():
     """
     Retrieves all delivery persons who are not marked as deleted.
 
@@ -99,7 +98,7 @@ def update_ratings(ratings: int, delivery_person):
     return True
 
 
-def remove_delivery_person(unique_id: str):
+def remove(unique_id: str):
     """
     Marks a delivery person as deleted.
 
@@ -109,12 +108,12 @@ def remove_delivery_person(unique_id: str):
     Returns:
     - bool: True if the delivery person was successfully marked as deleted.
     """
-    delivery_person = get_delivery_person_by_id(unique_id)
+    delivery_person = get(unique_id)
     delivery_person["is_deleted"] = True
     return True
 
 
-def update_delivery_person_details(delivery_person: dict, to_update: str, details_to_update: str):
+def update(delivery_person: dict, to_update: str, details_to_update: str):
     """
     Updates a specific detail of a delivery person.
 
@@ -179,7 +178,7 @@ def deliver_order(order, delivery_person, otp_input):
         order["status"] = "Delivered"
         delivery_person.pop("current_order_id", None)
         delivery_person["completed_orders"] += 1
-        delivery_person[LOCATION_KEY] = get_by_id(order["customer_id"])[LOCATION_KEY]
+        delivery_person[LOCATION_KEY] = get_customer(order["customer_id"])[LOCATION_KEY]
         return order
     else:
         return False
