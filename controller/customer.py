@@ -1,6 +1,5 @@
 from constants.constants import (
-    ENTER_PO_NUMBER, INVALID_NUMBER_ERROR,
-    ITEM_DELETION_PROMPT, USER_DICT_USER_ID,
+    ENTER_PO_NUMBER,ITEM_DELETION_PROMPT, USER_DICT_USER_ID,
     NOT_FOUND_CODE, BAD_REQUEST_CODE, OK_STATUS, UN_PROCESSABLE_ENTITY
 )
 from custom_exceptions.warehouse_exception import WarehouseException
@@ -148,31 +147,8 @@ def edit_quotation(quotation_id, edited_quotation):
     update_customer_quotation(quotation_id, edited_quotation)
 
 
-def update_material_quantities(material_quantities):
-    """
-    Updates the values in the provided dictionary by prompting the user for new values.
-
-    Parameters:
-        material_quantities (dict): Dictionary containing materials and their quantities.
-
-    Returns:
-        material_quantities (dict) : items with updated value
-    """
-    for material, old_value in material_quantities.items():
-        while True:
-            new_value = input(f"Enter new quantity for {material} (current: {old_value}): ").strip()
-            if is_valid_number(new_value):
-                material_quantities[material] = new_value
-                break
-            else:
-                logger.error(INVALID_NUMBER_ERROR)
-
-    return material_quantities
-
-
 def view_all_vendor_quotations(customer_quotation_id):
     """
     Used to view all the quotations given by vendor
     """
     return get_vendor_quotations_by_quotation_id(customer_quotation_id)
-

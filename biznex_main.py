@@ -40,12 +40,13 @@ from constants.constants import (
     CUSTOMER_QUOTATION_EDIT, PURCHASE_ORDER_EDIT, VENDOR_QUOTATION_NOT_FOUND,
     STATUS_VIEWED, VENDOR_QUOTATION_HEADERS, DATE, CUSTOMER_QUOTATION_ITEM_HEADERS, PO_STATUS_UPDATE_PROMPT,
     PO_STATUS_ITEM_SHIPPED, PO_STATUS_CANCELLED, PO_STATUS_PROCESSING, PO_STATUS_OUT_FOR_DELIVERY, PO_STATUS_DELIVERED,
+    INVALID_NUMBER_ERROR,
 )
 from controller.customer import (
-    view_warehouse, add_item_to_warehouse, delete_item_from_warehouse, update_quantity, \
+    view_warehouse, add_item_to_warehouse, delete_item_from_warehouse, update_quantity,
     request_quotation, View_vendor_quotation, edit_quotation,
     edit_purchase_order, view_all_vendor_quotations,
-    update_material_quantities)
+)
 from controller.procure_to_payment import issue_purchase_order, get_purchase_order_by_po_number
 from controller.vendor import view_purchase_order, view_active_quotation_request, issue_quotation, edit_po_status, \
     get_purchase_order, get_active_quotations, print_active_customer_quotations, get_quotation_by_id
@@ -61,6 +62,7 @@ from service.user import get_by_email
 from service.vendor import get_quotation, update_customer_quotation
 from utils.common_utils import get_valid_payment_method, get_valid_email, get_valid_phone_number, \
     get_valid_delivery_date
+from utils.trace_id_utils import set_trace_id, generate_trace_id
 from utils.user_input_validation import is_valid_number, is_valid_future_date
 
 
@@ -69,6 +71,7 @@ def start_application():
     Starts the main application loop, displaying the main menu and handling user input.
     """
     while True:
+        logger.info("User entered the application")
         print(MAIN_MENU_TEXT)
         choice = 0
         try:
@@ -455,6 +458,28 @@ def generate_vendor_quotation(user):
     vendor_quotation[VENDOR_EMAIL] = vendor_email
     vendor_quotation[STATUS] = STATUS_SENT
     return vendor_quotation
+
+
+def update_material_quantities(material_quantities):
+    """
+    Updates the values in the provided dictionary by prompting the user for new values.
+
+    Parameters:
+        material_quantities (dict): Dictionary containing materials and their quantities.
+
+    Returns:
+        material_quantities (dict) : items with updated value
+    """
+    for material, old_value in material_quantities.items():
+        while True:
+            new_value = input(f"Enter new quantity for {material} (current: {old_value}): ").strip()
+            if is_valid_number(new_value):
+                material_quantities[material] = new_value
+                break
+            else:
+                logger.error(INVALID_NUMBER_ERROR)
+
+    return material_quantities
 
 
 def generate_purchase_order(user):
@@ -845,4 +870,5 @@ def get_po_status():
 
 if __name__ == "__main__":
     load_users()
+    set_trace_id(generate_trace_id())
     start_application()

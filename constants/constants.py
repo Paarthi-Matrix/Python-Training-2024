@@ -111,7 +111,7 @@ PO_STATUS_UPDATE_PROMPT = """
 | 2 . PO cancelled            |
 | 3 . Processing              |
 | 4 . Out for delivery        |
-| 5 . Delivered               |                   |
+| 5 . Delivered               |                   
 ===============================
 """
 
