@@ -59,3 +59,4 @@ def update_customer_quotation(quotation_id, edited_quotation):
             None
     """
     customer_quotation_request[quotation_id] = edited_quotation
+

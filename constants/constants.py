@@ -1,10 +1,12 @@
 # common
+import logging
+
 VENDOR_ID_PREFIX = "VEN"
 CUSTOMER_ID_PREFIX = "CUST"
 VENDOR_CATEGORY_NAME = "VENDOR"
 CUSTOMER_CATEGORY_NAME = "CUSTOMER"
 COLUMN_SPACE = 40
-FILE_PATH = "C:\\Study Material\\Training Python\\biznex_demo\\user_creds\\user_creds"
+FILE_PATH = "C:\\Study Material\\Python-Training-2024\\user_creds\\user_creds"
 
 #  user dict key names
 USER_DICT_NAME = "name"
@@ -70,7 +72,7 @@ CUSTOMER_QUOTATION_EDIT = """
 | 4 . Delivery date
 | 5 . Address
 | 6.  Edit items and their quantities
-| 7.  Exit
+| 7.  Save
 """
 
 CUSTOMER_MENU = """
@@ -109,8 +111,7 @@ PO_STATUS_UPDATE_PROMPT = """
 | 2 . PO cancelled            |
 | 3 . Processing              |
 | 4 . Out for delivery        |
-| 5 . Delivered               |
-| 6 . Quit                    |
+| 5 . Delivered               |                   |
 ===============================
 """
 
@@ -144,12 +145,13 @@ APPLICATION_STOPPED = "Application stopped"
 SELECT_OPTION_1_TO_2 = "Select any one option 1 or 2: "
 ENTER_YOUR_FULL_NAME = "Your full name (First name and Last name) Last name must not be initial: "
 ENTER_YOUR_PHONE_NUMBER = "Phone Number: "
-ENTER_YOUR_EMAIL = "Email Address: "
+ENTER_YOUR_EMAIL = "Your email address: "
+ENTER_VENDOR_MAIL_ID = "Enter vendor mail id"
 ENTER_GENDER = "Gender (e.g., Male, Female, Others): "
 ENTER_DOB = "Date of Birth (e.g., DD/MM/YYYY): "
 ENTER_COMPANY_NAME = "Company Name: "
 ENTER_COMPANY_TYPE = "Company Type (e.g., LLC, Corporation, Small scale): "
-ENTER_USER_ID = "Enter your username: "
+ENTER_USER_EMAIL = "Enter your E-mail: "
 ENTER_PASSWORD = "Enter your password: "
 YES = "yes"
 NO = "no"
@@ -223,7 +225,8 @@ QUANTITY_TO_BE_CHANGES = "Enter the quantity to be increased. To decrease give i
 # Invalid Error messages
 INVALID_CREDENTIAL_MESSAGE = "Invalid credentials. Check the user name and password"
 EXCEPTION_MESSAGE_FOR_USER_CATEGORY = "Invalid user category. Kindly check the user_category."
-INVALID_NAME_FORMATE = "Invalid name format. Please enter a valid full name."
+INVALID_NAME_FORMATE = ("Invalid name format. The name contains First name and last name. "
+                        "Last name must not be initial.")
 INVALID_PHONE_NUMBER = "Invalid phone number format. Please enter a valid phone number."
 INVALID_EMAIL = "Invalid email format. Please enter a valid email address."
 INVALID_GENDER = "Invalid gender. Please enter Male, Female, or Others."
@@ -268,12 +271,45 @@ PURCHASE_ORDER_EDIT = """
 | 1 . Change delivery address | 
 | 2 . Update PO status        |
 | 3 . Update payment method   |
-| 4 . Quit                    |
+| 4 . Save                    |
 |=============================|
 """
 
 CUSTOMER_QUOTATION_HEADERS = [CUSTOMER_QUOTATION_ID, VENDOR_ID, USER_DICT_NAME, USER_DICT_EMAIL, USER_DICT_PHONE_NUMBER,
                               USER_DICT_COMPANY_NAME, STATUS, FORM_ITEMS,
                               DELIVERY_DATE, DELIVERY_ADDRESS]
-VENDOR_QUOTATION_HEADERS = [VENDOR_QUOTATION_ID, CUSTOMER_QUOTATION_ID,USER_DICT_NAME, USER_DICT_EMAIL,
+VENDOR_QUOTATION_HEADERS = [VENDOR_QUOTATION_ID, CUSTOMER_QUOTATION_ID, USER_DICT_NAME, USER_DICT_EMAIL,
                             USER_DICT_PHONE_NUMBER, TOTAL_PRICE, DATE, VENDOR_ID, STATUS]
+LOGGER_LEVEL = logging.DEBUG
+INVALID_CHOICE_OF_MAIN = "Invalid choice Please enter the numbers from 1 to 5 only"
+NAME_ERROR = "user_name_error"
+PHONE_NUMBER_ERROR = "phone_number_error"
+EMAIL_ERROR = "email_error"
+GENDER_ERROR = "gender_error"
+DOB_ERROR = "dob_error"
+PASSWORD_ERROR = "password_error"
+USER_DETAILS_COUNT = 11
+INVALID_ENTRIES = "Invalid entries"
+UNAUTHORIZED_USER = "Some Un authorized user accessed"
+UNEXPECTED_ERROR = "Somthing went wrong"
+LOG_FILE_PATH = "C:\Study Material"
+ANONYMOUS_CATEGORY = "Anonymous"
+LOOP_LIMIT = 3
+ONE = 1
+TWO = 2
+THREE = 3
+FOUR = 4
+FIVE = 5
+SIX = 6
+SEVEN = 7
+EIGHT = 8
+NOT_FOUND_CODE = 404
+BAD_REQUEST_CODE = 400
+UN_PROCESSABLE_ENTITY = 422
+OK_STATUS = 200
+INVALID_DELTA = "Invalid delta value. Must be a number"
+ITEM_UPDATED = "Item successfully updated"
+VENDOR_EMAIL = "vendor_email"
+VENDOR_QUOTATION_NOT_FOUND = "No vendor quotation is available for your given quotation"
+STATUS_VIEWED = "viewed"
+

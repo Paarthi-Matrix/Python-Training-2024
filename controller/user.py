@@ -1,26 +1,48 @@
-from constants.biznex_constants import (
-    CUSTOMER_CATEGORY_NAME,
+from constants.constants import (
     USER_DICT_USER_CATEGORY,
-    USER_DICT_USER_ID
+    USER_DICT_NAME, INVALID_NAME_FORMATE, NAME_ERROR, USER_DICT_PHONE_NUMBER, INVALID_PASSWORD,
+    PHONE_NUMBER_ERROR, USER_DICT_EMAIL, INVALID_EMAIL,
+    EMAIL_ERROR, USER_DICT_GENDER,
+    USER_DICT_DOB, GENDER_ERROR,
+    INVALID_GENDER, INVALID_DOB, DOB_ERROR, USER_DICT_USER_PASSWORD, PASSWORD_ERROR
 )
-from controller.customer_controller import customer_menu
-from resources.logging_config import logger
-from service.user_service import check_credential, create, get_all
-from vendor_controller import vendor_management
+from resources.config import logger
+from service.user import check_and_return_user, create, get_all, delete as delete_by_id
+from utils.password_utils import hash_password
+from utils.user_input_validation import user_name_validation, phone_number_validation, email_validation, \
+    gender_validation, date_of_birth_validation, password_validation
 
 
-def load_user(user, load):  # todo
+def load(user, load):  # todo
     """
        Creates a new user with the specified details.
 
        Parameters:
            user (dict): The user details to be created.
-           load (bool): A flag indicating whether to load additional data.
+           load (bool) : This boolean flag determines whether the file user need to be added in user
+                      Optional parameter if you don't want to write user to the file
 
        Returns:
-           dict: The result of the user creation process.
+           dict : The result of the user creation process.
     """
-    logger.debug("creating users...")
+    error_message = {}
+    if not user_name_validation(user[USER_DICT_NAME]):
+        error_message[NAME_ERROR] = INVALID_NAME_FORMATE
+    if not phone_number_validation(user[USER_DICT_PHONE_NUMBER]):
+        error_message[PHONE_NUMBER_ERROR] = INVALID_PASSWORD
+    if not email_validation(user[USER_DICT_EMAIL]):
+        error_message[EMAIL_ERROR] = INVALID_EMAIL
+    if not gender_validation(user[USER_DICT_GENDER]):
+        error_message[GENDER_ERROR] = INVALID_GENDER
+    if not date_of_birth_validation(user[USER_DICT_DOB]):
+        error_message[DOB_ERROR] = INVALID_DOB
+    if (not load) and (not password_validation(user[USER_DICT_USER_PASSWORD])):
+        error_message[PASSWORD_ERROR] = INVALID_PASSWORD
+
+    if len(error_message):
+        return error_message
+    if not load:
+        user[USER_DICT_USER_PASSWORD] = hash_password(user[USER_DICT_USER_PASSWORD])
     return create(user, load)
 
 
@@ -33,19 +55,14 @@ def login_user(login_credential):
                                  including user ID and password.
 
     """
-    while True:  # todo remove while  implement pytantic
-        user = check_credential(login_credential)
-        if user is not None:
-            logger.info(f"User with user ID {login_credential[USER_DICT_USER_ID]} logged in successfully.")
-            if user[USER_DICT_USER_CATEGORY] == CUSTOMER_CATEGORY_NAME:
-                logger.debug(f"User {user[USER_DICT_USER_CATEGORY]} logged in as customer")
-                return customer_menu(user)
-            else:
-                logger.debug(f"User {user[USER_DICT_USER_CATEGORY]} logged in as vendor")
-                return vendor_management(user)
-        else:
-            logger.error(f"Invalid credentials provided for user ID {login_credential[USER_DICT_USER_ID]}.")
-            return
+    user = check_and_return_user(login_credential)
+    if user is not None:
+        logger.info(f"User with user ID {login_credential[USER_DICT_EMAIL]} logged in successfully.")
+        logger.info(f"User {login_credential[USER_DICT_EMAIL]} logged in as {user[USER_DICT_USER_CATEGORY]}")
+        return user
+    else:
+        logger.warn(f"Invalid credentials provided for user ID {login_credential[USER_DICT_EMAIL]}.")
+        return None
 
 
 def get_users():
@@ -53,8 +70,23 @@ def get_users():
         Retrieves all user records from the data source.
 
         Returns:
-            list: A list of all users retrieved by the `get_all` function.
+            dict : A list of all users retrieved by the `get_all` function.
     """
     return get_all()
+
+
+def delete(user_id):
+    """
+    Used to softly delete the user from the database
+
+    Parameters:
+        user_id (str) : User id of the user
+
+    Returns:
+        bool  : True if the user is deleted successfully.
+                False if no user id found
+
+    """
+    return delete_by_id(user_id)
 
 

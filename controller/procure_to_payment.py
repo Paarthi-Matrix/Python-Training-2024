@@ -1,7 +1,7 @@
-from service.p2p_service import create_purchase_order, get_by_po_number
+from service.procure_to_payment import create_purchase_order, get_by_po_number
 
 
-def generate_purchase_order(purchase_order):
+def issue_purchase_order(purchase_order):
     """
     Creates a new purchase order based on the provided details.
 

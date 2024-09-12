@@ -1,4 +1,4 @@
-from constants.biznex_constants import CUSTOMER_ID, VENDOR_QUOTATION_ID, PO_STATUS, STATUS_INACTIVE, VENDOR_ID
+from constants.constants import CUSTOMER_ID, VENDOR_QUOTATION_ID, PO_STATUS, STATUS_INACTIVE, VENDOR_ID
 from utils.common_utils import generate_random_string
 
 purchase_orders = {}

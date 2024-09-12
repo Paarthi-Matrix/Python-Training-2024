@@ -2,3 +2,5 @@ echo ".idea" >> .gitignore
 .env
 .idea
 /user_creds
+__pycache__
+

@@ -1,7 +1,7 @@
 import re
 from datetime import date, datetime
 
-from constants.biznex_constants import (
+from constants.constants import (
     DOB_VALIDATION_REGEX,
     EMAIL_VALIDATION_REGEX,
     GENDER_CATEGORY,
@@ -11,7 +11,7 @@ from constants.biznex_constants import (
     PASSWORD_VALIDATION_REGEX,
     PHONE_NUMBER_VALIDATION_REGEX
 )
-from resources.logging_config import logger
+from resources.config import logger
 
 
 def is_valid_number(number):

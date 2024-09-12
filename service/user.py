@@ -1,13 +1,12 @@
 import json
 import uuid
 
-from constants.biznex_constants import (
+from constants.constants import (
     FILE_PATH, USER_DICT_IS_DELETE,
-    USER_DICT_USER_ID, USER_DICT_USER_PASSWORD
+    USER_DICT_USER_ID, USER_DICT_USER_PASSWORD, USER_DICT_EMAIL
 )
-from resources.logging_config import logger
+from resources.config import logger
 from utils.password_utils import hash_password
-
 
 users = {}
 
@@ -34,43 +33,37 @@ def create(user, load=False):
 
     Parameters:
         user (dict) : Dictionary of user details
+        load (bool) : This boolean flag determines whether the file user need to be added in user
+                      Optional parameter if you don't want to write user to the file
 
     Returns:
         user (dict) : Returns a dict containing user details with generated user_id.
-        load (bool) : Optional parameter if you don't want to write user to the file
     """
-
-    user_id = ""
+    user_id = uuid.uuid4()
+    user[USER_DICT_USER_ID] = str(user_id)
     if not load:
-        user_id = uuid.uuid4()
-        user[USER_DICT_USER_ID] = str(user_id)
         put_user_to_file(user)
-    else:
-        user_id = user[USER_DICT_USER_ID]
-
-    users[str(user_id)] = user
+    users[user[USER_DICT_EMAIL]] = user
     return user
 
 
-def get_by_user_id(user_id):
+def get_by_email(user_email):
     """
-    Retrieves a user by their ID.
+    Retrieves a user by their e-email.
 
     Parameters:
-        user_id (str) : user id of the user to be retrieved.
+        user_email (str) : user email of the user to be retrieved.
 
     Returns:
-        user (dict) : Returns the user based on the user_id
-                      Returns None if there is no such user id found
+        user (dict) : Returns the user based on the user_email
+                      Returns None if there is no such user email found
     """
-    print("Current users dictionary:", users)
-
-    if user_id not in users:
-        return None
-    return users[user_id]
+    if user_email in users:
+        return users[user_email]
+    return None
 
 
-def check_credential(login_credential):
+def check_and_return_user(login_credential):
     """
     Verifies the user's credentials for login.
 
@@ -80,21 +73,19 @@ def check_credential(login_credential):
     Returns:
         bool: Returns True if the credentials are valid; otherwise, returns False.
     """
-    user_id = login_credential[USER_DICT_USER_ID]
-    logger.debug(f"Checking credentials for user ID: {user_id}")
-
-    user = get_by_user_id(user_id)
-
-    if user is None or user[USER_DICT_IS_DELETE] == True:
-        logger.error(f"Invalid user ID: {user_id}. User not found.")
+    user_email = login_credential[USER_DICT_EMAIL]
+    logger.debug(f"Checking credentials for user email: {user_email}")
+    user = get_by_email(user_email)
+    if user is None or (user[USER_DICT_IS_DELETE]):
+        logger.error(f"Invalid user email: {user_email}. User not found.")
         return None
-
     hashed_password = hash_password(login_credential[USER_DICT_USER_PASSWORD])
     if user[USER_DICT_USER_PASSWORD] != hashed_password:
-        logger.warning(f"Invalid password for user ID: {user_id}.")
+        print("db password", user[USER_DICT_USER_PASSWORD])
+        print("user given pasword", hashed_password)
+        logger.warning(f"Invalid password for user email: {user_email}.")
         return None
-
-    logger.info(f"User ID {user_id} logged in successfully.")
+    logger.info(f"User {user_email} logged in successfully.")
     return user
 
 
@@ -102,7 +93,7 @@ def get_all():
     return users
 
 
-def delete_by_id(user_id):
+def delete(user_id):
     """
         This function is used to softly delete the user based on user_id
 
@@ -113,9 +104,10 @@ def delete_by_id(user_id):
             bool : returns True if the user deleted successfully
                    Else return False
     """
-    user = users.get(user_id, None)
+    user = users.get(user_id.strip(), None)
     if user is None:
         return False
     else:
         user[USER_DICT_IS_DELETE] = True
+        logger.info(f"User {user[USER_DICT_USER_ID]} deleted.")
         return True

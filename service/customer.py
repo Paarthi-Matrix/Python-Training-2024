@@ -1,14 +1,13 @@
 import uuid
 
-from constants.biznex_constants import (
+from constants.constants import (
     CUSTOMER_QUOTATION_NUMBER, ITEM_CRITICAL_LEVEL,
     ITEM_QUANTITY, ITEM_STATUS, ITEM_STATUS_CRITICAL,
     ITEM_STATUS_NOT_AVAILABLE, STATUS, STATUS_SENT,
     WAREHOUSE_ITEM_ZERO_LOGGER
 )
-
 from custom_exceptions.warehouse_exception import WarehouseException
-from resources.logging_config import logger
+from resources.config import logger
 
 warehouse = {}
 vendor_quotations = {}
@@ -75,7 +74,7 @@ def change_item_quantity(warehouse_id, item_number, delta):
     """
     item_list = warehouse.get(warehouse_id, None)
     if item_list is None:
-        print(f"Warehouse with ID {warehouse_id} not found.")
+        logger.error(f"Warehouse with ID {warehouse_id} not found.")
         return False
 
     for item in item_list:
@@ -94,33 +93,37 @@ def change_item_quantity(warehouse_id, item_number, delta):
             return True
 
 
-def get_warehouse_by_id(warehouse_id):
+def get_warehouse(warehouse_id):
     """
     Retrieves the warehouse data for a given warehouse ID.
 
     Parameters:
         warehouse_id (str): The ID of the warehouse to retrieve.
-
     Returns:
         dict or None: The warehouse data dictionary if found; otherwise, None.
     """
-    return warehouse.get(warehouse_id, None)
+    if warehouse_id in warehouse:
+        return warehouse[warehouse_id]
+    else:
+        return None
 
 
-def is_warehouse_available(warehouse_id):
+# TODO Need to utilize the user_id parameter, so that the user can access only their warehouses
+def is_warehouse_available(warehouse_id, user_id):
     """
     Checks if a warehouse exists for a given warehouse ID.
 
     Parameters:
-        warehouse_id (str): The ID of the warehouse to check.
+        warehouse_id (str) : The ID of the warehouse to check.
+        user_id (str) : user_id of the user.
 
     Returns:
         bool: True if the warehouse exists; False otherwise.
     """
-    return bool(warehouse.get(warehouse_id))
+    return warehouse_id in warehouse
 
 
-def get_vendor_quotations_by_customer_id(customer_quotation_id):
+def get_vendor_quotations_by_quotation_id(customer_quotation_id):
     """
     Retrieves all vendor quotations based on the customer quotation ID.
 

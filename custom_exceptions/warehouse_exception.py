@@ -1,4 +1,4 @@
-from constants.biznex_constants import WAREHOUSE_ITEM_ZERO_LOGGER
+from constants.constants import WAREHOUSE_ITEM_ZERO_LOGGER  # todo naming
 
 
 class WarehouseException(Exception):
