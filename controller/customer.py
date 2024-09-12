@@ -69,7 +69,7 @@ def customer_menu(user):
                 logger.error(f"User gave invalid input {choice}, Must be only numbers ranging from 1 to 3")
 
 
-def warehouse_management(user):
+def warehouse_management(user):  # todo use the user parameter for security
     """
         Manages warehouse operations for a given user.
 
@@ -80,7 +80,7 @@ def warehouse_management(user):
         Parameters:
             user (dict): The user dictionary containing user details.
 
-        """
+    """
     warehouse_id = create_ware_house()
     logger.info(f"Created an empty warehouse for user with warehouse id {warehouse_id}")
     choice = ""
@@ -89,7 +89,7 @@ def warehouse_management(user):
         try:
             choice = int(input(ENTER_YOUR_CHOICE))
         except ValueError as e:
-            logger.exception(f"User gave a invalid choice {choice}, Must give only numbers")
+            logger.exception(f"User gave a invalid choice {choice}, Must give only numbers")  # todo send the trace back
             continue
 
         match choice:

@@ -1,6 +1,8 @@
 import json
 import os
+
 from tabulate import tabulate
+
 from constants.biznex_constants import (
     APPLICATION_STOPPED,
     ASCII_OF_ONE, CHOICE_MIN_LENGTH,
@@ -29,8 +31,8 @@ from constants.biznex_constants import (
     VALID_PASSWORD_PROMPT, VENDOR_CATEGORY_NAME,
     YES, NO, ASCII_OF_FIVE,
 )
-from custom_exceptions.id_generation_exception import IdGenerationException
-from resources.logging_config import logger
+from custom_exceptions.id_generation_exception import IdGenerationException  # todo naming
+from resources.logging_config import logger  # todo naming
 from service.user_service import delete_by_id
 from user_controller import (
     get_users,
@@ -52,7 +54,7 @@ def start_application():
     """
     Starts the main application loop, displaying the main menu and handling user input.
     """
-    logger.debug("Application started.")
+    logger.debug("Application started.")  # todo change to info
     while True:
         print(MAIN_MENU_TEXT)
         choice = input(INPUT_PLACEHOLDER_MESSAGE)

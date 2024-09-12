@@ -3,7 +3,7 @@ from logging.handlers import RotatingFileHandler
 import os
 
 logger = logging.getLogger("BizNex")
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.DEBUG)  # todo move to constant
 
 log_directory = "Application_logs"
 if not os.path.exists(log_directory):

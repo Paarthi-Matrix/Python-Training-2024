@@ -3,13 +3,13 @@ from constants.biznex_constants import (
     USER_DICT_USER_CATEGORY,
     USER_DICT_USER_ID
 )
-from customer_controller import customer_menu
+from controller.customer_controller import customer_menu
 from resources.logging_config import logger
 from service.user_service import check_credential, create, get_all
 from vendor_controller import vendor_management
 
 
-def load_user(user, load):
+def load_user(user, load):  # todo
     """
        Creates a new user with the specified details.
 
@@ -33,7 +33,7 @@ def login_user(login_credential):
                                  including user ID and password.
 
     """
-    while True:
+    while True:  # todo remove while  implement pytantic
         user = check_credential(login_credential)
         if user is not None:
             logger.info(f"User with user ID {login_credential[USER_DICT_USER_ID]} logged in successfully.")
