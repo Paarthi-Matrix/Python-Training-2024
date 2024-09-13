@@ -7,12 +7,14 @@ from exception.custom_exception import (
 )
 
 from helper.constant import (
-    LOG_DRIVER_REGISTERED,
+    DRIVER_REGISTERED,
     LOG_USER_ALREADY_REGISTERED_EMAIL,
     LOG_USER_ALREADY_REGISTERED_PASSWORD,
     LOG_USER_ALREADY_REGISTERED_AREA,
-    LOG_NO_DRIVER,
-    LOG_NO_DRIVER_FOUND, PROMPT_BIN_COMPLETED, PROMPT_BIN_INCOMPLETE
+    NO_DRIVER,
+    PROMPT_BIN_COMPLETED, PROMPT_BIN_INCOMPLETE,
+    WASTAGE_WEIGHT_CALCULATED, LOG_BIN_UPDATED, DICT_EMAIL, PASSWORD, AREA, BIN_ID, BIO_WASTE, NON_BIO_WASTE, STATUS,
+    DATE_TIME, HUNDRED, TEN, TWENTY, RECYCLED, PROFIT_BIO_WASTE, PROFIT_NON_BIO_WASTE, NO, YES
 )
 
 from resources.logger_configuration import logger
@@ -43,7 +45,8 @@ def add_driver(name, email, password, mobile_no, area):
     }
     driver_id = str(uuid.uuid4())
     driver_details[driver_id] = drivers
-    logger.info(LOG_DRIVER_REGISTERED.format(driver_id=driver_id))
+    logger.info(DRIVER_REGISTERED.format(driver_detail=driver_id))
+    return driver_id
 
 
 def register_driver(name, email, password, mobile_no, area):
@@ -59,20 +62,20 @@ def register_driver(name, email, password, mobile_no, area):
     """
     for driver_id in driver_details:
         driver = driver_details.get(driver_id)
-        if driver['email'] == email:
+        if driver[DICT_EMAIL] == email:
             logger.warning(LOG_USER_ALREADY_REGISTERED_EMAIL.format(email=email))
             break
-        elif driver['password'] == password:
+        elif driver[PASSWORD] == password:
             logger.warning(LOG_USER_ALREADY_REGISTERED_PASSWORD.format(password=password))
             break
-        elif driver['area'] == area:
+        elif driver[AREA] == area:
             logger.warning(LOG_USER_ALREADY_REGISTERED_AREA.format(area=area))
             break
         else:
-            add_driver(name, email, password, mobile_no, area)
+            return add_driver(name, email, password, mobile_no, area)
 
     else:
-        add_driver(name, email, password, mobile_no, area)
+        return add_driver(name, email, password, mobile_no, area)
 
 
 def search_driver(area):
@@ -86,13 +89,10 @@ def search_driver(area):
         dict: The details of the driver if found; otherwise, None.
     """
     for driver_id in driver_details:
-        if driver_details[driver_id]['area'] == area:
+        if driver_details[driver_id][AREA] == area:
             return driver_details[driver_id]
-    else:
-        if driver_details.keys():
-            logger.warning(LOG_NO_DRIVER.format(area=area))
-        else:
-            logger.warning(LOG_NO_DRIVER_FOUND)
+    logger.warning(NO_DRIVER.format(area=area))
+    raise ResourceNotFoundException(NO_DRIVER.format(area=area))
 
 
 def get_driver_email(area):
@@ -109,8 +109,8 @@ def get_driver_email(area):
         ResourceNotFoundException: If no driver is found in the specified area.
     """
     for driver_id in driver_details:
-        if driver_details[driver_id]['area'].lower() == area.lower():
-            return driver_details[driver_id]['email']
+        if driver_details[driver_id][AREA].lower() == area.lower():
+            return driver_details[driver_id][DICT_EMAIL]
     raise ResourceNotFoundException("No driver assigned to this area: " + area)
 
 
@@ -128,7 +128,7 @@ def is_driver_available(email):
         ResourceNotFoundException: If no driver is found with the specified email.
     """
     for driver_id in driver_details:
-        if driver_details[driver_id]['email'] == email:
+        if driver_details[driver_id][DICT_EMAIL] == email:
             return driver_details[driver_id]
     raise ResourceNotFoundException("No driver found by this email: " + email)
 
@@ -162,13 +162,15 @@ def add_work_report(email, status, bio_weight, non_bio_weight, bin_id, area):
     }
     # To check the status if it is incomplete or on progress
     for work_id in work_report:
-        if work_report[work_id]["bin_id"] == bin_id:
-            updated_bin_detail["bio-weight"] = work_report[work_id]["bio-weight"] + bio_weight
-            updated_bin_detail["non_bio-weight"] = work_report[work_id]["non_bio-weight"] + non_bio_weight
+        if work_report[work_id][BIN_ID] == bin_id:
+            updated_bin_detail[BIO_WASTE] = work_report[work_id][BIO_WASTE] + bio_weight
+            updated_bin_detail[NON_BIO_WASTE] = work_report[work_id][NON_BIO_WASTE] + non_bio_weight
             work_report[work_id] = updated_bin_detail
             break
     else:
         work_report[str(uuid.uuid4())] = updated_bin_detail
+    logger.info(LOG_BIN_UPDATED)
+    return True
 
 
 def get_all_work_reports():
@@ -194,9 +196,9 @@ def is_status_completed(bin_id):
         bool: True if the bin status is completed and the report date is today; False otherwise.
     """
     for work_id in work_report:
-        if work_report[work_id]["bin_id"] == bin_id:
-            if work_report[work_id]["status"] == PROMPT_BIN_COMPLETED:
-                return work_report[work_id]["date_time"].date() == datetime.today().date(), PROMPT_BIN_COMPLETED
+        if work_report[work_id][BIN_ID] == bin_id:
+            if work_report[work_id][STATUS] == PROMPT_BIN_COMPLETED:
+                return work_report[work_id][DATE_TIME].date() == datetime.today().date(), PROMPT_BIN_COMPLETED
             else:
                 return False, PROMPT_BIN_INCOMPLETE
         else:
@@ -217,7 +219,7 @@ def get_work_reports(email):
     """
     found = False
     for work_id in work_report:
-        if work_report[work_id]['email'] == email:
+        if work_report[work_id][DICT_EMAIL] == email:
             found = True
             yield work_report[work_id]
 
@@ -237,10 +239,10 @@ def is_valid_complaint(bin_id):
     """
     today = datetime.today().date()
     for work_id, report in work_report.items():
-        bin_match = report["bin_id"] == bin_id
-        date_match = report["date_time"].date() == today
-        time_match = report["date_time"].hour >= 12
-        status_match = report["status"].upper() == PROMPT_BIN_INCOMPLETE
+        bin_match = report[BIN_ID] == bin_id
+        date_match = report[DATE_TIME].date() == today
+        time_match = report[DATE_TIME].hour >= 12
+        status_match = report[STATUS].upper() == PROMPT_BIN_INCOMPLETE
 
         if not bin_match:
             return True
@@ -249,7 +251,7 @@ def is_valid_complaint(bin_id):
             # To check if the bin report is incomplete and time is above 12 afternoon
             if time_match and status_match:
                 return True
-            elif report["status"].upper() == PROMPT_BIN_COMPLETED:
+            elif report[STATUS].upper() == PROMPT_BIN_COMPLETED:
                 raise GarbageCollectorException("Work has already been completed for today where Bin Id: " + bin_id)
             else:
                 raise GarbageCollectorException("Unable to raise complaint before 12 Noon for bin Id " + bin_id)
@@ -275,12 +277,14 @@ def check_wastage():
                 bio_waste_weight += work_report[work_id]["bio-weight"]
                 non_bio_waste_weight += work_report[work_id]["non_bio-weight"]
 
-        if bio_waste_weight >= 100 and non_bio_waste_weight >= 100:
+        if bio_waste_weight >= HUNDRED and non_bio_waste_weight >= HUNDRED:
             total_waste = bio_waste_weight + non_bio_waste_weight
             if is_wastage_report_added():
                 add_wastage_report(bio_waste_weight, non_bio_waste_weight, total_waste)
             else:
                 raise ResourceAlreadyExistsException("Wastage report already send to the Recycler for today")
+            logger.info(
+                WASTAGE_WEIGHT_CALCULATED.format(total_waste, bio_waste_weight, non_bio_waste_weight))
             return total_waste, bio_waste_weight, non_bio_waste_weight
         elif bio_waste_weight == 0 and non_bio_waste_weight == 0:
             # If the work report given incomplete by the driver
@@ -302,14 +306,14 @@ def calculate_wastage_profit():
     """
     customer_profit = 0
     for work_id in work_report:
-        if work_report[work_id]["Recycled"] == "No":
-            bio_degradable_profit = work_report[work_id]["bio-weight"] * 10
-            non_bio_degradable_profit = work_report[work_id]["non_bio-weight"] * 20
-            work_report[work_id]["profit_bio-weight"] = bio_degradable_profit
-            work_report[work_id]["profit_non_bio-weight"] = non_bio_degradable_profit
-            work_report[work_id]["Recycled"] = "Yes"
-            work_report[work_id]["bio-weight"] = 0
-            work_report[work_id]["non_bio-weight"] = 0
+        if work_report[work_id][RECYCLED] == NO:
+            bio_degradable_profit = work_report[work_id][BIO_WASTE] * TEN
+            non_bio_degradable_profit = work_report[work_id][NON_BIO_WASTE] * TWENTY
+            work_report[work_id][PROFIT_BIO_WASTE] = bio_degradable_profit
+            work_report[work_id][PROFIT_NON_BIO_WASTE] = non_bio_degradable_profit
+            work_report[work_id][RECYCLED] = YES
+            work_report[work_id][BIO_WASTE] = 0
+            work_report[work_id][NON_BIO_WASTE] = 0
             customer_profit += bio_degradable_profit + non_bio_degradable_profit
         else:
             raise GarbageCollectorException("Profit has already been calculated and credited to respective Bin owners")
@@ -331,7 +335,7 @@ def check_profit(bin_id):
     """
     if len(work_report) > 0:
         for work_id in work_report:
-            if work_report[work_id]["bin_id"] == bin_id:
+            if work_report[work_id][BIN_ID] == bin_id:
                 return work_report[work_id]
     else:
         raise ResourceNotFoundException("Profit not yet calculated")

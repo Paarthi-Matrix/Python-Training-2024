@@ -1,6 +1,10 @@
 import uuid
 from datetime import datetime
 from exception.custom_exception import ResourceNotFoundException, GarbageCollectorException
+from helper.constant import LOG_RECYCLER_REGISTERED, LOG_COST_OF_WASTAGE, LOG_CALCULATED_PROFIT, RECYCLED, DATE_TIME, \
+    NO, BIO_WASTE_WEIGHT, NON_BIO_WASTE_WEIGHT, TOTAL_WASTE, YES, TOTAL_PROFIT, COST_OF_BIO_WASTE, \
+    COST_OF_NON_BIO_WASTE, FIFTY, HUNDRED
+from resources.logger_configuration import logger
 
 recycler_details = {}
 wastage_reports = {}
@@ -27,6 +31,7 @@ def register_recycler(recycler_name, recycler_email, password, mobile_no):
         "mobile_no": mobile_no
     }
     recycler_details[recycler_id] = recycler_detail
+    logger.info(LOG_RECYCLER_REGISTERED.format(recycler_id=recycler_id))
     return recycler_id
 
 
@@ -47,10 +52,10 @@ def is_wastage_report_added():
     if len(wastage_reports) != 0:
         for wastage_id in wastage_reports:
             report = wastage_reports[wastage_id]
-            recycled = report.get("Recycled")
-            date_time = report.get("date_time")
+            recycled = report.get(RECYCLED)
+            date_time = report.get(DATE_TIME)
 
-            if recycled == 'No' and date_time and date_time.date() != today:
+            if recycled == NO and date_time and date_time.date() != today:
                 return True
         return False
     else:
@@ -69,10 +74,10 @@ def add_wastage_report(bio_waste_weight, non_bio_waste_weight, total_waste):
     The function creates a report with cost and profit details set to zero and records the current date and time.
     """
     for wastage_id in wastage_reports:
-        if wastage_reports[wastage_id]["Recycled"] == "No":
-            bio_waste_weight += wastage_reports[wastage_id]["bio_waste_weight"]
-            non_bio_waste_weight += wastage_reports[wastage_id]["non_bio_waste_weight"]
-            total_waste += wastage_reports[wastage_id]["total_waste"]
+        if wastage_reports[wastage_id][RECYCLED] == NO:
+            bio_waste_weight += wastage_reports[wastage_id][BIO_WASTE_WEIGHT]
+            non_bio_waste_weight += wastage_reports[wastage_id][NON_BIO_WASTE_WEIGHT]
+            total_waste += wastage_reports[wastage_id][TOTAL_WASTE]
 
     garbage_collections = {
         "bio_waste_weight": bio_waste_weight,
@@ -100,7 +105,7 @@ def get_wastage_report():
     """
     if len(wastage_reports) != 0:
         for wastage_id in wastage_reports:
-            if is_wastage_report_valid_date(wastage_reports[wastage_id]["date_time"]):
+            if is_wastage_report_valid_date(wastage_reports[wastage_id][TOTAL_WASTE]):
                 return wastage_reports[wastage_id]
             else:
                 raise ResourceNotFoundException("No wastage report found for today")
@@ -120,17 +125,17 @@ def calculate_rate():
     """
     if len(wastage_reports) != 0:
         for wastage_id in wastage_reports:
-            if (wastage_reports[wastage_id]["Recycled"] == "No" and
-                    is_wastage_report_valid_date(wastage_reports[wastage_id]["date_time"])):
-                wastage_reports[wastage_id]["cost_of_bio_degradable"] = wastage_reports[wastage_id][
-                                                                            "bio_waste_weight"] * 50
-                wastage_reports[wastage_id]["cost_of_non_bio_degradable"] = wastage_reports[wastage_id][
-                                                                                "non_bio_waste_weight"] * 100
-                wastage_reports[wastage_id]["total_profit"] = (wastage_reports[wastage_id][
-                                                                   "bio_waste_weight"] * 50) + (
+            if (wastage_reports[wastage_id][RECYCLED] == NO and
+                    is_wastage_report_valid_date(wastage_reports[wastage_id][DATE_TIME])):
+                wastage_reports[wastage_id][COST_OF_BIO_WASTE] = wastage_reports[wastage_id][
+                                                                            BIO_WASTE_WEIGHT] * FIFTY
+                wastage_reports[wastage_id][COST_OF_NON_BIO_WASTE] = wastage_reports[wastage_id][
+                                                                                NON_BIO_WASTE_WEIGHT] * HUNDRED
+                wastage_reports[wastage_id][TOTAL_PROFIT] = (wastage_reports[wastage_id][
+                                                                   BIO_WASTE_WEIGHT] * FIFTY) + (
                                                                       wastage_reports[wastage_id][
-                                                                          "non_bio_waste_weight"] * 100)
-                wastage_reports[wastage_id]["Recycled"] = "Yes"
+                                                                          NON_BIO_WASTE_WEIGHT] * HUNDRED)
+                wastage_reports[wastage_id][RECYCLED] = YES
                 return wastage_reports
             else:
                 raise GarbageCollectorException("Rate has already been calculated on Garbage")
@@ -150,8 +155,9 @@ def get_cost_of_garbage():
     """
     if len(wastage_reports) != 0:
         for wastage_id in wastage_reports:
-            if (wastage_reports[wastage_id]["Recycled"] == "Yes" and
-                    is_wastage_report_valid_date(wastage_reports[wastage_id]["date_time"])):
+            if (wastage_reports[wastage_id][RECYCLED] == YES and
+                    is_wastage_report_valid_date(wastage_reports[wastage_id][DATE_TIME])):
+                logger.info(LOG_COST_OF_WASTAGE.format(wastage_id=wastage_id))
                 return wastage_reports[wastage_id]
             else:
                 raise GarbageCollectorException("Garbage not yet recycled by the Recycler")
@@ -172,11 +178,13 @@ def calculate_profit():
     from service.driver import calculate_wastage_profit
     if len(wastage_reports) != 0:
         for wastage_id in wastage_reports:
-            if (wastage_reports[wastage_id]["Recycled"] == "Yes" and
-                    is_wastage_report_valid_date(wastage_reports[wastage_id]["date_time"])):
+            if (wastage_reports[wastage_id][RECYCLED] == YES and
+                    is_wastage_report_valid_date(wastage_reports[wastage_id][DATE_TIME])):
                 customer_profit = calculate_wastage_profit()
-                wastage_reports[wastage_id]["total_profit"] = (
-                        wastage_reports[wastage_id]["total_profit"] - customer_profit)
+                wastage_reports[wastage_id][TOTAL_PROFIT] = (
+                        wastage_reports[wastage_id][TOTAL_PROFIT] - customer_profit)
+                logger.info(LOG_CALCULATED_PROFIT)
+                return wastage_reports[wastage_id][TOTAL_PROFIT]
             else:
                 raise GarbageCollectorException("Garbage not yet recycled by the Recycler")
     else:
@@ -186,17 +194,11 @@ def calculate_profit():
 def get_calculated_report():
     if len(wastage_reports) != 0:
         for wastage_id in wastage_reports:
-            if wastage_reports[wastage_id]["Recycled"] == "Yes":
+            if wastage_reports[wastage_id][RECYCLED] == YES:
                 return wastage_reports[wastage_id]
             else:
                 raise GarbageCollectorException("Wastage report not yet recycled by Recycler")
     raise GarbageCollectorException("No wastage reports added yet")
-
-
-def view_calculated_report(wastage_report):
-    for wastage_id in wastage_report:
-        for wastage, wastage_data in wastage_report[wastage_id].items():
-            print(wastage, " : ", wastage_data)
 
 
 def is_wastage_report_valid_date(report_date):

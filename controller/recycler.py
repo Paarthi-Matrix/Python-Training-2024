@@ -1,44 +1,30 @@
-from helper.constant import (
-    LOG_RECYCLER_UNAUTHORIZED,
-    LOG_ERROR_CHOICE_RANGE_1_3, RECYCLER_MENU, PROMPT_CHOICE, ONE, THREE, TWO,
-)
-
-from resources.logger_configuration import logger
-
 from service.recycler import (
-    is_recycler_registered,
     get_wastage_report,
-    calculate_rate, view_calculated_report
+    calculate_rate
 )
 
 
-def handle_recycling():
+def fetch_wastage_report():
     """
-      Displays a menu for managing recycler operations and processes user input.
+    Retrieve the report of wastage.
 
-      The function provides four options:
-      1. View wastage reports if the recycler is registered.
-      2. Calculate and log the recycling rate if the recycler is registered.
-      3. Exit the menu.
+    This function calls the service to get the wastage report, which includes details
+    about the quantity and type of waste collected.
 
-      Handles invalid input and logs relevant actions and errors. Assumes `RECYCLER_MENU`, `PROMPT_CHOICE`,
-      and logging constants are defined elsewhere.
-      """
-    print(RECYCLER_MENU)
-    choice = int(input(PROMPT_CHOICE))
-    if ONE <= choice <= THREE:
-        if choice == ONE:
-            if is_recycler_registered():
-                wastage = get_wastage_report()
-                for wastage_item, wastage_data in wastage.items():
-                    print(wastage_item, " : ", wastage_data)
-            else:
-                logger.warning(LOG_RECYCLER_UNAUTHORIZED)
-        elif choice == TWO:
-            if is_recycler_registered():
-                wastage_reports = calculate_rate()
-                view_calculated_report(wastage_reports)
-            else:
-                logger.warning(LOG_RECYCLER_UNAUTHORIZED)
-    else:
-        logger.warning(LOG_ERROR_CHOICE_RANGE_1_3)
+    Returns:
+        dict: The wastage report, including details such as types and amounts of waste.
+    """
+    return get_wastage_report()
+
+
+def rate_calculation():
+    """
+    Calculate the rate based on the wastage data.
+
+    This function invokes the service to calculate the rate, which may be
+    based on factors such as the type and amount of waste collected.
+
+    Returns:
+        dict: work report after calculating the rate for wastage
+    """
+    return calculate_rate()

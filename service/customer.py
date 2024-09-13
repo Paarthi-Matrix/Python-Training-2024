@@ -7,12 +7,16 @@ from exception.custom_exception import (
 )
 
 from helper.constant import (
+    BIN_CREATED_WITH_ID,
+    COMPLAINT_REGISTERED,
+    CUSTOMER_DELETED_WITH_ID,
     LOG_CUSTOMER_REGISTERED_WITH_ID,
-    LOG_CUSTOMER_UPDATED,
-    LOG_BIN_CREATED_WITH_ID
+    LOG_CUSTOMER_UPDATED, IS_DELETED, DICT_EMAIL, DICT_NAME, CUSTOMER_ID, DRIVER_EMAIL, DOOR_NO, AREA, BIN_ID,
+    STATUS, COMPLAINT_STATUS
 )
 
 from resources.logger_configuration import logger
+
 
 # Dictionary to store customer details by their ID
 customer_details = {}
@@ -35,7 +39,7 @@ def get_all_customer():
     else:
         is_customer_available = False
         for customer_id in customer_details:
-            if not customer_details[customer_id]['is_deleted']:
+            if not customer_details[customer_id][IS_DELETED]:
                 is_customer_available = True
                 yield customer_id, customer_details[customer_id]
         if not is_customer_available:
@@ -55,10 +59,9 @@ def register_customer(name, email, password, mobile_no):
     Returns:
     - customer_id: The unique ID assigned to the customer
     """
-    # Create a dictionary to store customer information
     if len(customer_details) != 0:
         for customer_id in customer_details:
-            if customer_details[customer_id]['email'] == email:
+            if customer_details[customer_id][DICT_EMAIL] == email:
                 raise UserAlreadyExistsError("Already registered user with email: " + email)
 
     customers = {
@@ -70,8 +73,8 @@ def register_customer(name, email, password, mobile_no):
     }
     customer_id = str(uuid.uuid4())
     customer_details[customer_id] = customers
-    logger.info(LOG_CUSTOMER_REGISTERED_WITH_ID.format(customer_id=customer_id))
-
+    logger.info(LOG_CUSTOMER_REGISTERED_WITH_ID.format(customer_detail=customer_id))
+    return customer_id
 
 
 def search_customer(customer_identifier):
@@ -81,13 +84,13 @@ def search_customer(customer_identifier):
     Parameters:
     - cus_id: The unique ID of the customer
     """
-    from util.validation import is_valid_name
+    from validator.validation import is_valid_name
     if is_valid_name(customer_identifier):
         customers_by_name = {}
         for customer_id in customer_details:
             detail = customer_details[customer_id]
-            if not detail['is_deleted']:
-                customer_name = detail["name"]
+            if not detail[IS_DELETED]:
+                customer_name = detail[DICT_NAME]
                 if customer_name.lower().__contains__(customer_identifier
                                                               .lower()):
                     customers_by_name[customer_id] = detail
@@ -112,7 +115,8 @@ def remove_customer(customer_id):
     - customer_id: If the customer ID does not exist in the dictionary.
     """
     if is_customer_present(customer_id):
-        customer_details.get(customer_id)['is_deleted'] = True
+        customer_details.get(customer_id)[IS_DELETED] = True
+        logger.info(CUSTOMER_DELETED_WITH_ID.format(customer_id=customer_id))
         return None
 
 
@@ -136,6 +140,7 @@ def update_customer(customer_id, detail_to_update, to_update):
     customer = customer_details[customer_id]
     customer[to_update] = detail_to_update
     logger.info(LOG_CUSTOMER_UPDATED.format(customer_id=customer_id))
+    return True
 
 
 def is_customer_present(customer_id):
@@ -150,7 +155,7 @@ def is_customer_present(customer_id):
     - False: If the customer does not exist in the dictionary.
     """
     if (customer_id in customer_details and not
-    customer_details[customer_id]['is_deleted']):
+    customer_details[customer_id][IS_DELETED]):
         return True
     raise ResourceNotFoundException("No customer found by this Id: " + customer_id)
 
@@ -166,7 +171,7 @@ def is_bin_created_for_customer(customer_id):
         bool: True if a bin exists for the customer ID; False otherwise.
     """
     for bin_id in bins:
-        if bins[bin_id]["customer_id"] == customer_id:
+        if bins[bin_id][CUSTOMER_ID] == customer_id:
             return True
     return False
 
@@ -201,7 +206,8 @@ def create_bin(area, door_no, landmark, city, load_type,
     }
     bin_id = str(uuid.uuid4())
     bins[bin_id] = customer_bin
-    logger.info(LOG_BIN_CREATED_WITH_ID.format(bin_id=bin_id))
+    logger.info(BIN_CREATED_WITH_ID.format(bin_detail=bin_id))
+    return bin_id
 
 
 def get_bins(email):
@@ -219,7 +225,7 @@ def get_bins(email):
     """
     is_driver_present = False
     for bin_id in bins:
-        if bins[bin_id]['driver_email'] == email:
+        if bins[bin_id][DRIVER_EMAIL] == email:
             is_driver_present = True
             yield bin_id, bins[bin_id]
     if not is_driver_present:
@@ -240,9 +246,9 @@ def is_bin_available(bin_id):
     Raises:
         ResourceNotFoundException: If no bin is found with the specified ID.
     """
-    if bins.get(bin_id) is None:
-        raise ResourceNotFoundException("No Bin found by this Id: " + bin_id)
-    return True
+    if bin_id in bins:
+        return True
+    raise ResourceNotFoundException("No Bin found by this Id: " + bin_id)
 
 
 def get_bin_wastage_type(bin_id):
@@ -277,7 +283,7 @@ def is_address_already_available(door_no, area):
         UserAlreadyExistsError: If a bin with the same door number and area is already present.
     """
     for bin_id in bins:
-        if bins[bin_id]["area"] == area and bins[bin_id]["door_no"] == door_no:
+        if bins[bin_id][AREA] == area and bins[bin_id][DOOR_NO] == door_no:
             raise UserAlreadyExistsError("Address already exist")
     return False
 
@@ -294,9 +300,9 @@ def raise_complaint(bin_id, complaint):
         A complaint record with status "pending" and a unique complaint ID.
     """
     if bin_id in bins:
-        area = bins[bin_id]["area"]
-        customer_id = bins[bin_id]["customer_id"]
-        driver_email = bins[bin_id]["driver_email"]
+        area = bins[bin_id][AREA]
+        customer_id = bins[bin_id][CUSTOMER_ID]
+        driver_email = bins[bin_id][DRIVER_EMAIL]
         customer_complaints = {
             "area": area,
             "complaint": complaint,
@@ -308,6 +314,8 @@ def raise_complaint(bin_id, complaint):
         }
         complaint_id = str(uuid.uuid4())
         complaints[complaint_id] = customer_complaints
+        logger.info(COMPLAINT_REGISTERED.format(bin_id=bin_id))
+        return True
 
 
 def view_all_complaints():
@@ -342,7 +350,7 @@ def check_complaints(email):
     """
     is_complaint_registered = False
     for complaint_id in complaints:
-        if complaints[complaint_id]["driver_email"] == email:
+        if complaints[complaint_id][DRIVER_EMAIL] == email:
             is_complaint_registered = True
             yield complaint_id, complaints[complaint_id]
 
@@ -362,8 +370,8 @@ def change_complaint_status(status, bin_id):
         The status of the complaint to the specified value if it matches today's date.
     """
     for complaint_id in complaints:
-        if complaints[complaint_id]["bin_id"] == bin_id:
-            complaints[complaint_id]["status"] = status
+        if complaints[complaint_id][BIN_ID] == bin_id:
+            complaints[complaint_id][STATUS] = status
 
 
 def get_customer_details(email):
@@ -380,7 +388,7 @@ def get_customer_details(email):
         ResourceNotFoundException: If no customer is found with the specified email.
     """
     for customer_id in customer_details:
-        if customer_details[customer_id]["email"] == email:
+        if customer_details[customer_id][DICT_EMAIL] == email:
             return customer_id, customer_details[customer_id]
     raise ResourceNotFoundException("No customer found by this email: " + email)
 
@@ -399,14 +407,14 @@ def get_customer_bin(customer_id):
         ResourceNotFoundException: If no bin is found for the specified customer ID.
     """
     for bin_id in bins:
-        if bins[bin_id]["customer_id"] == customer_id:
+        if bins[bin_id][CUSTOMER_ID] == customer_id:
             return bin_id, bins[bin_id]
     raise ResourceNotFoundException("No bin registered for this customer_id: " + customer_id)
 
 
 def is_complaint_raised(bin_id):
     for complaint_id in complaints:
-        if complaints[complaint_id]["bin_id"] == bin_id and complaints[complaint_id]["status"] == "pending":
+        if complaints[complaint_id][BIN_ID] == bin_id and complaints[complaint_id][STATUS] == COMPLAINT_STATUS:
             return True
         else:
             return False

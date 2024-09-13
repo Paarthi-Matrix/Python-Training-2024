@@ -1,0 +1,13 @@
+2024-09-10 18:41:01,561 - Garbage_Collector - WARNING - You are Unauthorized
+2024-09-10 18:41:05,833 - Garbage_Collector - WARNING - Choice should range between 1 to 5
+2024-09-10 19:36:30,305 - Garbage_Collector - INFO - Admin created with ID: 3470e7dd-785b-4cde-80ea-9efccb199caa
+2024-09-10 19:49:35,916 - Garbage_Collector - INFO - Admin created with ID: 3f08d6f7-7282-470b-be09-9e94ac378882
+2024-09-10 19:51:36,393 - Garbage_Collector - INFO - Driver successfully registered with Id: f0e4daad-9b7e-4412-8c93-d5ba14be5ece
+2024-09-11 11:47:01,097 - Garbage_Collector - ERROR - File does not exist: C:\Users\ranjithkumar.radhakr\PycharmProjects\user_detail\user_detail
+2024-09-11 11:47:32,144 - Garbage_Collector - INFO - Admin created with ID: None
+2024-09-11 11:53:27,216 - Garbage_Collector - WARNING - Name should only contain lowercase, uppercase letters, and spaces.
+2024-09-11 11:53:34,408 - Garbage_Collector - WARNING - Name should only contain lowercase, uppercase letters, and spaces.
+2024-09-11 11:53:36,254 - Garbage_Collector - WARNING - Exceeding limit, Unable to continue process
+2024-09-11 11:56:16,771 - Garbage_Collector - WARNING - Name should only contain lowercase, uppercase letters, and spaces.
+2024-09-11 11:56:18,609 - Garbage_Collector - WARNING - Name should only contain lowercase, uppercase letters, and spaces.
+2024-09-11 11:56:20,596 - Garbage_Collector - WARNING - Exceeding limit, Unable to continue process

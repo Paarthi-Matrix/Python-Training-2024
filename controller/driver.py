@@ -1,72 +1,72 @@
 from helper.constant import (
-    LOG_VALUE_ERROR_IN_ADMIN_MENU,
-    LOG_ERROR_INVALID_WASTAGE,
-    LOG_ERROR_INVALID_STATUS,
-    LOG_BIN_UPDATED,
-    LOG_BIN_STATUS_COMPLETED,
-    LOG_ERROR_CHOICE_RANGE_1_6,
-    LOG_INVALID_WEIGHT,
-    LOG_WORK_REPORT_INCOMPLETE, PROMPT_BIN_STATUS, PROMPT_BIO_DEGRADABLE, PROMPT_BIO_DEGRADABLE_WASTE,
-    PROMPT_NON_BIO_DEGRADABLE, PROMPT_NON_BIO_DEGRADABLE_WASTE, PROMPT_WASTAGE_TYPE, DRIVER_MENU, PROMPT_CHOICE,
-    PROMPT_EMAIL, PROMPT_BIN_ID, PROMPT_BIN_INCOMPLETE, PROMPT_BIN_COMPLETED, ONE, SIX, TWO, THREE, FOUR, FIVE
+    ERROR_INVALID_STATUS, ERROR_INVALID_WASTAGE,
+    LOG_BIN_STATUS_COMPLETED, LOG_BIN_UPDATED, LOG_INVALID_WEIGHT,
+    LOG_VALUE_ERROR_IN_ADMIN_MENU, LOG_WORK_REPORT_INCOMPLETE,
+    PROMPT_BIO_DEGRADABLE, PROMPT_BIO_DEGRADABLE_WASTE, PROMPT_BIN_COMPLETED,
+    PROMPT_BIN_INCOMPLETE, PROMPT_NON_BIO_DEGRADABLE, PROMPT_NON_BIO_DEGRADABLE_WASTE,
+    PROMPT_WASTAGE_TYPE
 )
 
 from resources.logger_configuration import logger
 
 from service.customer import (
-    get_bins,
-    get_bin_wastage_type,
-    check_complaints,
-    change_complaint_status,
-    is_complaint_raised
+    change_complaint_status, check_complaints, get_bin_wastage_type,
+    get_bins, is_complaint_raised
 )
 
 from service.driver import (
-    is_driver_available,
-    add_work_report,
-    is_status_completed,
-    get_work_reports,
-
+    add_work_report, get_work_reports, is_driver_available, is_status_completed
 )
 
-from util.validation import (
-    is_valid_status,
-    get_valid_input
+from validator.validation import (
+    check_valid_input, is_valid_status
 )
-
-
-def update_status():
-    """Get valid status input from the user."""
-    status = get_valid_input(
-        PROMPT_BIN_STATUS,
-        is_valid_status,
-        LOG_ERROR_INVALID_STATUS
-    )
-    return status
 
 
 def is_valid_weight(weight):
-    """Validate that the weight is not above 100 kg."""
+    """
+    Validate that the weight is within the acceptable range.
+
+    Args:
+        weight (int): The weight to be validated.
+
+    Returns:
+        bool: True if the weight is between 1 and 100 kg inclusive; otherwise, False.
+    """
     return 1 <= weight <= 100
 
 
 def get_weight_input(prompt):
-    """Get valid weight input from the user."""
-    while True:
-        try:
-            weight = int(input(prompt))
-            if is_valid_weight(weight):
-                return weight
-            else:
-                logger.warning(LOG_INVALID_WEIGHT)
-        except ValueError:
-            logger.error(LOG_VALUE_ERROR_IN_ADMIN_MENU)
+    """
+    Prompt the user for a weight input and validate it.
+
+    Args:
+        prompt (str): The prompt message to display to the user.
+
+    Returns:
+        int or None: The valid weight input from the user if it is within the
+        acceptable range; otherwise, logs a warning and returns None.
+    """
+    try:
+        weight = int(input(prompt))
+        if is_valid_weight(weight):
+            return weight
+        else:
+            logger.warning(LOG_INVALID_WEIGHT)
+    except ValueError:
+        logger.error(LOG_VALUE_ERROR_IN_ADMIN_MENU)
 
 
 def collect_details_to_update(wastage_type):
     """
-    Collect weights for the specified wastage type.
-    If wastage type is 'Both', prompt for both Bio-degradable and Non Bio-degradable weights.
+    Collect and return weights based on the wastage type specified.
+
+    Args:
+        wastage_type (str): The type of wastage ('Bio-degradable', 'Non Bio-degradable', or 'Both').
+
+    Returns:
+        tuple: A tuple containing the weights for Bio-degradable and Non Bio-degradable waste.
+               If wastage_type is 'Both', both weights are provided. If not, one of the weights is None.
     """
     if wastage_type.upper() == PROMPT_BIO_DEGRADABLE:
         bio_degradable_weight = get_weight_input(PROMPT_BIO_DEGRADABLE_WASTE)
@@ -82,81 +82,112 @@ def collect_details_to_update(wastage_type):
         return bio_degradable_weight, non_bio_degradable_weight
 
     else:
-        print(LOG_ERROR_INVALID_WASTAGE)
+        print(ERROR_INVALID_WASTAGE)
         return None, None
 
 
-def perform_driver_actions():
+def get_driver_detail(email):
     """
-       Displays a menu for managing driver operations and handles user input.
+    Check if a driver with the given email is available.
 
-       The function provides six options:
-       1. View driver details by email.
-       2. View bins associated with a driver.
-       3. Update bin status and record wastage details.
-       4. View a driver's work reports.
-       5. Check and display driver-related complaints.
-       6. Exit the menu.
+    Args:
+        email (str): The email address of the driver.
 
-       Handles invalid input and logs relevant actions and errors.
+    Returns:
+        bool: True if the driver is available; otherwise, False.
     """
-    print(DRIVER_MENU)
-    choice = int(input(PROMPT_CHOICE))
-    if ONE <= choice <= SIX:
-        if choice == ONE:
-            email = input(PROMPT_EMAIL)
-            driver_details = is_driver_available(email)
-            for driver_attribute, detail in driver_details.items():
-                print(driver_attribute, ":", detail)
-        elif choice == TWO:
-            email = input(PROMPT_EMAIL)
-            if is_driver_available(email):
-                bins = get_bins(email)
-                for bin_id, bin_details in bins:
-                    print("Bin Id: ", bin_id)
-                    for bin_attribute in bin_details:
-                        print(bin_attribute, " : ", bin_details[bin_attribute])
-                    print()
-        elif choice == THREE:
-            bin_id = input(PROMPT_BIN_ID)
-            bin_details = get_bin_wastage_type(bin_id)
-            status = update_status()
-            is_already_completed, is_already_incomplete = is_status_completed(bin_id)
-            if is_already_completed:
-                logger.warning(LOG_BIN_STATUS_COMPLETED.format(bin_id=bin_id))
-            elif is_already_incomplete == PROMPT_BIN_INCOMPLETE == status:
-                logger.info(LOG_WORK_REPORT_INCOMPLETE.format(bin_id=bin_id))
+    return is_driver_available(email)
+
+
+def find_bins(email):
+    """
+    Retrieve the bins associated with the specified driver's email.
+
+    Args:
+        email (str): The email address of the driver.
+
+    Returns:
+        list: A list of bins associated with the driver.
+    """
+    return get_bins(email)
+
+
+def give_work_report(bin_id, bin_details, status, bio_weight, non_bio_weight):
+    """
+    Submit a work report for a bin, including its status and waste weights.
+
+    Args:
+        bin_id (str): The unique identifier of the bin.
+        bin_details (dict): A dictionary containing details of the bin, including 'driver_email' and 'area'.
+        status (str): The status of the bin (e.g., 'Completed', 'Incomplete').
+        bio_weight (int or None): The weight of Bio-degradable waste; None if not applicable.
+        non_bio_weight (int or None): The weight of Non Bio-degradable waste; None if not applicable.
+
+    Returns:
+        bool: True if the work report is successfully added and the complaint
+        status is updated if needed; otherwise, False.
+    """
+    if check_valid_input(status, is_valid_status):
+        is_already_completed, is_already_incomplete = is_status_completed(bin_id)
+        if is_already_completed:
+            logger.warning(LOG_BIN_STATUS_COMPLETED.format(bin_id=bin_id))
+        elif is_already_incomplete == PROMPT_BIN_INCOMPLETE == status:
+            logger.info(LOG_WORK_REPORT_INCOMPLETE.format(bin_id=bin_id))
+        else:
+            if status.upper() == PROMPT_BIN_COMPLETED:
+                if bio_weight is None:
+                    bio_weight = 0
+                if non_bio_weight is None:
+                    non_bio_weight = 0
             else:
-                if status.upper() == PROMPT_BIN_COMPLETED:
-                    bio_weight, non_bio_weight = collect_details_to_update(bin_details["wastage_type"])
-                    if bio_weight is None:
-                        bio_weight = 0
-                    if non_bio_weight is None:
-                        non_bio_weight = 0
-                else:
-                    bio_weight, non_bio_weight = 0, 0
-                add_work_report(bin_details['driver_email'], status, bio_weight, non_bio_weight, bin_id,
-                                bin_details['area'])
+                bio_weight, non_bio_weight = 0, 0
+            if add_work_report(bin_details['driver_email'], status, bio_weight, non_bio_weight, bin_id,
+                               bin_details['area']):
                 if is_complaint_raised(bin_id):
                     change_complaint_status(PROMPT_BIN_COMPLETED, bin_id)
-                logger.info(LOG_BIN_UPDATED.format(bin_id=bin_id))
-        elif choice == FOUR:
-            email = input(PROMPT_EMAIL)
-            if is_driver_available(email):
-                work_reports = get_work_reports(email)
-                for work_report in work_reports:
-                    for key, value in work_report.items():
-                        if key not in ["profit_bio-weight", "profit_non_bio-weight"]:
-                            print(key, " : ", value)
-                    print()
-        elif choice == FIVE:
-            email = input(PROMPT_EMAIL)
-            if is_driver_available(email):
-                complaints = check_complaints(email)
-                for complaint_id, bin_detail in complaints:
-                    print("Complaint Id:", complaint_id)
-                    for bin_attribute, complaint in bin_detail.items():
-                        if bin_attribute != "driver_email":
-                            print(bin_attribute, " : ", complaint)
+                return True
+            logger.info(LOG_BIN_UPDATED.format(bin_id=bin_id))
     else:
-        logger.warning(LOG_ERROR_CHOICE_RANGE_1_6)
+        logger.warning(ERROR_INVALID_STATUS)
+        return False
+
+
+def fetch_work_reports(email):
+    """
+    Retrieve all work reports associated with the specified driver's email.
+
+    Args:
+        email (str): The email address of the driver.
+
+    Returns:
+        list: A list of work reports associated with the driver.
+    """
+    if is_driver_available(email):
+        return get_work_reports(email)
+
+
+def get_complaints(email):
+    """
+    Retrieve all complaints associated with the specified driver's email.
+
+    Args:
+        email (str): The email address of the driver.
+
+    Returns:
+        list: A list of complaints associated with the driver.
+    """
+    if is_driver_available(email):
+        return check_complaints(email)
+
+
+def get_bin_details(bin_id):
+    """
+    Retrieve the details of the bin, including its wastage type, based on its ID.
+
+    Args:
+        bin_id (str): The unique identifier of the bin.
+
+    Returns:
+        dict: The details of the bin, including its wastage type.
+    """
+    return get_bin_wastage_type(bin_id)
