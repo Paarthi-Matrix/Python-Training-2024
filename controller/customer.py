@@ -34,7 +34,7 @@ def add_item_to_warehouse(warehouse_id, item_details, user_id):
         Adds a new item to a specified warehouse.
 
         The function adds the item to the specified warehouse if it exists.
-
+        
         Parameters:
             warehouse_id (str) : warehouse id of the warehouse ot be added.
             item_details (dict) : Dictionary of items that are need to be added to the warehouse

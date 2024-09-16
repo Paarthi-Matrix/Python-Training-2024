@@ -1,4 +1,5 @@
 import datetime
+import getpass
 import json
 import os
 
@@ -187,9 +188,16 @@ def login():
     """
     Handles user login by collecting login credentials and authenticating the user.
     """
+    user_email = input(ENTER_USER_EMAIL).strip()
+    password = ""
+    try:
+        password = getpass.getpass()
+    except Exception as e:
+        print("Unexpected error occurred while fetching password", e)
+
     login_credential = {
-        USER_DICT_EMAIL: input(ENTER_USER_EMAIL).strip(),
-        USER_DICT_USER_PASSWORD: input(ENTER_PASSWORD).strip()
+        USER_DICT_EMAIL: user_email,
+        USER_DICT_USER_PASSWORD: password
     }
     if login_credential[USER_DICT_EMAIL] is None or login_credential[USER_DICT_USER_PASSWORD] is None:
         print(INVALID_CREDENTIAL_MESSAGE)

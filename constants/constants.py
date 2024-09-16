@@ -312,4 +312,3 @@ ITEM_UPDATED = "Item successfully updated"
 VENDOR_EMAIL = "vendor_email"
 VENDOR_QUOTATION_NOT_FOUND = "No vendor quotation is available for your given quotation"
 STATUS_VIEWED = "viewed"
-
