@@ -1,7 +1,9 @@
 import uuid
-from Utils.constants import LOAN_PENDING, LOAN_APPROVED, LOAN_REJECTED
-from Utils.constants import POOL_NOT_FOUND, ERROR_REQUEST, MSG_LOAN_APPROVAL
-from Utils.constants import ERROR_LOAN_APPROVAL, MSG_LOAN_REJECTED
+
+
+from Utils.constants import (LOAN_PENDING, LOAN_APPROVED, LOAN_REJECTED, POOL_NOT_FOUND, ERROR_REQUEST,
+                             MSG_LOAN_APPROVAL, USER_PENDING_LOAN, ERROR_LOAN_APPROVAL, MSG_LOAN_REJECTED,
+                             USER_LOAN_SUCCESS)
 from Utils.log_configuration import setup_logger
 
 logger = setup_logger()
@@ -12,8 +14,8 @@ loans = {}
 def request_loan(user_id, amount, pools):
     try:
         if any(loan['user_id'] == user_id for loan in loans.values()):
-            logger.warning("User {} already has a pending loan.".format(user_id))
-            return "User already has a pending loan."
+            logger.warning(USER_PENDING_LOAN.format(user_id))
+            return USER_PENDING_LOAN.format(user_id)
         if pools.get('current_pool') and pools['current_pool'].get("total_funds", 0) > amount:
             loan_id = f"loan_{str(uuid.uuid4())}"
             loans[loan_id] = {
@@ -21,7 +23,7 @@ def request_loan(user_id, amount, pools):
                 "amount": amount,
                 "status": LOAN_PENDING
             }
-            logger.info("Your loan request has been successfully initiated and the loan id is {}".format(loan_id))
+            logger.info(USER_LOAN_SUCCESS.format(loan_id))
             return loan_id
         else:
             logger.info(POOL_NOT_FOUND)

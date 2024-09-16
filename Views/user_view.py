@@ -8,7 +8,7 @@ def user_menu():
 
     user_id = user_creation_controller(username, password, email)
     if user_id:
-        print(f"User created with ID: {user_id}")
+        print("User created with ID: {}".format(user_id))
 
         if user_login_controller(username, password):
             print("Login successful.")

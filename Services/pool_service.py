@@ -1,8 +1,9 @@
 import uuid
 
 
-from Utils.constants import POOL_THRESHOLD, MSG_POOL_CREATION, POOL_BALANCE, ERROR_POOL_BALANCE
-from Utils.constants import ERROR_POOL_CONTRIBUTION
+from Utils.constants import (POOL_THRESHOLD, MSG_POOL_CREATION, POOL_BALANCE, ERROR_POOL_BALANCE,
+                             USER_CONTRIBUTION_SUCCESS, ERROR_POOL_CONTRIBUTION, USER_CONTRIBUTION_FAILURE,
+                             USER_NOT_FOUND)
 from Utils.log_configuration import setup_logger
 
 logger = setup_logger()
@@ -33,13 +34,13 @@ def contribute(user_id, amount, pools, users_db):
                 pools[current_pool_id]["current_pool"].append((user_id, amount))
                 pools[current_pool_id]["total_funds"] += amount
                 users_db[user_id]["amount"] -= amount
-                logger.info(f"The user {user_id} has successfully contributed {amount} to the pool")
+                logger.info(USER_CONTRIBUTION_SUCCESS.format(user_id, amount))
                 return True
             else:
-                logger.error("The user {} has insufficient funds to contribute to the pool".format(user_id))
+                logger.error(USER_CONTRIBUTION_FAILURE.format(user_id))
                 return False
         else:
-            logger.error("User not found!")
+            logger.error(USER_NOT_FOUND)
             return False
     except ValueError:
         logger.error(ERROR_POOL_CONTRIBUTION)
