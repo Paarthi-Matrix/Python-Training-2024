@@ -7,14 +7,12 @@ from helper.constant import LOG_FILE_LOCATION
 logger = logging.getLogger("Garbage_Collector")
 logger.setLevel(logging.DEBUG)
 
-# Define log directory and file path
 log_directory = LOG_FILE_LOCATION
 if not os.path.exists(log_directory):
     os.makedirs(log_directory)
 
 log_file_path = os.path.join(log_directory, "Garbage_Collector.log")
 
-# Define formatter for file (includes traceback)
 file_formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s\n%(exc_info)s')
 
 # Define formatter for console (no traceback)

@@ -1,3 +1,5 @@
+import getpass
+
 from controller.admin import (add_admin_detail, add_driver, add_recycler, calculate_total_profit,
                               check_customer_present, delete_customer, find_all_customer, find_customer,
                               find_driver, fetch_all_work_reports, get_all_complaints, report_to_recycler,
@@ -11,7 +13,7 @@ from controller.customer import (add_customer, check_if_bin_available, check_if_
 from controller.driver import (collect_details_to_update, find_bins, fetch_work_reports, get_bin_details,
                                get_complaints, get_driver_detail, give_work_report)
 
-from controller.recycler import fetch_wastage_report, rate_calculation
+from controller.recycler import fetch_wastage_report, rate_calculation, check_if_recycler_registered
 
 from exception.custom_exception import (GarbageCollectorException,
                                         ResourceAlreadyExistsException, ResourceNotFoundException,
@@ -35,7 +37,8 @@ from helper.constant import (ADMIN_MENU, BIN_CREATED_WITH_ID,
                              UPDATE_CUSTOMER_MENU, CHOICE_RANGE_1_3, PROMPT_RAISE_COMPLAINT, BIN_ID,
                              DICT_PASSWORD, ADMIN_REGISTERED, PROMPT_DRIVER_NAME, PROMPT_DRIVER_AREA, DRIVER_REGISTERED,
                              DRIVER_MENU, CHOICE_RANGE_1_6, CHOICE_RANGE_1_4, CHOICE_RANGE_1_7, CHOICE_RANGE_1_5,
-                             ADMIN_UNAUTHORIZED, ADMIN_ALREADY_REGISTERED)
+                             ADMIN_UNAUTHORIZED, ADMIN_ALREADY_REGISTERED, RECYCLER_ALREADY_REGISTERED,
+                             RECYCLER_NOT_REGISTERED, WASTE_TYPE, PROFIT_BIO_WASTE, PROFIT_NON_BIO_WASTE)
 
 from resources.logger_configuration import logger
 
@@ -58,7 +61,7 @@ def perform_customer_actions():
         if choice == ONE:
             customer_name = input(PROMPT_CUSTOMER_NAME)
             customer_email = input(PROMPT_EMAIL)
-            password = input(PROMPT_PASSWORD)
+            password = getpass.getpass(PROMPT_PASSWORD)
             mobile_no = input(PROMPT_MOBILE)
             customer_detail = add_customer(customer_name, customer_email,
                                            password, mobile_no)
@@ -173,7 +176,7 @@ def update_profile(customer_id):
             if update_customer_detail(customer_id, email, DICT_EMAIL):
                 print(UPDATED_CUSTOMER)
         elif choice == THREE:
-            password = input(PROMPT_PASSWORD_TO_UPDATE)
+            password = getpass.getpass(PROMPT_PASSWORD_TO_UPDATE)
             if update_customer_detail(customer_id, password, DICT_PASSWORD):
                 print(UPDATED_CUSTOMER)
         elif choice == FOUR:
@@ -193,8 +196,9 @@ def login_admin():
     If the credentials are valid, it calls `manage_admin_tasks()`.
     Otherwise, it prints an unauthorized access message.
     """
+
     admin_email = input(PROMPT_EMAIL)
-    admin_password = input(PROMPT_PASSWORD)
+    admin_password = getpass.getpass(PROMPT_PASSWORD)
     if validate_admin(admin_email, admin_password):
         manage_admin_tasks()
     else:
@@ -219,7 +223,7 @@ def manage_admin_tasks():
             if not is_admin_already_registered():
                 name = input(PROMPT_ADMIN_NAME)
                 email = input(PROMPT_EMAIL)
-                password = input(PROMPT_PASSWORD)
+                password = getpass.getpass(PROMPT_PASSWORD)
                 mobile = input(PROMPT_MOBILE)
 
                 admin_detail = add_admin_detail(name, email, password, mobile)
@@ -233,7 +237,7 @@ def manage_admin_tasks():
         elif choice == TWO:
             name = input(PROMPT_DRIVER_NAME)
             email = input(PROMPT_EMAIL)
-            password = input(PROMPT_PASSWORD)
+            password = getpass.getpass(PROMPT_PASSWORD)
             mobile_no = input(PROMPT_MOBILE)
             area = input(PROMPT_DRIVER_AREA)
             driver_detail = add_driver(name, email, password, mobile_no, area)
@@ -274,28 +278,40 @@ def manage_admin_tasks():
                 for bin_attribute, complaint in bin_detail.items():
                     print(bin_attribute, " : ", complaint)
         elif choice == NINE:
-            recycler_name = input(PROMPT_RECYCLER_NAME)
-            recycler_email = input(PROMPT_EMAIL)
-            password = input(PROMPT_PASSWORD)
-            mobile_no = input(PROMPT_MOBILE)
-            recycler_detail = add_recycler(recycler_name, recycler_email, password, mobile_no)
-            if isinstance(recycler_detail, dict):
-                for recycler_field, error_message in recycler_detail.items():
-                    print(recycler_field, " : ", error_message)
+            if not check_if_recycler_registered():
+                recycler_name = input(PROMPT_RECYCLER_NAME)
+                recycler_email = input(PROMPT_EMAIL)
+                password = getpass.getpass(PROMPT_PASSWORD)
+                mobile_no = input(PROMPT_MOBILE)
+                recycler_detail = add_recycler(recycler_name, recycler_email, password, mobile_no)
+                if isinstance(recycler_detail, dict):
+                    for recycler_field, error_message in recycler_detail.items():
+                        print(recycler_field, " : ", error_message)
+                else:
+                    print(RECYCLER_REGISTERED)
             else:
-                print(RECYCLER_REGISTERED)
+                print(RECYCLER_ALREADY_REGISTERED)
         elif choice == TEN:
-            total_waste, bio_waste_weight, non_bio_waste_weight = report_to_recycler()
-            print(PROMPT_TOTAL_WASTE, " : ", total_waste, end=" ")
-            print(PROMPT_BIO_WASTE_WEIGHT, " : ", bio_waste_weight, end=" ")
-            print(PROMPT_NON_BIO_WASTE_WEIGHT, " : ", non_bio_waste_weight)
+            if check_if_recycler_registered():
+                total_waste, bio_waste_weight, non_bio_waste_weight = report_to_recycler()
+                print(PROMPT_TOTAL_WASTE, " : ", total_waste, end=" ")
+                print(PROMPT_BIO_WASTE_WEIGHT, " : ", bio_waste_weight, end=" ")
+                print(PROMPT_NON_BIO_WASTE_WEIGHT, " : ", non_bio_waste_weight)
+            else:
+                print(RECYCLER_NOT_REGISTERED)
         elif choice == ELEVEN:
-            wastage = cost_of_wastage_report()
-            for wastage_field, wastage_detail in wastage.items():
-                print(wastage_field, " : ", wastage_detail)
+            if check_if_recycler_registered():
+                wastage = cost_of_wastage_report()
+                for wastage_field, wastage_detail in wastage.items():
+                    print(wastage_field, " : ", wastage_detail)
+            else:
+                print(RECYCLER_NOT_REGISTERED)
         elif choice == TWELVE:
-            total_profit = calculate_total_profit()
-            print(TOTAL_PROFIT_CALCULATED.format(total_profit=total_profit))
+            if check_if_recycler_registered():
+                total_profit = calculate_total_profit()
+                print(TOTAL_PROFIT_CALCULATED.format(total_profit=total_profit))
+            else:
+                print(RECYCLER_NOT_REGISTERED)
         elif choice == THIRTEEN:
             return
     else:
@@ -337,7 +353,7 @@ def perform_driver_actions():
         elif choice == THREE:
             bin_id = input(PROMPT_BIN_ID)
             bin_details = get_bin_details(bin_id)
-            bio_weight, non_bio_weight = collect_details_to_update(bin_details["wastage_type"])
+            bio_weight, non_bio_weight = collect_details_to_update(bin_details[WASTE_TYPE])
             status = input(PROMPT_BIN_STATUS)
             if not give_work_report(bin_id, bin_details, status, bio_weight, non_bio_weight):
                 print(ERROR_INVALID_STATUS)
@@ -348,7 +364,7 @@ def perform_driver_actions():
             work_reports = fetch_work_reports(email)
             for work_report in work_reports:
                 for work_field, work_detail in work_report.items():
-                    if work_field not in ["profit_bio-weight", "profit_non_bio-weight"]:
+                    if work_field not in [PROFIT_BIO_WASTE, PROFIT_NON_BIO_WASTE]:
                         print(work_field, " : ", work_detail)
                 print()
         elif choice == FIVE:
@@ -363,7 +379,7 @@ def perform_driver_actions():
             return
     else:
         print(CHOICE_RANGE_1_6)
-    continue_operation(perform_customer_actions)
+    continue_operation(perform_driver_actions)
 
 
 def handle_recycling():

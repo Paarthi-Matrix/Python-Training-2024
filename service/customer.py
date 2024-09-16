@@ -251,7 +251,7 @@ def is_bin_available(bin_id):
     raise ResourceNotFoundException("No Bin found by this Id: " + bin_id)
 
 
-def get_bin_wastage_type(bin_id):
+def fetch_bin_detail(bin_id):
     """
     Retrieves the details of a bin, including its wastage type, by its ID.
 

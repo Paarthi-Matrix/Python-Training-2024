@@ -10,7 +10,7 @@ from helper.constant import (
 from resources.logger_configuration import logger
 
 from service.customer import (
-    change_complaint_status, check_complaints, get_bin_wastage_type,
+    change_complaint_status, check_complaints, fetch_bin_detail,
     get_bins, is_complaint_raised
 )
 
@@ -129,17 +129,21 @@ def give_work_report(bin_id, bin_details, status, bio_weight, non_bio_weight):
     """
     if check_valid_input(status, is_valid_status):
         is_already_completed, is_already_incomplete = is_status_completed(bin_id)
+        # Work report already completed today
         if is_already_completed:
             logger.warning(LOG_BIN_STATUS_COMPLETED.format(bin_id=bin_id))
+        # Work report already incomplete, user try to give incomplete
         elif is_already_incomplete == PROMPT_BIN_INCOMPLETE == status:
             logger.info(LOG_WORK_REPORT_INCOMPLETE.format(bin_id=bin_id))
         else:
+            # Have to give work report for COMPLETED status scenario
             if status.upper() == PROMPT_BIN_COMPLETED:
                 if bio_weight is None:
                     bio_weight = 0
                 if non_bio_weight is None:
                     non_bio_weight = 0
             else:
+                # Have to give work report for InCOMPLETE status scenario
                 bio_weight, non_bio_weight = 0, 0
             if add_work_report(bin_details['driver_email'], status, bio_weight, non_bio_weight, bin_id,
                                bin_details['area']):
@@ -190,4 +194,4 @@ def get_bin_details(bin_id):
     Returns:
         dict: The details of the bin, including its wastage type.
     """
-    return get_bin_wastage_type(bin_id)
+    return fetch_bin_detail(bin_id)

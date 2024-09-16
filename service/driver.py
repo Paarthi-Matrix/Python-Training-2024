@@ -22,7 +22,7 @@ from resources.logger_configuration import logger
 from service.recycler import add_wastage_report, is_wastage_report_added
 
 driver_details = {}
-work_report = {}
+work_reports = {}
 
 
 def add_driver(name, email, password, mobile_no, area):
@@ -133,12 +133,12 @@ def is_driver_available(email):
     raise ResourceNotFoundException("No driver found by this email: " + email)
 
 
-def add_work_report(email, status, bio_weight, non_bio_weight, bin_id, area):
+def add_work_report(driver_email, status, bio_weight, non_bio_weight, bin_id, area):
     """
     Adds or updates a work report for a driver and bin, including waste details and status.
 
     Args:
-        email (str): The email address of the driver.
+        driver_email (str): The email address of the driver.
         status (str): The status of the work (e.g., "completed").
         bio_weight (float): The weight of biodegradable waste.
         non_bio_weight (float): The weight of non-biodegradable waste.
@@ -149,7 +149,7 @@ def add_work_report(email, status, bio_weight, non_bio_weight, bin_id, area):
         If a work report for the given bin ID already exists, it updates the existing report; otherwise, it creates a new report.
     """
     updated_bin_detail = {
-        "email": email,
+        "email": driver_email,
         "bin_id": bin_id,
         "status": status,
         "bio-weight": bio_weight,
@@ -160,15 +160,15 @@ def add_work_report(email, status, bio_weight, non_bio_weight, bin_id, area):
         "date_time": datetime.now(),
         "Recycled": "No"
     }
-    # To check the status if it is incomplete or on progress
-    for work_id in work_report:
-        if work_report[work_id][BIN_ID] == bin_id:
-            updated_bin_detail[BIO_WASTE] = work_report[work_id][BIO_WASTE] + bio_weight
-            updated_bin_detail[NON_BIO_WASTE] = work_report[work_id][NON_BIO_WASTE] + non_bio_weight
-            work_report[work_id] = updated_bin_detail
+    # To add the wastage weights to the previous weights if it is not recycled yet
+    for work_id in work_reports:
+        if work_reports[work_id][BIN_ID] == bin_id:
+            updated_bin_detail[BIO_WASTE] = work_reports[work_id][BIO_WASTE] + bio_weight
+            updated_bin_detail[NON_BIO_WASTE] = work_reports[work_id][NON_BIO_WASTE] + non_bio_weight
+            work_reports[work_id] = updated_bin_detail
             break
     else:
-        work_report[str(uuid.uuid4())] = updated_bin_detail
+        work_reports[str(uuid.uuid4())] = updated_bin_detail
     logger.info(LOG_BIN_UPDATED)
     return True
 
@@ -180,9 +180,9 @@ def get_all_work_reports():
     Returns:
         dict: A dictionary of work reports if any exist; otherwise, None.
     """
-    if len(work_report) == 0:
+    if len(work_reports) == 0:
         return None
-    return work_report
+    return work_reports
 
 
 def is_status_completed(bin_id):
@@ -195,15 +195,16 @@ def is_status_completed(bin_id):
     Returns:
         bool: True if the bin status is completed and the report date is today; False otherwise.
     """
-    for work_id in work_report:
-        if work_report[work_id][BIN_ID] == bin_id:
-            if work_report[work_id][STATUS] == PROMPT_BIN_COMPLETED:
-                return work_report[work_id][DATE_TIME].date() == datetime.today().date(), PROMPT_BIN_COMPLETED
+    for work_id in work_reports:
+        if work_reports[work_id][BIN_ID] == bin_id:
+            if work_reports[work_id][STATUS] == PROMPT_BIN_COMPLETED:
+                # To check if the status is completed and the work report date is today's date
+                return work_reports[work_id][DATE_TIME].date() == datetime.today().date(), PROMPT_BIN_COMPLETED
             else:
+                # Work report status is incomplete
                 return False, PROMPT_BIN_INCOMPLETE
-        else:
-            return False, None
     else:
+        # No work reports added yet
         return False, None
 
 
@@ -218,10 +219,10 @@ def get_work_reports(email):
         dict: Details of the work reports associated with the email address.
     """
     found = False
-    for work_id in work_report:
-        if work_report[work_id][DICT_EMAIL] == email:
+    for work_id in work_reports:
+        if work_reports[work_id][DICT_EMAIL] == email:
             found = True
-            yield work_report[work_id]
+            yield work_reports[work_id]
 
     if not found:
         raise ResourceNotFoundException("No work reports found for driver whose email Id: " + email)
@@ -238,7 +239,7 @@ def is_valid_complaint(bin_id):
         bool: True if the complaint is valid; False otherwise.
     """
     today = datetime.today().date()
-    for work_id, report in work_report.items():
+    for work_id, report in work_reports.items():
         bin_match = report[BIN_ID] == bin_id
         date_match = report[DATE_TIME].date() == today
         time_match = report[DATE_TIME].hour >= 12
@@ -271,11 +272,11 @@ def check_wastage():
         ResourceNotFoundException: If no work reports are found.
     """
     bio_waste_weight, non_bio_waste_weight = 0, 0
-    if len(work_report) != 0:
-        for work_id in work_report:
-            if work_report[work_id]["Recycled"] == 'No':
-                bio_waste_weight += work_report[work_id]["bio-weight"]
-                non_bio_waste_weight += work_report[work_id]["non_bio-weight"]
+    if len(work_reports) != 0:
+        for work_id in work_reports:
+            if work_reports[work_id][RECYCLED] == NO:
+                bio_waste_weight += work_reports[work_id][BIO_WASTE]
+                non_bio_waste_weight += work_reports[work_id][NON_BIO_WASTE]
 
         if bio_waste_weight >= HUNDRED and non_bio_waste_weight >= HUNDRED:
             total_waste = bio_waste_weight + non_bio_waste_weight
@@ -305,15 +306,15 @@ def calculate_wastage_profit():
         The profit details for each work report and marks them as recycled.
     """
     customer_profit = 0
-    for work_id in work_report:
-        if work_report[work_id][RECYCLED] == NO:
-            bio_degradable_profit = work_report[work_id][BIO_WASTE] * TEN
-            non_bio_degradable_profit = work_report[work_id][NON_BIO_WASTE] * TWENTY
-            work_report[work_id][PROFIT_BIO_WASTE] = bio_degradable_profit
-            work_report[work_id][PROFIT_NON_BIO_WASTE] = non_bio_degradable_profit
-            work_report[work_id][RECYCLED] = YES
-            work_report[work_id][BIO_WASTE] = 0
-            work_report[work_id][NON_BIO_WASTE] = 0
+    for work_id in work_reports:
+        if work_reports[work_id][RECYCLED] == NO:
+            bio_degradable_profit = work_reports[work_id][BIO_WASTE] * TEN
+            non_bio_degradable_profit = work_reports[work_id][NON_BIO_WASTE] * TWENTY
+            work_reports[work_id][PROFIT_BIO_WASTE] = bio_degradable_profit
+            work_reports[work_id][PROFIT_NON_BIO_WASTE] = non_bio_degradable_profit
+            work_reports[work_id][RECYCLED] = YES
+            work_reports[work_id][BIO_WASTE] = 0
+            work_reports[work_id][NON_BIO_WASTE] = 0
             customer_profit += bio_degradable_profit + non_bio_degradable_profit
         else:
             raise GarbageCollectorException("Profit has already been calculated and credited to respective Bin owners")
@@ -333,9 +334,9 @@ def check_profit(bin_id):
     Raises:
         ResourceNotFoundException: If no profit details are found for the specified bin ID.
     """
-    if len(work_report) > 0:
-        for work_id in work_report:
-            if work_report[work_id][BIN_ID] == bin_id:
-                return work_report[work_id]
+    if len(work_reports) > 0:
+        for work_id in work_reports:
+            if work_reports[work_id][BIN_ID] == bin_id:
+                return work_reports[work_id]
     else:
         raise ResourceNotFoundException("Profit not yet calculated")

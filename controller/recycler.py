@@ -1,6 +1,6 @@
 from service.recycler import (
     get_wastage_report,
-    calculate_rate
+    calculate_rate, is_recycler_registered
 )
 
 
@@ -28,3 +28,7 @@ def rate_calculation():
         dict: work report after calculating the rate for wastage
     """
     return calculate_rate()
+
+
+def check_if_recycler_registered():
+    return is_recycler_registered()

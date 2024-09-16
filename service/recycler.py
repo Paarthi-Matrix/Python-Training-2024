@@ -42,11 +42,12 @@ def is_recycler_registered():
     Returns:
         bool: True if more than one recycler is registered; False otherwise.
     """
-    if len(recycler_details) >= 1:
+    if len(recycler_details) == 1:
         return True
     return False
 
 
+# To check if the wastage report already send to the Recycler for today
 def is_wastage_report_added():
     today = datetime.today().date()
     if len(wastage_reports) != 0:
@@ -105,7 +106,7 @@ def get_wastage_report():
     """
     if len(wastage_reports) != 0:
         for wastage_id in wastage_reports:
-            if is_wastage_report_valid_date(wastage_reports[wastage_id][TOTAL_WASTE]):
+            if is_wastage_report_valid_date(wastage_reports[wastage_id][DATE_TIME]):
                 return wastage_reports[wastage_id]
             else:
                 raise ResourceNotFoundException("No wastage report found for today")
