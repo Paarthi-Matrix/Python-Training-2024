@@ -1,0 +1,21 @@
+#python bytecode
+__pycache__/
+*.pyo
+*.pyc
+*.pyd
+
+#virtual env
+venv/
+env/
+
+#pycharm
+.idea/
+
+#jupyter notebook
+.ipynb_checkpoints/
+
+#mac OS
+.DS_Store
+
+#windows
+Thumbs.db
