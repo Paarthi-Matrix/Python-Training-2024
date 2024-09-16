@@ -1,8 +1,9 @@
 import uuid
 
-from common.common_constants import STATUS, STATUS_PLACED, SIX, PASSWORD_KEY
-from common.restaurant_constants import IS_DELETE, LOCATION_KEY
-from service.restaurant_service import find_by_id
+from project.constant.constant import (
+    STATUS, STATUS_PLACED, SIX, PASSWORD_KEY,
+    IS_DELETE, LOCATION_KEY)
+from project.service.restaurant import get as get_restaurant
 
 customers = {}
 
@@ -11,8 +12,8 @@ carts = {}
 orders = {}
 
 
-def add_new_customer(name: str, password, email: str,
-                     mobile_number: str, location: str):
+def add(name: str, password, email: str,
+        mobile_number: str, location: str):
     """
     Registers a new customer and assigns them a unique ID.
 
@@ -39,7 +40,7 @@ def add_new_customer(name: str, password, email: str,
     return unique_id
 
 
-def get_by_id(customer_id: str):
+def get(customer_id: str):
     """
     Retrieves a customer's details by their unique ID if they are not marked as deleted.
 
@@ -69,7 +70,7 @@ def filter_customer_info(customer):
     return {key: value for key, value in customer.items() if key not in [PASSWORD_KEY, IS_DELETE]}
 
 
-def get_all_customers():
+def get_all():
     """
     Retrieves all customers who are not marked as deleted.
 
@@ -84,7 +85,7 @@ def get_all_customers():
     return filtered_customers
 
 
-def update_customer_details(customer, to_update: str, detail_to_update: str):
+def update(customer, to_update: str, detail_to_update: str):
     """
     Updates a specific detail of a customer.
 
@@ -100,7 +101,7 @@ def update_customer_details(customer, to_update: str, detail_to_update: str):
     return True
 
 
-def remove_customer(unique_id: str):
+def remove(unique_id: str):
     """
     Marks a customer as deleted.
 
@@ -110,7 +111,7 @@ def remove_customer(unique_id: str):
     Returns:
     - bool: True if the customer was successfully marked as deleted, None if the customer was not found.
     """
-    customer = get_by_id(unique_id)
+    customer = get(unique_id)
     if customer:
         customer[IS_DELETE] = True
         return True
@@ -130,7 +131,8 @@ def add_to_cart(customer_id: str, restaurant, restaurant_id, food_item_names: li
         Returns:
         - bool: True if the items were successfully added to the cart, False otherwise.
     """
-    food_items = [{key:value for key,value in item.items() if key not in [IS_DELETE]} for item in restaurant["menu"] if item["name"] in food_item_names]
+    food_items = [{key: value for key, value in item.items() if key not in [IS_DELETE]} for item in restaurant["menu"]
+                  if item["name"] in food_item_names]
 
     if food_items:
         cart_id = str(uuid.uuid4())
@@ -173,7 +175,7 @@ def update_items_to_cart(food_item_names: list, cart: dict):
     Returns:
     - list: A list of food items that were successfully added to the cart.
     """
-    restaurant = find_by_id(cart["restaurant_id"])
+    restaurant = get_restaurant(cart["restaurant_id"])
 
     if restaurant:
         food_items_to_add = [item for item in restaurant["menu"] if item["name"] in food_item_names]
@@ -205,7 +207,7 @@ def remove_items_from_cart(food_item_names: list, cart: dict):
     return []
 
 
-def get_cart_by_customer_id(customer_id):
+def get_cart_by_customer(customer_id):
     """
     Retrieves the cart for a specific customer.
 
@@ -218,7 +220,7 @@ def get_cart_by_customer_id(customer_id):
     return carts.get(customer_id)
 
 
-def get_order_by_id(order_id: str):
+def get_order(order_id: str):
     """
     Retrieves an order by its unique ID.
 
@@ -241,6 +243,11 @@ def get_all_orders():
     return orders
 
 
+def get_customer_orders(customer):
+    customer_orders = get_all_orders()
+    return [customer_orders[order_id] for order_id in customer['orders']]
+
+
 def place_order(cart: dict, customer_id: str, payment_mode: str):
     """
     Places an order using the current cart and assigns an OTP.
@@ -261,7 +268,7 @@ def place_order(cart: dict, customer_id: str, payment_mode: str):
         "restaurant_id": cart["restaurant_id"],
         "food_items": cart["food_items"],
         "status": "Placed",
-        "delivery_person_id": None,
+        "delivery_partner_id": None,
         "payment_mode": payment_mode,
         "otp": otp
     }
@@ -271,18 +278,18 @@ def place_order(cart: dict, customer_id: str, payment_mode: str):
     return order
 
 
-def list_available_orders(delivery_person_location: str):
+def list_available_orders(delivery_partner_location: str):
     """
     Lists all available orders for delivery based on the delivery person's location.
 
     Parameters:
-    - delivery_person_location (str): The location of the delivery person.
+    - delivery_partner_location (str): The location of the delivery person.
 
     Returns:
     - list: A list of orders available for delivery from the specified location.
     """
     available_orders = [
         order for order in orders.values()
-        if order[STATUS] == STATUS_PLACED and find_by_id(order['restaurant_id'])[
-            LOCATION_KEY].lower() == delivery_person_location.lower()]
+        if order[STATUS] == STATUS_PLACED and get_restaurant(order['restaurant_id'])[
+            LOCATION_KEY].lower() == delivery_partner_location.lower()]
     return available_orders

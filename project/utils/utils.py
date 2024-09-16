@@ -1,9 +1,10 @@
 import re
 
-from common.common_constants import (
+from project.constant.constant import (
     EMAIL_REGEX, MOBILE_NUMBER_REGEX,
-    NAME_REGEX, PASSWORD_REGEX, LICENSE_REGEX, LOCATION_REGEX)
-from resources.logging_config import logger
+    NAME_REGEX, PASSWORD_REGEX, LICENSE_REGEX, LOCATION_REGEX
+)
+from project.config.config import logger
 
 
 def is_valid_email(email):
@@ -53,6 +54,7 @@ def is_valid_name(name):
     """
     return re.match(NAME_REGEX, name) is not None
 
+
 def is_valid_password(password):
     """
      Validates a password.
@@ -66,7 +68,8 @@ def is_valid_password(password):
      Returns:
          bool: True if the password is valid, False otherwise.
      """
-    return re.match(PASSWORD_REGEX,password) is not None
+    return re.match(PASSWORD_REGEX, password) is not None
+
 
 # ex: TN-01-2000-1234567
 def is_valid_license(license_number):
@@ -82,11 +85,12 @@ def is_valid_license(license_number):
     Returns:
         bool: True if the license number is valid, False otherwise.
     """
-    return re.match(LICENSE_REGEX,license_number) is not None
+    return re.match(LICENSE_REGEX, license_number) is not None
 
 
 def is_valid_location(location):
-    return re.match(LOCATION_REGEX,location) is not None
+    return re.match(LOCATION_REGEX, location) is not None
+
 
 def update_entity(entity, to_update, input_prompt, validation_func, success_msg, error_msg, update_func):
     """
@@ -109,27 +113,31 @@ def update_entity(entity, to_update, input_prompt, validation_func, success_msg,
         new_value = input(input_prompt)
         if validation_func(new_value):
             if update_func(entity, to_update, new_value.lower()):
-                logger.info(success_msg)
+                print(success_msg)
             break
         else:
             logger.warning(error_msg)
 
 
-def input_validation(input_prompt, validation_func, error_msg):
+def input_validation(value, validation_func, error_msg):
     """
     Prompts the user for input and validates it using the provided validation function.
 
     Args:
-        input_prompt (str): The prompt message to display to the user.
+        value (str): The value to validate.
         validation_func (function): A function to validate the user input.
         error_msg (str): The error message to log if validation fails.
 
     Returns:
         str: The validated user input.
     """
-    while True:
-        value = input(input_prompt)
-        if validation_func(value):
-            return value
-        else:
-            logger.warning(error_msg)
+    if validation_func(value):
+        return value
+    else:
+        return error_msg
+
+
+def continue_operations(operation_func):
+    choice = input("Do you want to continue ? (yes/no): ").lower()
+    if choice == "yes":
+        operation_func()

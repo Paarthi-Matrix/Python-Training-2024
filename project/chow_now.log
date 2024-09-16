@@ -1,7 +1,0 @@
-2024-09-09 15:08:27,706 - ChowNow - INFO - Food Item Added Successfully to Restaurant with id:1690df4d-1108-4e83-8edb-6fda433d6585
-2024-09-09 15:08:38,302 - ChowNow - INFO - Food Item Added Successfully to Restaurant with id:1690df4d-1108-4e83-8edb-6fda433d6585
-2024-09-09 15:08:42,638 - ChowNow - DEBUG - Exiting....
-2024-09-09 15:13:27,106 - ChowNow - INFO - Delivery person details added with this id 5589bc97-0eed-4253-9340-6e070fae97d5
-2024-09-09 15:13:34,114 - ChowNow - DEBUG - Exiting....
-2024-09-09 15:14:01,913 - ChowNow - INFO - Customer successfully added with id: 574bbbce-f1a0-4773-9c64-269b414c6ea6
-2024-09-09 15:14:24,002 - ChowNow - INFO - {'1690df4d-1108-4e83-8edb-6fda433d6585': {'name': 'ramen', 'email': 'ram@gmail.com', 'contact_numbers': ['9832432232'], 'location': 'chennai'}}

@@ -1,9 +1,9 @@
 import uuid
 
-from common.constant import PASSWORD_KEY, LOCATION_KEY, IS_DELETE
-from service.customer_service import get as get_customer
+from project.constant.constant import PASSWORD_KEY, LOCATION_KEY, IS_DELETE
+from project.service.customer import get as get_customer
 
-delivery_persons = {}
+delivery_partners = {}
 
 
 def add(name: str,password, email: str, location: str,
@@ -23,7 +23,7 @@ def add(name: str,password, email: str, location: str,
     - str: The unique ID assigned to the delivery person.
     """
     unique_id = str(uuid.uuid4())
-    delivery_persons[unique_id] = {
+    delivery_partners[unique_id] = {
         "id": unique_id,
         "name": name,
         "password":password,
@@ -49,23 +49,23 @@ def get(unique_id: str):
     Returns:
     - dict: The delivery person's details, or None if the delivery person is not found or is deleted.
     """
-    delivery_person = delivery_persons.get(unique_id)
-    if delivery_person:
-        if not delivery_person[IS_DELETE]:
-            return delivery_person
+    delivery_partner = delivery_partners.get(unique_id)
+    if delivery_partner:
+        if not delivery_partner[IS_DELETE]:
+            return delivery_partner
     return None
 
-def filter_delivery_person_info(delivery_person):
+def filter_delivery_partner_info(delivery_partner):
     """
     Filters out sensitive information (e.g., password) from a delivery person's details.
 
     Parameters:
-    - delivery_person (dict): The delivery person's full details.
+    - delivery_partner (dict): The delivery person's full details.
 
     Returns:
     - dict: The delivery person's details with sensitive information removed.
     """
-    return {key: value for key, value in delivery_person.items() if key not in [PASSWORD_KEY,IS_DELETE]}
+    return {key: value for key, value in delivery_partner.items() if key not in [PASSWORD_KEY,IS_DELETE]}
 
 def get_all():
     """
@@ -74,27 +74,27 @@ def get_all():
     Returns:
     - dict: A dictionary of all delivery persons with their sensitive information removed.
     """
-    filtered_delivery_persons = {
-        delivery_person_id: filter_delivery_person_info(delivery_person)
-        for delivery_person_id, delivery_person in delivery_persons.items()
-        if not delivery_person.get(IS_DELETE, False)
+    filtered_delivery_partners = {
+        delivery_partner_id: filter_delivery_partner_info(delivery_partner)
+        for delivery_partner_id, delivery_partner in delivery_partners.items()
+        if not delivery_partner.get(IS_DELETE, False)
     }
-    return filtered_delivery_persons
+    return filtered_delivery_partners
 
 
-def update_ratings(ratings: int, delivery_person):
+def update_ratings(ratings: int, delivery_partner):
     """
     Updates the delivery person's ratings by adding a new rating and recalculating the average rating.
 
     Parameters:
     - ratings (int): The new rating to add.
-    - delivery_person (dict): The delivery person's details.
+    - delivery_partner (dict): The delivery person's details.
 
     Returns:
     - bool: True if the rating was successfully updated.
     """
-    total_ratings = delivery_person["total_ratings"].append(ratings)
-    delivery_person["ratings"] = sum(total_ratings) / len(total_ratings)
+    total_ratings = delivery_partner["total_ratings"].append(ratings)
+    delivery_partner["ratings"] = sum(total_ratings) / len(total_ratings)
     return True
 
 
@@ -108,43 +108,43 @@ def remove(unique_id: str):
     Returns:
     - bool: True if the delivery person was successfully marked as deleted.
     """
-    delivery_person = get(unique_id)
-    delivery_person["is_deleted"] = True
+    delivery_partner = get(unique_id)
+    delivery_partner["is_deleted"] = True
     return True
 
 
-def update(delivery_person: dict, to_update: str, details_to_update: str):
+def update(delivery_partner: dict, to_update: str, details_to_update: str):
     """
     Updates a specific detail of a delivery person.
 
     Parameters:
-    - delivery_person (dict): The delivery person's details.
+    - delivery_partner (dict): The delivery person's details.
     - to_update (str): The key of the detail to update.
     - details_to_update (str): The new value for the specified detail.
 
     Returns:
     - bool: True if the update was successful.
     """
-    delivery_person[to_update] = details_to_update
+    delivery_partner[to_update] = details_to_update
     return True
 
 
-def assign_delivery_person(delivery_person, order, delivery_person_id, order_id):
+def assign_delivery_partner(delivery_partner, order, delivery_partner_id, order_id):
     """
     Assigns a delivery person to an order.
 
     Parameters:
-    - delivery_person (dict): The delivery person's details.
+    - delivery_partner (dict): The delivery person's details.
     - order (dict): The order details.
-    - delivery_person_id (str): The unique ID of the delivery person.
+    - delivery_partner_id (str): The unique ID of the delivery person.
     - order_id (str): The unique ID of the order.
 
     Returns:
     - dict: The updated order details with the assigned delivery person.
     """
     order["status"] = "Assigned"
-    order["delivery_person_id"] = delivery_person_id
-    delivery_person["current_order_id"] = order_id
+    order["delivery_partner_id"] = delivery_partner_id
+    delivery_partner["current_order_id"] = order_id
     return order
 
 
@@ -162,13 +162,13 @@ def pick_up_order(order):
     return order
 
 
-def deliver_order(order, delivery_person, otp_input):
+def deliver_order(order, delivery_partner, otp_input):
     """
     Updates the status of an order to "Delivered" if the correct OTP is provided by the customer.
 
     Parameters:
     - order (dict): The order details.
-    - delivery_person (dict): The delivery person's details.
+    - delivery_partner (dict): The delivery person's details.
     - otp_input (str): The OTP provided by the customer.
 
     Returns:
@@ -176,9 +176,9 @@ def deliver_order(order, delivery_person, otp_input):
     """
     if otp_input == order["otp"]:
         order["status"] = "Delivered"
-        delivery_person.pop("current_order_id", None)
-        delivery_person["completed_orders"] += 1
-        delivery_person[LOCATION_KEY] = get_customer(order["customer_id"])[LOCATION_KEY]
+        delivery_partner.pop("current_order_id", None)
+        delivery_partner["completed_orders"] += 1
+        delivery_partner[LOCATION_KEY] = get_customer(order["customer_id"])[LOCATION_KEY]
         return order
     else:
-        return False
+        return None

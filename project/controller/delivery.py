@@ -1,42 +1,34 @@
-from common.constant import (
-    PICK_CHOICE, INPUT_NAME, EXITING,
-    INPUT_EMAIL, INPUT_LOCATION, INPUT_CONTACT, INVALID_CHOICE,
-    INVALID_INPUT, INPUT_PASSWORD, NAME_UPDATED, EMAIL_UPDATED, INPUT_ID,
-    MOBILE_NUMBER_KEY, MOBILE_NUMBER_UPDATED,
-    LOCATION_UPDATED, INPUT_LICENSE_NUMBER, LICENSE_NUMBER_KEY,
-    LICENSE_NUMBER_UPDATED, AVAILABLE_ORDERS,
-    NO_AVAILABLE_ORDERS, STATUS, STATUS_PLACED, STATUS_IN_TRANSPORT,
-    STATUS_ASSIGNED, INPUT_OTP, ORDER_ID_KEY, ZERO, ONE, TWO,
-    THREE, FOUR, FIVE, SIX, SEVEN, INVALID_OTP, PASSWORD_UPDATED, PASSWORD_KEY,
-    INPUT_ORDER_ID, ORDER_NOT_FOUND_OR_NOT_AVAILABLE,
-    ORDER_NOT_FOUND_OR_NOT_ASSIGNED,
-    ORDER_DELIVERED, ORDER_NOT_FOUND_OR_NOT_IN_TRANSPORT,
-    ORDER_PICKED_BY_DELIVERY_PERSON, ORDER_ASSIGNED_TO_DELIVERY_PERSON,
-    DELIVERY_PERSON_CHOICE, DELIVERY_PERSON_UPDATE_CHOICE,
-    UPDATE_DELIVERY_PERSON_NOT_FOUND, DELIVERY_PERSON_ADDED,
-    INPUT_DELIVERY_PERSON_ID, DELIVERY_PERSON_NOT_FOUND,
-    CURRENT_ORDER_ID_KEY, DELIVERY_PERSON_HAS_NO_ORDER_TO_DELIVER,
-    DELIVERY_PERSON_HAS_NO_ORDER_TO_PICK,
-    INVALID_NAME, INVALID_EMAIL,
-    INVALID_CONTACT, INVALID_LOCATION, INVALID_PASSWORD, NAME_KEY,
-    LOCATION_KEY, EMAIL_KEY, INVALID_LICENSE
+import traceback
+
+from project.config.config import logger
+from project.constant.constant import (
+    PICK_CHOICE, INPUT_NAME, INPUT_EMAIL, INPUT_LOCATION, INPUT_CONTACT,
+    INVALID_CHOICE, INPUT_PASSWORD, NAME_UPDATED, EMAIL_UPDATED, INPUT_ID,
+    MOBILE_NUMBER_KEY, MOBILE_NUMBER_UPDATED, LOCATION_UPDATED,
+    INPUT_LICENSE_NUMBER, LICENSE_NUMBER_KEY, LICENSE_NUMBER_UPDATED, ZERO,
+    ONE, TWO, THREE, FOUR, FIVE, SIX, SEVEN, PASSWORD_UPDATED, PASSWORD_KEY,
+    DELIVERY_PARTNER_UPDATE_CHOICE, UPDATE_DELIVERY_PARTNER_NOT_FOUND,
+    DELIVERY_PARTNER_ADDED, INVALID_NAME, INVALID_EMAIL, INVALID_CONTACT,
+    INVALID_LOCATION, INVALID_PASSWORD, NAME_KEY, LOCATION_KEY, EMAIL_KEY,
+    INVALID_LICENSE, DELIVERY_PARTNER_NOT_FOUND, NO_AVAILABLE_ORDERS,
+    STATUS_PLACED, STATUS, ORDER_ASSIGNED_TO_DELIVERY_PARTNER, ORDER_ID_KEY,
+    ORDER_NOT_FOUND_OR_NOT_AVAILABLE, CURRENT_ORDER_ID_KEY, STATUS_ASSIGNED,
+    ORDER_PICKED_BY_DELIVERY_PARTNER, ORDER_NOT_FOUND_OR_NOT_ASSIGNED,
+    DELIVERY_PARTNER_HAS_NO_ORDER_TO_PICK, STATUS_IN_TRANSPORT,
+    ORDER_DELIVERED, INVALID_OTP, ORDER_NOT_FOUND_OR_NOT_IN_TRANSPORT,
+    DELIVERY_PARTNER_HAS_NO_ORDER_TO_DELIVER
 )
-from resources.config import logger
-from service.customer_service import (
-    list_available_orders,
-    get_order
+from project.service.customer import list_available_orders, get_order
+from project.service.delivery import (
+    add, update, get, assign_delivery_partner, pick_up_order, deliver_order
 )
-from service.delivery_person_service import (
-    add, update,
-    pick_up_order, deliver_order, assign_delivery_person,
-    get)
-from utils.utils import (
-    is_valid_email, is_valid_mobile, is_valid_name,
-    is_valid_password, is_valid_license, input_validation, update_entity
+from project.utils.utils import (
+    is_valid_email, is_valid_mobile, is_valid_name, is_valid_password,
+    is_valid_license, input_validation, update_entity, continue_operations
 )
 
 
-def update_delivery_person():
+def update_delivery():
     """
     Manages the update process for delivery person details based on user input.
 
@@ -48,162 +40,183 @@ def update_delivery_person():
     location, license number, or password. Handles invalid choices and delivery
     person not found scenarios.
     """
-    while True:
-        try:
-            print(DELIVERY_PERSON_UPDATE_CHOICE)
-            choice = input(PICK_CHOICE)
-            if not (choice.isnumeric() and len(choice) == ONE and ZERO <= int(choice) <= SIX):
-                raise ValueError
-            choice = int(choice)
+    print(DELIVERY_PARTNER_UPDATE_CHOICE)
+    choice = input(PICK_CHOICE)
+    if not (choice.isnumeric() and len(choice) == ONE and ZERO <= int(choice) <= SIX):
+        raise ValueError
+    choice = int(choice)
 
-            if choice in range(ONE, SEVEN):
-                unique_id = input(INPUT_ID)
-                delivery_person = get(unique_id)
-                if delivery_person:
-                    if choice == ONE:
-                        update_entity(delivery_person, NAME_KEY, INPUT_NAME, is_valid_name, NAME_UPDATED, INVALID_NAME,
-                                      update)
-                    elif choice == TWO:
-                        update_entity(delivery_person, EMAIL_KEY, INPUT_EMAIL, is_valid_email, EMAIL_UPDATED,
-                                      INVALID_EMAIL, update)
-                    elif choice == THREE:
-                        update_entity(delivery_person, MOBILE_NUMBER_KEY, INPUT_CONTACT, is_valid_mobile,
-                                      MOBILE_NUMBER_UPDATED, INVALID_CONTACT, update)
-                    elif choice == FOUR:
-                        update_entity(delivery_person, LOCATION_KEY, INPUT_LOCATION, is_valid_name, LOCATION_UPDATED,
-                                      INVALID_LOCATION, update)
-                    elif choice == FIVE:
-                        update_entity(delivery_person, LICENSE_NUMBER_KEY, INPUT_LICENSE_NUMBER, is_valid_license,
-                                      LICENSE_NUMBER_UPDATED, INVALID_LICENSE, update)
-                    elif choice == SIX:
-                        update_entity(delivery_person, PASSWORD_KEY, INPUT_PASSWORD, is_valid_password,
-                                      PASSWORD_UPDATED, INVALID_PASSWORD, update)
-                else:
-                    logger.warning(UPDATE_DELIVERY_PERSON_NOT_FOUND.format(unique_id=unique_id))
-            elif choice == ZERO:
-                logger.debug(EXITING)
-                break
-            else:
-                logger.warning(INVALID_CHOICE)
-        except ValueError:
-            logger.error(INVALID_INPUT)
+    if choice in range(ONE, SEVEN):
+        unique_id = input(INPUT_ID)
+        delivery_partner = get(unique_id)
+        if delivery_partner:
+            if choice == ONE:
+                update_entity(delivery_partner, NAME_KEY, INPUT_NAME, is_valid_name, NAME_UPDATED, INVALID_NAME,
+                              update)
+            elif choice == TWO:
+                update_entity(delivery_partner, EMAIL_KEY, INPUT_EMAIL, is_valid_email, EMAIL_UPDATED,
+                              INVALID_EMAIL, update)
+            elif choice == THREE:
+                update_entity(delivery_partner, MOBILE_NUMBER_KEY, INPUT_CONTACT, is_valid_mobile,
+                              MOBILE_NUMBER_UPDATED, INVALID_CONTACT, update)
+            elif choice == FOUR:
+                update_entity(delivery_partner, LOCATION_KEY, INPUT_LOCATION, is_valid_name, LOCATION_UPDATED,
+                              INVALID_LOCATION, update)
+            elif choice == FIVE:
+                update_entity(delivery_partner, LICENSE_NUMBER_KEY, INPUT_LICENSE_NUMBER, is_valid_license,
+                              LICENSE_NUMBER_UPDATED, INVALID_LICENSE, update)
+            elif choice == SIX:
+                update_entity(delivery_partner, PASSWORD_KEY, INPUT_PASSWORD, is_valid_password,
+                              PASSWORD_UPDATED, INVALID_PASSWORD, update)
+        else:
+            logger.warning(UPDATE_DELIVERY_PARTNER_NOT_FOUND.format(unique_id=unique_id))
+    else:
+        logger.warning(INVALID_CHOICE)
+    continue_operations(update_delivery)
 
 
-def create_delivery_person():
+def create_delivery(name, password, email, mobile_number, location, license_number):
     """
     Prompts the user to input details for creating a new delivery person and adds them.
     """
-    name = input_validation(INPUT_NAME, is_valid_name, INVALID_NAME)
-    password = input_validation(INPUT_PASSWORD, is_valid_password, INVALID_PASSWORD)
-    email = input_validation(INPUT_EMAIL, is_valid_email, INVALID_EMAIL)
-    mobile_number = input_validation(INPUT_CONTACT, is_valid_mobile, INVALID_CONTACT)
-    location = input_validation(INPUT_LOCATION, is_valid_name, INVALID_LOCATION)
-    license_number = input_validation(INPUT_LICENSE_NUMBER, is_valid_license, INVALID_LICENSE)
-    unique_id = add(name.lower(), password, email.lower(), location.lower(), mobile_number,
-                    license_number)
-    logger.info(DELIVERY_PERSON_ADDED.format(unique_id=unique_id))
+    result = {}
+    try:
+        delivery_partner_name = input_validation(name, is_valid_name, INVALID_NAME)
+        delivery_partner_password = input_validation(password, is_valid_password, INVALID_PASSWORD)
+        delivery_partner_email = input_validation(email, is_valid_email, INVALID_EMAIL)
+        delivery_partner_mobile_number = input_validation(mobile_number, is_valid_mobile, INVALID_CONTACT)
+        delivery_partner_location = input_validation(location, is_valid_name, INVALID_LOCATION)
+        delivery_partner_license_number = input_validation(license_number, is_valid_name, INVALID_LICENSE)
+        if delivery_partner_name != name:
+            result.setdefault(400, []).append(delivery_partner_name)
+        if delivery_partner_password != password:
+            result.setdefault(400, []).append(delivery_partner_password)
+        if delivery_partner_email != email:
+            result.setdefault(400, []).append(delivery_partner_email)
+        if delivery_partner_mobile_number != mobile_number:
+            result.setdefault(400, []).append(delivery_partner_mobile_number)
+        if delivery_partner_location != location:
+            result.setdefault(400, []).append(delivery_partner_location)
+        if delivery_partner_license_number != license_number:
+            result.setdefault(400, []).append(delivery_partner_license_number)
+        if not result:
+            unique_id = add(delivery_partner_name.lower(), delivery_partner_password, delivery_partner_email.lower(),
+                            delivery_partner_location.lower(), delivery_partner_mobile_number,
+                            delivery_partner_license_number)
+            logger.info(DELIVERY_PARTNER_ADDED.format(unique_id=unique_id))
+            result[200] = DELIVERY_PARTNER_ADDED.format(unique_id=unique_id)
+            return result
+        else:
+            return result
+    except ValueError as ve:
+        logger.error(f"Value Error Occurred: {str(ve)}\n{traceback.format_exc()}")
+        result[400] = "Incorrect Value"
+        return result
 
 
-def delivery_person_operations():
-    while True:
-        try:
-            print(DELIVERY_PERSON_CHOICE)
-            choice = input(PICK_CHOICE)
-            if not (choice.isnumeric()
-                    and len(choice) == ONE and ZERO <= int(choice) <= SEVEN):
-                raise ValueError
-            choice = int(choice)
-            if choice == ONE:
-                create_delivery_person()
-            elif choice == TWO:
-                update_delivery_person()
-            elif choice == THREE:
-                unique_id = input(INPUT_DELIVERY_PERSON_ID)
-                delivery_person = get(unique_id)
-                if delivery_person:
-                    orders = list_available_orders(delivery_person[LOCATION_KEY])
-                    if orders:
-                        logger.info(AVAILABLE_ORDERS)
-                        for order in orders:
-                            logger.info(
-                                f"Order ID: {order["order_id"]},"
-                                f" Customer ID: {order["customer_id"]},"
-                                f" Restaurant ID: {order["restaurant_id"]},"
-                                f" Food Items: {order["food_items"]}")
-                    else:
-                        logger.warning(NO_AVAILABLE_ORDERS)
-                else:
-                    logger.warning(DELIVERY_PERSON_NOT_FOUND.format(unique_id=unique_id))
-            elif choice == FOUR:
-                unique_id = input(INPUT_DELIVERY_PERSON_ID)
-                delivery_person = get(unique_id)
-                if delivery_person:
-                    order_id = input(INPUT_ORDER_ID)
-                    order = get_order(order_id)
-                    if order and order[STATUS] == STATUS_PLACED:
-                        result = assign_delivery_person(
-                            delivery_person, order, unique_id, order_id)
-                        if isinstance(result, dict):
-                            logger.info(
-                                ORDER_ASSIGNED_TO_DELIVERY_PERSON.
-                                format(order_id=result[ORDER_ID_KEY],
-                                       unique_id=unique_id))
-                    else:
-                        logger.warning(ORDER_NOT_FOUND_OR_NOT_AVAILABLE)
-                else:
-                    logger.warning(DELIVERY_PERSON_NOT_FOUND.format(unique_id=unique_id))
-            elif choice == FIVE:
-                unique_id = input(INPUT_DELIVERY_PERSON_ID)
-                delivery_person = get(unique_id)
-                if delivery_person:
-                    if CURRENT_ORDER_ID_KEY in delivery_person:
-                        order_id = delivery_person[CURRENT_ORDER_ID_KEY]
-                        order = get_order(order_id)
-                        if order and order[STATUS] == STATUS_ASSIGNED:
-                            result = pick_up_order(order)
-                            if isinstance(result, dict):
-                                logger.info(ORDER_PICKED_BY_DELIVERY_PERSON.
-                                            format(order_id=result[ORDER_ID_KEY],
-                                                   unique_id=unique_id))
-                        else:
-                            logger.warning(ORDER_NOT_FOUND_OR_NOT_ASSIGNED)
-                    else:
-                        logger.warning(DELIVERY_PERSON_HAS_NO_ORDER_TO_PICK)
-                else:
-                    logger.warning(DELIVERY_PERSON_NOT_FOUND)
-            elif choice == SIX:
-                delivery_person_id = input(INPUT_DELIVERY_PERSON_ID)
-                delivery_person = get(delivery_person_id)
-                if delivery_person:
-                    if CURRENT_ORDER_ID_KEY in delivery_person:
-                        order_id = delivery_person[CURRENT_ORDER_ID_KEY]
-                        order = get_order(order_id)
-                        if order and order[STATUS] == STATUS_IN_TRANSPORT:
-                            while True:
-                                otp_input = input(INPUT_OTP)
-                                result = deliver_order(order, delivery_person, otp_input)
-                                if result:
-                                    logger.info(ORDER_DELIVERED.format(order_id=result[ORDER_ID_KEY]))
-                                    break
-                                else:
-                                    logger.warning(INVALID_OTP)
-                        else:
-                            logger.warning(ORDER_NOT_FOUND_OR_NOT_IN_TRANSPORT)
-                    else:
-                        logger.warning(DELIVERY_PERSON_HAS_NO_ORDER_TO_DELIVER)
-                else:
-                    logger.warning(DELIVERY_PERSON_NOT_FOUND.format(unique_id=delivery_person_id))
-            elif choice == SEVEN:
-                unique_id = input(INPUT_DELIVERY_PERSON_ID)
-                delivery_person = get(unique_id)
-                if delivery_person:
-                    logger.info(delivery_person)
-                else:
-                    logger.warning(DELIVERY_PERSON_NOT_FOUND.format(unique_id=unique_id))
-            elif choice == ZERO:
-                logger.debug(EXITING)
-                break
+def get_available_orders(unique_id: str):
+    result = {}
+    delivery_partner = get(unique_id)
+    if not delivery_partner:
+        logger.warning(DELIVERY_PARTNER_NOT_FOUND.format(unique_id=unique_id))
+        result[404] = DELIVERY_PARTNER_NOT_FOUND.format(unique_id=unique_id)
+        return result
+    orders = list_available_orders(delivery_partner[LOCATION_KEY])
+    if orders:
+        result[200] = orders
+        return result
+    else:
+        logger.warning(NO_AVAILABLE_ORDERS)
+        result[404] = NO_AVAILABLE_ORDERS
+        return result
+
+
+def assign_delivery(unique_id: str, order_id: str):
+    result = {}
+    delivery_partner = get(unique_id)
+    if delivery_partner:
+        order = get_order(order_id)
+        if order and order[STATUS] == STATUS_PLACED:
+            assigned_order = assign_delivery_partner(
+                delivery_partner, order, unique_id, order_id)
+            logger.info(ORDER_ASSIGNED_TO_DELIVERY_PARTNER.
+                        format(order_id=assigned_order[ORDER_ID_KEY],
+                               unique_id=unique_id))
+            result[200] = ORDER_ASSIGNED_TO_DELIVERY_PARTNER.format(
+                order_id=assigned_order[ORDER_ID_KEY], unique_id=unique_id)
+            return result
+        else:
+            logger.warning(ORDER_NOT_FOUND_OR_NOT_AVAILABLE)
+            result[404] = ORDER_NOT_FOUND_OR_NOT_AVAILABLE
+            return result
+    else:
+        logger.warning(DELIVERY_PARTNER_NOT_FOUND.format(unique_id=unique_id))
+        result[404] = DELIVERY_PARTNER_NOT_FOUND.format(unique_id=unique_id)
+
+
+def pick_order(unique_id: str):
+    result = {}
+    delivery_partner = get(unique_id)
+    if not delivery_partner:
+        logger.warning(DELIVERY_PARTNER_NOT_FOUND)
+        result[404] = DELIVERY_PARTNER_NOT_FOUND
+        return result
+    if CURRENT_ORDER_ID_KEY in delivery_partner:
+        order_id = delivery_partner[CURRENT_ORDER_ID_KEY]
+        order = get_order(order_id)
+        if order and order[STATUS] == STATUS_ASSIGNED:
+            picked_order = pick_up_order(order)
+            logger.warning(ORDER_PICKED_BY_DELIVERY_PARTNER.format(
+                order_id=picked_order[ORDER_ID_KEY], unique_id=unique_id))
+            result[200] = ORDER_PICKED_BY_DELIVERY_PARTNER.format(
+                order_id=picked_order[ORDER_ID_KEY], unique_id=unique_id)
+            return result
+        else:
+            logger.warning(ORDER_NOT_FOUND_OR_NOT_ASSIGNED)
+            result[404] = ORDER_NOT_FOUND_OR_NOT_ASSIGNED
+            return result
+    else:
+        logger.warning(DELIVERY_PARTNER_HAS_NO_ORDER_TO_PICK)
+        result[204] = DELIVERY_PARTNER_HAS_NO_ORDER_TO_PICK
+        return result
+
+
+def complete_order(delivery_partner_id: str, otp):
+    result = {}
+    delivery_partner = get(delivery_partner_id)
+    if not delivery_partner:
+        logger.warning(DELIVERY_PARTNER_NOT_FOUND.format(unique_id=delivery_partner_id))
+        result[404] = DELIVERY_PARTNER_NOT_FOUND.format(unique_id=delivery_partner_id)
+        return result
+    if CURRENT_ORDER_ID_KEY in delivery_partner:
+        order_id = delivery_partner[CURRENT_ORDER_ID_KEY]
+        order = get_order(order_id)
+        if order and order[STATUS] == STATUS_IN_TRANSPORT:
+            delivered_order = deliver_order(order, delivery_partner, otp)
+            if delivered_order:
+                logger.info(ORDER_DELIVERED.format(order_id=delivered_order[ORDER_ID_KEY]))
+                result[200] = ORDER_DELIVERED.format(order_id=delivered_order[ORDER_ID_KEY])
+                return result
             else:
-                logger.warning(INVALID_CHOICE)
-        except ValueError:
-            logger.error(INVALID_INPUT)
+                logger.warning(INVALID_OTP)
+                result[400] = INVALID_OTP
+                return result
+        else:
+            logger.warning(ORDER_NOT_FOUND_OR_NOT_IN_TRANSPORT)
+            result[409] = ORDER_NOT_FOUND_OR_NOT_IN_TRANSPORT
+            return result
+    else:
+        logger.warning(DELIVERY_PARTNER_HAS_NO_ORDER_TO_DELIVER)
+        result[204] = DELIVERY_PARTNER_HAS_NO_ORDER_TO_DELIVER
+        return result
+def get_my_details(unique_id:str):
+    result = {}
+    delivery_partner = get(unique_id)
+    if delivery_partner:
+        logger.info(delivery_partner)
+        result[200] = delivery_partner
+        return result
+    else:
+        logger.warning(DELIVERY_PARTNER_NOT_FOUND.format(unique_id=unique_id))
+        result[404] = DELIVERY_PARTNER_NOT_FOUND.format(unique_id=unique_id)
+        return result

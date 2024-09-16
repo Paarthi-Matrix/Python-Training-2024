@@ -1,16 +1,14 @@
 import uuid
 
-from common.common_constants import PASSWORD_KEY
-from common.restaurant_constants import (
-    NAME_KEY, EMAIL_KEY, CONTACT_KEY,
+from project.constant.constant import (
+    PASSWORD_KEY, NAME_KEY, EMAIL_KEY, CONTACT_KEY,
     LOCATION_KEY, MENU_KEY, PRICE_KEY, IS_DELETE
 )
-from resources.logging_config import logger
 
 restaurants = {}
 
 
-def add_new_restaurant(name: str, password: str, email: str,
+def add(name: str, password: str, email: str,
                        contact_numbers: list[str], location: str):
     """
     Adds a new restaurant to the restaurants dictionary with a unique ID.
@@ -25,8 +23,8 @@ def add_new_restaurant(name: str, password: str, email: str,
     Returns:
     - str: The unique ID of the newly added restaurant.
     """
-    id = str(uuid.uuid4())
-    restaurants[id] = {
+    unique_id = str(uuid.uuid4())
+    restaurants[unique_id] = {
         NAME_KEY: name,
         PASSWORD_KEY: password,
         EMAIL_KEY: email,
@@ -35,10 +33,10 @@ def add_new_restaurant(name: str, password: str, email: str,
         MENU_KEY: [],
         IS_DELETE: False
     }
-    return id
+    return unique_id
 
 
-def add_new_food_item(restaurant_id: str,
+def add_food_item(restaurant_id: str,
                       name: str, price: float):
     """
     Adds a new food item to the menu of a specified restaurant.
@@ -52,7 +50,7 @@ def add_new_food_item(restaurant_id: str,
     - bool: True if the food item was added successfully, False if the item already exists.
     - None: If the restaurant was not found.
     """
-    restaurant = find_by_id(restaurant_id)
+    restaurant = get(restaurant_id)
     if restaurant:
         for item in restaurant[MENU_KEY]:
             if item[NAME_KEY] == name:
@@ -66,7 +64,7 @@ def add_new_food_item(restaurant_id: str,
     return None
 
 
-def find_by_id(restaurant_id: str):
+def get(restaurant_id: str):
     """
     Finds a restaurant by its unique ID.
 
@@ -96,7 +94,7 @@ def filter_restaurant_info(restaurant):
     return {key: value for key, value in restaurant.items() if key not in [PASSWORD_KEY, MENU_KEY, IS_DELETE]}
 
 
-def get_all_restaurants():
+def get_all():
     """
     Retrieves all restaurants that are not marked as deleted.
 
@@ -111,7 +109,7 @@ def get_all_restaurants():
     return filtered_restaurants
 
 
-def get_restaurant_menu(restaurant_id: str):
+def get_menu(restaurant_id: str):
     """
     Retrieves the menu of a specified restaurant.
 
@@ -128,7 +126,7 @@ def get_restaurant_menu(restaurant_id: str):
     return None
 
 
-def update_restaurant_details(restaurant, to_update: str, detail_to_update: str):
+def update(restaurant, to_update: str, detail_to_update: str):
     """
     Updates a specific detail of a restaurant.
 
@@ -157,7 +155,7 @@ def update_food_item_details(restaurant_id: str, name: str, price: float):
     - bool: True if the food item was updated successfully, False if the item was not found.
     - None: If the restaurant was not found.
     """
-    restaurant = find_by_id(restaurant_id)
+    restaurant = get(restaurant_id)
     if restaurant:
         for item in restaurant[MENU_KEY]:
             if item[NAME_KEY] == name:
@@ -179,7 +177,7 @@ def delete_food_item_details(restaurant_id: str, name: str):
     - bool: True if the food item was marked as deleted successfully, False if the item was not found.
     - None: If the restaurant was not found.
     """
-    restaurant = find_by_id(restaurant_id)
+    restaurant = get(restaurant_id)
     if restaurant:
         for item in restaurant[MENU_KEY]:
             if item[NAME_KEY] == name:
@@ -189,7 +187,7 @@ def delete_food_item_details(restaurant_id: str, name: str):
     return None
 
 
-def remove_restaurant(restaurant_id: str):
+def remove(restaurant_id: str):
     """
     Marks a restaurant as deleted.
 
@@ -199,7 +197,7 @@ def remove_restaurant(restaurant_id: str):
     Returns:
     - None
     """
-    restaurant = find_by_id(restaurant_id)
+    restaurant = get(restaurant_id)
     if restaurant:
         restaurant[IS_DELETE] = True
     return None
