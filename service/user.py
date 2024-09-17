@@ -55,6 +55,13 @@ def login_user(username, password):
 
 
 def add_money(user_id, amount):
+    """
+    User add money feature
+    -User can add the money after logging in.
+    :param user_id: User_id of the user
+    :param amount: amount to be added in the user account
+    :return: returns true or false
+    """
     if user_id in users_db:
         users_db[user_id]['amount'] += amount
         logger.info(USER_MONEY_ADDED.format(amount, user_id))
@@ -63,6 +70,13 @@ def add_money(user_id, amount):
 
 
 def get_user_balance(user_id):
+    """
+    User balance display:
+    - This function is used to check the users balance
+    - This is usually done after adding the money to the balance
+    :param user_id: uuid generated
+    :return: balance float type returns
+    """
     if user_id in users_db:
         balance = users_db[user_id]['amount']
         logger.info(USER_BALANCE.format(balance))

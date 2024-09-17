@@ -15,6 +15,7 @@ current_pool_id = None
 def create_new_pool():
     """Create a new pool.
     - New pool which collects the amount is created.
+    - Once reaches threshold automatically new pool is created
     - """
     global current_pool_id
     pool_id = f"pool_{str(uuid.uuid4())}"
@@ -27,6 +28,15 @@ def create_new_pool():
 
 
 def contribute(user_id, amount, users_db):
+    """
+    Contribution of amount to pool
+    - User enters the user_id
+    - user_id is checked if the user is available
+    - amount is entered as float
+    :param user_id: User_id generated uuid
+    :param amount: amount is float value entered by user
+    :return: True or False
+    """
     global current_pool_id
     if user_id in users_db:
         if users_db[user_id]["amount"] > amount:
@@ -46,6 +56,12 @@ def contribute(user_id, amount, users_db):
 
 
 def get_pool_balance():
+    """
+    Checks for the pool balance
+    - Pool balance is displayed.
+    - Total amount of contribution
+    :return: Balance float type is used.
+    """
     if current_pool_id in pools:
         balance = pools[current_pool_id]["total_funds"]
         logger.info(POOL_BALANCE.format(balance))

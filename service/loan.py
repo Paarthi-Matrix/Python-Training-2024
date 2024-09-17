@@ -12,6 +12,16 @@ loans = {}
 
 
 def request_loan(user_id, amount, pools):
+    """
+    User Can request loan:
+    - User enters the user login, selects request loan choice in console
+    - Function checks if the entered amount is greater than the amount in pool
+    - If amount requested is less than pool balance, loan request gets approved
+    - Else loan creation does not occur
+    :param user_id: Entered as string, generated uuid
+    :param amount: Float value entered
+    :return: Returns the loan_id
+    """
     try:
         if any(loan['user_id'] == user_id for loan in loans.values()):
             logger.warning(USER_PENDING_LOAN.format(user_id))
@@ -34,6 +44,14 @@ def request_loan(user_id, amount, pools):
 
 
 def accept_loan(loan_id):
+    """
+    Admin Controller:
+    - Admin enters and accepts the loan by entering loan id
+    - Checks if the loan id is available in the loan dict
+    - If loan id doesnt exists value error is handled
+    :param loan_id: Generated UUID
+    :return: Returns Loan_id
+    """
     try:
         if loan_id in loans:
             loans[loan_id]['status'] = LOAN_APPROVED
@@ -46,6 +64,13 @@ def accept_loan(loan_id):
 
 
 def reject_loan(loan_id):
+    """
+    Reject Loan requested by user
+    - Admin rejects the users loan request by entering the loan_id
+    - if entered loan_id is not available in loan dict, value error is handled
+    :param loan_id: loan_id generated UUID
+    :return: Returns True or False
+    """
     try:
         if loan_id in loans:
             loans[loan_id]['status'] = LOAN_REJECTED
