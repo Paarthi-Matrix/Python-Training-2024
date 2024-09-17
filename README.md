@@ -13,5 +13,7 @@ The customer can also raise a complaint, if the their wastage not yet collected
 
 # Set Up the project
 git clone https://github.com/Paarthi-Matrix/Python-Training-2024.git
+
 git checkout Garbage-Collector
+
 The main.py is the entry point of the application
