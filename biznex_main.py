@@ -5,7 +5,7 @@ import os
 
 from tabulate import tabulate
 
-from constants.constants import (
+from constant.constant import (
     CONFORMATION_PROMPT, CUSTOMER_CATEGORY_NAME,
     CUSTOMER_VENDOR_CHOICE, END_GREETING_MESSAGE,
     ENTER_COMPANY_NAME, ENTER_COMPANY_TYPE,
@@ -31,7 +31,7 @@ from constants.constants import (
     LOOP_LIMIT, ITEM_NAME_PROMPT, ITEM_QUANTITY, INVALID_ITEM_QUANTITY, ITEM_STATUS_AVAILABLE, ITEM_STATUS,
     CRITICAL_LEVEL_PROMPT, ITEM_CRITICAL_LEVEL, INVALID_CRITICAL_LEVEL,
     ITEM_NUMBER_PROMPT, QUANTITY_TO_BE_CHANGES, USER_DICT_USER_ID, INVALID_DELTA, ITEM_UPDATED,
-    WAREHOUSE_ITEM_ZERO_LOGGER, BAD_REQUEST_CODE, OK_STATUS, UN_PROCESSABLE_ENTITY, NOT_FOUND_CODE,
+    WAREHOUSE_ITEM_ZERO, BAD_REQUEST_CODE, OK_STATUS, UN_PROCESSABLE_ENTITY, NOT_FOUND_CODE,
     VENDOR_ID, STATUS, STATUS_SENT, ENTER_ITEMS, DONE, QUANTITY_NOT_ZERO,
     FORM_ITEMS, ENTER_DELIVERY_DATE, DELIVERY_DATE, PAST_DELIVERY_DATE, ADDRESS, ENTER_DELIVERY_ADDRESS, VENDOR_EMAIL,
     ENTER_VENDOR_MAIL_ID, NO_ACTIVE_QUOTATION, YOUR_ACTIVE_QUOTATIONS, SELECT_ONE_QUOTATION, CUSTOMER_QUOTATION_NUMBER,
@@ -61,23 +61,25 @@ from controller.user import (
 )
 from service.user import get_by_email
 from service.vendor import get_quotation, update_customer_quotation
-from utils.common_utils import get_valid_payment_method, get_valid_email, get_valid_phone_number, \
+from util.common_utils import get_valid_payment_method, get_valid_email, get_valid_phone_number, \
     get_valid_delivery_date
-from utils.trace_id_utils import set_trace_id, generate_trace_id
-from utils.user_input_validation import is_valid_number, is_valid_future_date
+from util.trace_id_utils import set_trace_id, generate_trace_id
+from util.user_input_validation import is_valid_number, is_valid_future_date
 
 
 def start_application():
     """
     Starts the main application loop, displaying the main menu and handling user input.
     """
-    while True:
+    count = LOOP_LIMIT
+    while count > 0:
         logger.info("User entered the application")
         print(MAIN_MENU_TEXT)
         choice = 0
         try:
             choice = int(input(INPUT_PLACEHOLDER_MESSAGE))
         except ValueError as e:
+            count -= 1
             print(INVALID_CHOICE_OF_MAIN)
             continue
 
@@ -94,6 +96,7 @@ def start_application():
                 print(END_GREETING_MESSAGE)
                 return
             case _:
+                count -= 1
                 print(INVALID_CHOICE_OF_MAIN)
                 continue
 
@@ -117,7 +120,7 @@ def get_user_details(category):
         USER_DICT_COMPANY_NAME: input(ENTER_COMPANY_NAME).strip(),
         USER_DICT_COMPANY_TYPE: input(ENTER_COMPANY_TYPE).strip(),
         USER_DICT_COMPANY_SERVICE: input(USER_DICT_COMPANY_SERVICE).strip(),
-        USER_DICT_USER_PASSWORD: input(VALID_PASSWORD_PROMPT).strip(),
+        USER_DICT_USER_PASSWORD: input(VALID_PASSWORD_PROMPT),
         USER_DICT_USER_CATEGORY: category, USER_DICT_IS_DELETE: False}
     return user_details
 
@@ -127,15 +130,17 @@ def register():
     Registers a new user (CUSTOMER or VENDOR) by collecting their details and confirming.
     Validations for input fields are done.
     For more in formation on input validation see :class:`user_input_validation`
-    in the module mod:`utils`
+    in the module mod:`util`
     """
-    while True:
+    count = LOOP_LIMIT
+    while count < 0:
         print(CUSTOMER_VENDOR_CHOICE)
         choice = ""
         category = ANONYMOUS_CATEGORY
         try:
             choice = int(input(SELECT_OPTION_1_TO_2))
         except ValueError as e:
+            count -= 1
             print(INVALID_MESSAGE_FOR_USER_CATEGORY)
             continue
 
@@ -149,6 +154,7 @@ def register():
             case 3:
                 return
             case _:
+                count -= 1
                 print(INVALID_MESSAGE_FOR_USER_CATEGORY)
                 continue
 
@@ -158,8 +164,9 @@ def register():
     for key, value in customer_details.items():
         print(f"{key.replace('_', ' ').title()}: {value}")
 
-    flag = True
-    while True:
+    is_loaded = False
+    count = LOOP_LIMIT
+    while count > 0:
         confirm = input(CONFORMATION_PROMPT).strip().lower()
         if confirm in [YES, NO]:
             if confirm == YES:
@@ -167,20 +174,21 @@ def register():
                 if len(result) < USER_DETAILS_COUNT:
                     print(INVALID_ENTRIES)
                     print(result)
-                    flag = False
+                    is_loaded = True
                 break
             else:
                 result = load(get_user_details(category), False)
                 if len(result) < USER_DETAILS_COUNT:
                     print(INVALID_ENTRIES)
                     print(result)
-                    flag = False
+                    is_loaded = True
                 break
         else:
+            count -= 1
             print(INVALID_CONFIRMATION)
             continue
 
-    if flag:  # todo naming
+    if not is_loaded:
         print(REGISTRATION_SUCCESS_PROMPT)
 
 
@@ -301,7 +309,7 @@ def get_user_from_file():
         with open(file_path, "r") as file:
             for user_details in file:
                 try:
-                    user = json.loads(user_details.strip())  #todo
+                    user = json.loads(user_details.strip())
                     yield user
                 except json.JSONDecodeError as e:
                     logger.error(f"Error decoding JSON: {e}")
@@ -350,16 +358,18 @@ def get_quotation_form():
     Returns:
         dict: A dictionary containing user ID, items with quantities, delivery date, and address.
     """
+    loop_condition = True
     quotation_form = {}
-    while True:
+    while loop_condition:
         vendor_mail_id = input(ENTER_VENDOR_MAIL_ID).strip()
         if get_by_email(vendor_mail_id) is None:
             print(f"No such vendor found with mail id {vendor_mail_id}")
         else:
             quotation_form[VENDOR_EMAIL] = vendor_mail_id
-            break
+            loop_condition = False
 
-    while True:
+    loop_condition = True
+    while loop_condition:
         user_mail = input(ENTER_YOUR_EMAIL).strip()
         user = get_by_email(user_mail)
         if user is None:
@@ -370,13 +380,14 @@ def get_quotation_form():
             quotation_form[USER_DICT_PHONE_NUMBER] = user[USER_DICT_PHONE_NUMBER]
             quotation_form[USER_DICT_COMPANY_NAME] = user[USER_DICT_COMPANY_NAME]
             quotation_form[STATUS] = STATUS_SENT
-            break
+            loop_condition = False
 
     items = {}
-    while True:
+    loop_condition = True
+    while loop_condition:
         item_name = input(ENTER_ITEMS).strip()
         if item_name.lower() == DONE:
-            break
+            loop_condition = False
         quantity = input(f"Enter quantity for {item_name}: ").strip()
         if not quantity.isdigit() or (int(quantity) == 0):
             print(QUANTITY_NOT_ZERO)
@@ -384,11 +395,12 @@ def get_quotation_form():
         items[item_name] = int(quantity)
     quotation_form[FORM_ITEMS] = items
 
-    while True:
+    loop_condition = True
+    while loop_condition:
         delivery_date = input(ENTER_DELIVERY_DATE).strip()
         if is_valid_future_date(delivery_date):
             quotation_form[DELIVERY_DATE] = delivery_date
-            break
+            loop_condition = False
         else:
             print(PAST_DELIVERY_DATE)
 
@@ -422,8 +434,8 @@ def generate_vendor_quotation(user):
     print(YOUR_ACTIVE_QUOTATIONS)
     print_active_customer_quotations(active_quotations)
     print(SELECT_ONE_QUOTATION)
-
-    while True:
+    count = LOOP_LIMIT
+    while count > 0:
         flag = 0
         quotation_id = input("Enter the customer quotation id")
         for quotation in active_quotations:
@@ -434,6 +446,7 @@ def generate_vendor_quotation(user):
                 flag = 1
                 break
         if flag == 0:
+            count -= 1
             logger.error(f"No such active quotation with id {quotation_id} is found")
         else:
             break
@@ -445,20 +458,21 @@ def generate_vendor_quotation(user):
     customer_quotation = get_quotation_by_id(vendor_quotation[CUSTOMER_QUOTATION_NUMBER])
     customer_requested_items = customer_quotation[FORM_ITEMS]
     unit_price = {}
+    loop_condition = True
     for item, quantity in customer_requested_items.items():
-        while True:
+        while loop_condition:
             price = input(f"Enter the unit price for {item}: ")
             if is_valid_number(price):
                 unit_price[item] = price
-                break
+                loop_condition = False
             else:
                 print(f"User gave invalid input for unit price of {item}")
-
-    while True:
+    loop_condition = True
+    while loop_condition:
         total_price = input(ENTER_TOTAL_PRICE)
         if is_valid_number(total_price):
             vendor_quotation[TOTAL_PRICE] = total_price
-            break
+            loop_condition = False
         else:
             logger.error(VALID_TOTAL_PRICE_ERROR)
 
@@ -479,11 +493,12 @@ def update_material_quantities(material_quantities):
         material_quantities (dict) : items with updated value
     """
     for material, old_value in material_quantities.items():
-        while True:
+        loop_condition = True
+        while loop_condition:
             new_value = input(f"Enter new quantity for {material} (current: {old_value}): ").strip()
             if is_valid_number(new_value):
                 material_quantities[material] = new_value
-                break
+                loop_condition = False
             else:
                 logger.error(INVALID_NUMBER_ERROR)
 
@@ -513,13 +528,13 @@ def generate_purchase_order(user):
     purchase_order[TOTAL_PRICE] = vendor_quotation[TOTAL_PRICE]
     purchase_order[PO_STATUS] = STATUS_INACTIVE
     purchase_order[STATUS] = STATUS_SENT
-
-    while True:
+    loop_condition = True
+    while loop_condition:
         payment_method = input(ENTER_PAYMENT_METHOD).strip().lower()
         if payment_method in VALID_PAYMENT_METHODS:
             print(f"Payment method accepted: {payment_method}")
             purchase_order[PAYMENT_METHOD] = payment_method
-            break
+            loop_condition = False
         else:
             logger.error(INVALID_PAYMENT_METHOD)
     return purchase_order
@@ -561,11 +576,13 @@ def customer_menu(user):
 
     """
     choice = ""
-    while True:
+    count = LOOP_LIMIT
+    while count > 0:
         print(CUSTOMER_MENU)
         try:
             choice = int(input(ENTER_YOUR_CHOICE))
         except ValueError as e:
+            count -= 1
             logger.exception(f"User gave a invalid choice {choice}, Must give only numbers")
             continue
 
@@ -577,6 +594,7 @@ def customer_menu(user):
             case 3:
                 return
             case _:
+                count -= 1
                 logger.error(f"User gave invalid input {choice}, Must be only numbers ranging from 1 to 3")
 
 
@@ -633,7 +651,7 @@ def warehouse_management(user):  # todo use the user parameter for security
                 elif status_code == NOT_FOUND_CODE:
                     print(f"No such warehouse with the given id {warehouse_id} is present ")
                 elif status_code == UN_PROCESSABLE_ENTITY:
-                    print(WAREHOUSE_ITEM_ZERO_LOGGER)
+                    print(WAREHOUSE_ITEM_ZERO)
             case 5:
                 warehouse_id = create_ware_house()
                 logger.info(f"Created an empty warehouse for user with warehouse id {warehouse_id}")
@@ -688,11 +706,13 @@ def vendor_and_p2p_management(user):
 
     """
     choice = ""
-    while True:
+    count = LOOP_LIMIT
+    while count > 0:
         print(VENDOR_P2P_MANAGEMENT)
         try:
             choice = int(input(ENTER_YOUR_CHOICE))
         except ValueError as e:
+            count -= 1
             logger.exception(f"User gave a invalid choice {choice}, Must give only numbers")
             continue
 
@@ -766,7 +786,8 @@ def vendor_and_p2p_management(user):
             case 8:
                 return
             case _:
-                print(f"User gave invalid input {choice}, Must be only numbers ranging from 1 to 6   ")
+                count -= 1
+                print(f"User gave invalid input {choice}, Must be only numbers ranging from 1 to 6")
 
 
 def vendor_management(user):
@@ -781,11 +802,13 @@ def vendor_management(user):
         or returning to the main menu. It handles invalid choices and logs appropriate messages.
     """
     choice = ""
-    while True:
+    count = LOOP_LIMIT
+    while count > 0:
         print(VENDOR_MENU)
         try:
             choice = int(input(ENTER_YOUR_CHOICE))
         except ValueError as e:
+            count -= 1
             logger.exception(f"User gave a invalid choice {choice}, Must give only numbers")
             continue
 
@@ -804,6 +827,7 @@ def vendor_management(user):
             case 5:
                 return
             case _:
+                count -= 1
                 logger.error(f"User gave invalid input {choice}, Must be only numbers ranging from 1 to 5")
 
 

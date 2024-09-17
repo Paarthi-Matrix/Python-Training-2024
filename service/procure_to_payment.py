@@ -1,5 +1,5 @@
-from constants.constants import CUSTOMER_ID, VENDOR_QUOTATION_ID, PO_STATUS, STATUS_INACTIVE, VENDOR_ID
-from utils.common_utils import generate_random_string
+from constant.constant import CUSTOMER_ID, VENDOR_QUOTATION_ID, PO_STATUS, STATUS_INACTIVE, VENDOR_ID
+from util.common_utils import generate_random_string
 
 purchase_orders = {}
 

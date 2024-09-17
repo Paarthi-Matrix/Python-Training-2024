@@ -1,10 +1,10 @@
 import uuid
 
-from constants.constants import (
+from constant.constant import (
     CUSTOMER_QUOTATION_NUMBER, ITEM_CRITICAL_LEVEL,
     ITEM_QUANTITY, ITEM_STATUS, ITEM_STATUS_CRITICAL,
     ITEM_STATUS_NOT_AVAILABLE, STATUS, STATUS_SENT,
-    WAREHOUSE_ITEM_ZERO_LOGGER
+    WAREHOUSE_ITEM_ZERO
 )
 from custom_exceptions.warehouse_exception import WarehouseException
 from resources.config import logger
@@ -81,7 +81,7 @@ def change_item_quantity(warehouse_id, item_number, delta):
         if item_number in item:
             item_data = item[item_number]
             if item_data[ITEM_QUANTITY] + delta < 0:
-                logger.error(WAREHOUSE_ITEM_ZERO_LOGGER)
+                logger.error(WAREHOUSE_ITEM_ZERO)
                 raise WarehouseException(delta)
             item_data[ITEM_QUANTITY] += delta
 

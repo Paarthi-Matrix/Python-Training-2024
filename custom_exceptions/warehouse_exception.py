@@ -1,4 +1,4 @@
-from constants.constants import WAREHOUSE_ITEM_ZERO_LOGGER  # todo naming
+from constant.constant import WAREHOUSE_ITEM_ZERO
 
 
 class WarehouseException(Exception):
@@ -9,10 +9,10 @@ class WarehouseException(Exception):
            data (str): The data associated with the exception, typically providing additional context for the error.
            message (str): The message explaining the error. Defaults to a standard warehouse error message.
     """
-    def __init__(self, data, message=WAREHOUSE_ITEM_ZERO_LOGGER):
+    def __init__(self, data, message=WAREHOUSE_ITEM_ZERO):
         self.data = data
         self.message = message
         super().__init__(self.message)
 
     def __str__(self):
-        return WAREHOUSE_ITEM_ZERO_LOGGER.format(data=self.data)
+        return WAREHOUSE_ITEM_ZERO.format(data=self.data)

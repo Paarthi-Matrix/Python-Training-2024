@@ -1,6 +1,5 @@
-# common
-import logging
 
+# common
 VENDOR_ID_PREFIX = "VEN"
 CUSTOMER_ID_PREFIX = "CUST"
 VENDOR_CATEGORY_NAME = "VENDOR"
@@ -243,7 +242,7 @@ ITEM_STATUS = "item_status"
 ITEM_CRITICAL_LEVEL = "critical_level"
 CUSTOMER_QUOTATION_NUMBER = "customer_quotation_number"
 
-# Warehouse constants
+# Warehouse constant
 ITEM_STATUS_AVAILABLE = "Available"
 ITEM_STATUS_NOT_AVAILABLE = "Not available"
 ITEM_STATUS_CRITICAL = "Critically low stock"
@@ -251,7 +250,7 @@ DELIVERY_ADDRESS = "delivery_address"
 # loggers message
 INVALID_CRITICAL_LEVEL_LOGGER = ("User entered invalid critical level, it must be a number and greater than the item "
                                  "quantity")
-WAREHOUSE_ITEM_ZERO_LOGGER = "The changes in item will make the item quantity below zero(0)"
+WAREHOUSE_ITEM_ZERO = "The changes in item will make the item quantity below zero(0)"
 VALID_PAYMENT_METHODS = ["bank transfer", "credit card", "cheque"]
 CUSTOMER_QUOTATION_ITEM_HEADERS = ['Item ID', 'Item Name', 'Item Quantity', 'Item Status', 'Critical Level']
 USER_DETAILS_HEADERS = ['User ID', 'Name', 'Phone Number', 'Email', 'Gender', 'Date of Birth', 'Company Name',
@@ -280,7 +279,7 @@ CUSTOMER_QUOTATION_HEADERS = [CUSTOMER_QUOTATION_ID, VENDOR_ID, USER_DICT_NAME, 
                               DELIVERY_DATE, DELIVERY_ADDRESS]
 VENDOR_QUOTATION_HEADERS = [VENDOR_QUOTATION_ID, CUSTOMER_QUOTATION_ID, USER_DICT_NAME, USER_DICT_EMAIL,
                             USER_DICT_PHONE_NUMBER, TOTAL_PRICE, DATE, VENDOR_ID, STATUS]
-LOGGER_LEVEL = logging.DEBUG
+LOGGER_LEVEL_DEBUG = 10
 INVALID_CHOICE_OF_MAIN = "Invalid choice Please enter the numbers from 1 to 5 only"
 NAME_ERROR = "user_name_error"
 PHONE_NUMBER_ERROR = "phone_number_error"

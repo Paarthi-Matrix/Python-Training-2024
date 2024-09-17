@@ -1,12 +1,12 @@
 import json
 import uuid
 
-from constants.constants import (
+from constant.constant import (
     FILE_PATH, USER_DICT_IS_DELETE,
     USER_DICT_USER_ID, USER_DICT_USER_PASSWORD, USER_DICT_EMAIL
 )
 from resources.config import logger
-from utils.password_utils import hash_password
+from util.password_utils import hash_password
 
 users = {}
 

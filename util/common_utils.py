@@ -1,10 +1,10 @@
 import random
 import string
 
-from constants.constants import ENTER_YOUR_EMAIL, ENTER_PHONE_NUMBER, ENTER_DELIVERY_DATE, ENTER_PAYMENT_METHOD, \
+from constant.constant import ENTER_YOUR_EMAIL, ENTER_PHONE_NUMBER, ENTER_DELIVERY_DATE, ENTER_PAYMENT_METHOD, \
     VALID_PAYMENT_METHODS, INVALID_PAYMENT_METHOD
 from resources.config import logger
-from utils.user_input_validation import email_validation, phone_number_validation, is_valid_future_date
+from util.user_input_validation import email_validation, phone_number_validation, is_valid_future_date
 
 
 def generate_random_string(length=8):

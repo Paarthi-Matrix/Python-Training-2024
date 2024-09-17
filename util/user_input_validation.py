@@ -1,7 +1,7 @@
 import re
 from datetime import date, datetime
 
-from constants.constants import (
+from constant.constant import (
     DOB_VALIDATION_REGEX,
     EMAIL_VALIDATION_REGEX,
     GENDER_CATEGORY,

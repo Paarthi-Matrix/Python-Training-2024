@@ -1,4 +1,4 @@
-from constants.constants import (
+from constant.constant import (
     ENTER_PO_NUMBER,ITEM_DELETION_PROMPT, USER_DICT_USER_ID,
     NOT_FOUND_CODE, BAD_REQUEST_CODE, OK_STATUS, UN_PROCESSABLE_ENTITY
 )
@@ -12,8 +12,8 @@ from service.customer import (
 )
 from service.procure_to_payment import update_purchase_order
 from service.vendor import set_quotations, update_customer_quotation
-from utils.common_utils import generate_random_string
-from utils.user_input_validation import is_valid_number
+from util.common_utils import generate_random_string
+from util.user_input_validation import is_valid_number
 
 
 def view_warehouse(warehouse_id):
@@ -34,7 +34,7 @@ def add_item_to_warehouse(warehouse_id, item_details, user_id):
         Adds a new item to a specified warehouse.
 
         The function adds the item to the specified warehouse if it exists.
-        
+
         Parameters:
             warehouse_id (str) : warehouse id of the warehouse ot be added.
             item_details (dict) : Dictionary of items that are need to be added to the warehouse

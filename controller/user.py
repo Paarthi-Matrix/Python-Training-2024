@@ -1,4 +1,4 @@
-from constants.constants import (
+from constant.constant import (
     USER_DICT_USER_CATEGORY,
     USER_DICT_NAME, INVALID_NAME_FORMATE, NAME_ERROR, USER_DICT_PHONE_NUMBER, INVALID_PASSWORD,
     PHONE_NUMBER_ERROR, USER_DICT_EMAIL, INVALID_EMAIL,
@@ -8,12 +8,12 @@ from constants.constants import (
 )
 from resources.config import logger
 from service.user import check_and_return_user, create, get_all, delete as delete_by_id
-from utils.password_utils import hash_password
-from utils.user_input_validation import user_name_validation, phone_number_validation, email_validation, \
+from util.password_utils import hash_password
+from util.user_input_validation import user_name_validation, phone_number_validation, email_validation, \
     gender_validation, date_of_birth_validation, password_validation
 
 
-def load(user, load):  # todo
+def load(user, load):
     """
        Creates a new user with the specified details.
 
