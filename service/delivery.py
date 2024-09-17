@@ -1,7 +1,7 @@
 import uuid
 
-from project.constant.constant import PASSWORD_KEY, LOCATION_KEY, IS_DELETE
-from project.service.customer import get as get_customer
+from constant.constant import PASSWORD_KEY, LOCATION_KEY, IS_DELETE
+from service.customer import get as get_customer
 
 delivery_partners = {}
 

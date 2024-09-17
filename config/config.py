@@ -15,10 +15,10 @@ formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(messag
 handler = RotatingFileHandler(log_file_path, maxBytes=2000, backupCount=5)
 handler.setLevel(logging.DEBUG)
 
-console_handler = logging.StreamHandler()
-console_handler.setLevel(logging.DEBUG)
-console_handler.setFormatter(formatter)
+# console_handler = logging.StreamHandler()
+# console_handler.setLevel(logging.DEBUG)
+# console_handler.setFormatter(formatter)
 
 handler.setFormatter(formatter)
 logger.addHandler(handler)
-logger.addHandler(console_handler)
+# logger.addHandler(console_handler)

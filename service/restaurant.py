@@ -1,6 +1,6 @@
 import uuid
 
-from project.constant.constant import (
+from constant.constant import (
     PASSWORD_KEY, NAME_KEY, EMAIL_KEY, CONTACT_KEY,
     LOCATION_KEY, MENU_KEY, PRICE_KEY, IS_DELETE
 )

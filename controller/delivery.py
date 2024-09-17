@@ -1,7 +1,7 @@
 import traceback
 
-from project.config.config import logger
-from project.constant.constant import (
+from config.config import logger
+from constant.constant import (
     PICK_CHOICE, INPUT_NAME, INPUT_EMAIL, INPUT_LOCATION, INPUT_CONTACT,
     INVALID_CHOICE, INPUT_PASSWORD, NAME_UPDATED, EMAIL_UPDATED, INPUT_ID,
     MOBILE_NUMBER_KEY, MOBILE_NUMBER_UPDATED, LOCATION_UPDATED,
@@ -18,13 +18,13 @@ from project.constant.constant import (
     ORDER_DELIVERED, INVALID_OTP, ORDER_NOT_FOUND_OR_NOT_IN_TRANSPORT,
     DELIVERY_PARTNER_HAS_NO_ORDER_TO_DELIVER
 )
-from project.service.customer import list_available_orders, get_order
-from project.service.delivery import (
+from service.customer import list_available_orders, get_order
+from service.delivery import (
     add, update, get, assign_delivery_partner, pick_up_order, deliver_order
 )
-from project.utils.utils import (
+from validation.validation import (
     is_valid_email, is_valid_mobile, is_valid_name, is_valid_password,
-    is_valid_license, input_validation, update_entity, continue_operations
+    is_valid_license, input_validation, update_entity, continue_operations, is_valid_location
 )
 
 
@@ -85,8 +85,8 @@ def create_delivery(name, password, email, mobile_number, location, license_numb
         delivery_partner_password = input_validation(password, is_valid_password, INVALID_PASSWORD)
         delivery_partner_email = input_validation(email, is_valid_email, INVALID_EMAIL)
         delivery_partner_mobile_number = input_validation(mobile_number, is_valid_mobile, INVALID_CONTACT)
-        delivery_partner_location = input_validation(location, is_valid_name, INVALID_LOCATION)
-        delivery_partner_license_number = input_validation(license_number, is_valid_name, INVALID_LICENSE)
+        delivery_partner_location = input_validation(location, is_valid_location, INVALID_LOCATION)
+        delivery_partner_license_number = input_validation(license_number, is_valid_license, INVALID_LICENSE)
         if delivery_partner_name != name:
             result.setdefault(400, []).append(delivery_partner_name)
         if delivery_partner_password != password:

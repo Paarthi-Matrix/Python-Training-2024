@@ -1,11 +1,13 @@
+import traceback
+
 from constant.constant import (
     INPUT_OTP, INPUT_ORDER_ID, DELIVERY_PARTNER_CHOICE, ROLE, NINE, TEN,
     ELEVEN, TWELVE, CUSTOMER_CHOICE, INPUT_CUSTOMER_ID,
     ADD_OR_REMOVE_ITEM_FROM_CART, INPUT_DELIVERY_PARTNER_ID, INPUT_RATING,
     INPUT_FOOD_NAME_LIST
 )
-from project.config.config import logger
-from project.constant.constant import (
+from config.config import logger
+from constant.constant import (
     PICK_CHOICE, EXITING, INVALID_CHOICE, INVALID_INPUT, INPUT_ID, ZERO, ONE,
     TWO, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT, INPUT_RESTAURANT_ID,
     INPUT_FOOD_PRICE, INPUT_FOOD_NAME, RESTAURANT_CHOICE, INPUT_NAME,
@@ -13,21 +15,21 @@ from project.constant.constant import (
     INPUT_WANT_TO_PLACE_ORDER, INPUT_PAYMENT_MODE, INPUT_LICENSE_NUMBER,
     INPUT_ALTERNATE_CONTACT
 )
-from project.controller.customer import (
+from controller.customer import (
     create_customer, update_customer, get_all_restaurants, get_restaurant_menu,
     add_food_to_cart, view_cart, update_cart, place_my_order, rating_delivery,
     show_my_orders, remove_customer, show_my_details
 )
-from project.controller.delivery import (
+from controller.delivery import (
     create_delivery, update_delivery, get_available_orders,
     assign_delivery, pick_order, complete_order, get_my_details
 )
-from project.controller.restaurant import (
+from controller.restaurant import (
     update_restaurant, create_restaurant, add_food_to_restaurant,
     fetch_restaurant_menu, update_food_item, remove_food_item,
     get_restaurant, remove_restaurant
 )
-from utils.utils import (
+from validation.validation import (
     continue_operations
 )
 
@@ -136,7 +138,7 @@ def customer_operations():
         key, value = result.popitem()
         if key == 400:
             print(f"status: 400,\n error: Bad Request,\n message: {value}")
-        elif result == 200:
+        elif key == 200:
             print(f"status: 200,\n success: OK,\n message: {value}")
     elif choice == TWO:
         print(get_all_restaurants())
@@ -345,7 +347,8 @@ def chow_now():
     and then directs them to the appropriate set of operations.
     The function continues to loop until the user decides to exit the application.
     """
-    while True:
+    access = True
+    while access:
         try:
             print(ROLE)
             choice = input(PICK_CHOICE)
@@ -366,9 +369,10 @@ def chow_now():
                 case _:
                     print(INVALID_CHOICE)
         except ValueError as ve:
-            logger.error(ve, INVALID_INPUT)
+            logger.error(f"Invalid Input {str(ve)}\n{traceback.format_exc()}")
+            print(f"Invalid Input {str(ve)}\n{traceback.format_exc()}")
         except KeyError as ke:
-            logger.error(ke, INVALID_INPUT)
+            logger.error(f"Invalid Input {str(ke)}\n{traceback.format_exc()}")
 
 
 if __name__ == "__main__":

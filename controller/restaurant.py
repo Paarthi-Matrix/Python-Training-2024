@@ -1,7 +1,7 @@
 import traceback
 
-from project.config.config import logger
-from project.constant.constant import (
+from config.config import logger
+from constant.constant import (
     PICK_CHOICE, INPUT_NAME, EXITING, INPUT_EMAIL, INPUT_LOCATION,
     INPUT_CONTACT, INVALID_CHOICE, INVALID_INPUT, INPUT_PASSWORD,
     NAME_UPDATED, EMAIL_UPDATED, INPUT_ID, MOBILE_NUMBER_UPDATED,
@@ -14,13 +14,13 @@ from project.constant.constant import (
     FOOD_ALREADY_EXISTS, RESTAURANT_NOT_FOUND, FOOD_UPDATED_SUCCESSFULLY,
     FOOD_NOT_FOUND, FOOD_DELETED_SUCCESSFULLY, RESTAURANT_DELETED
 )
-from project.service.restaurant import (
+from service.restaurant import (
     get, update, add, add_food_item, get_menu, update_food_item_details,
     delete_food_item_details, remove
 )
-from project.utils.utils import (
+from validation.validation import (
     is_valid_email, is_valid_mobile, is_valid_name,
-    is_valid_password, update_entity, input_validation
+    is_valid_password, update_entity, input_validation, is_valid_location
 )
 
 
@@ -93,7 +93,7 @@ def create_restaurant(name, password, email, primary_contact, alternate_contact,
                                                         INVALID_CONTACT)
         if alternate_contact.isnumeric() and int(alternate_contact) != ZERO:
             contact_numbers.append(alternate_contact)
-        restaurant_location = input_validation(INPUT_LOCATION, is_valid_name, INVALID_LOCATION)
+        restaurant_location = input_validation(location, is_valid_location, INVALID_LOCATION)
         if restaurant_name != name:
             result.setdefault(400, []).append(restaurant_name)
         if restaurant_password != password:
@@ -128,7 +128,7 @@ def add_food_to_restaurant(restaurant_id: str, name, price):
         result[404] = UNABLE_TO_ADD_FOOD.format(restaurant_id=restaurant_id)
         return result
     food_item_name = input_validation(name, is_valid_name, INVALID_NAME)
-    food_item_price = input_validation(price, price.isnumeric, INVALID_PRICE)
+    food_item_price = input_validation(price, lambda value: value.isnumeric(), INVALID_PRICE)
     if food_item_name != name:
         result.setdefault(400, []).append(food_item_name)
     if food_item_price != price:
@@ -162,7 +162,8 @@ def fetch_restaurant_menu(restaurant_id: str):
         result[404] = RESTAURANT_NOT_FOUND.format(restaurant_id=restaurant_id)
         return result
 
-def update_food_item(restaurant_id:str,name,price):
+
+def update_food_item(restaurant_id: str, name, price):
     result = {}
     restaurant = get(restaurant_id)
     if not restaurant:
@@ -188,7 +189,8 @@ def update_food_item(restaurant_id:str,name,price):
     else:
         return result
 
-def remove_food_item(restaurant_id:str,name):
+
+def remove_food_item(restaurant_id: str, name):
     result = {}
     restaurant = get(restaurant_id)
     if not restaurant:
@@ -211,7 +213,8 @@ def remove_food_item(restaurant_id:str,name):
         result[404] = FOOD_NOT_FOUND.format(name=name)
         return result
 
-def get_restaurant(restaurant_id:str):
+
+def get_restaurant(restaurant_id: str):
     result = {}
     restaurant = get(restaurant_id)
     if restaurant:
@@ -223,7 +226,8 @@ def get_restaurant(restaurant_id:str):
         result[404] = RESTAURANT_NOT_FOUND.format(restaurant_id=restaurant_id)
         return result
 
-def remove_restaurant(unique_id:str):
+
+def remove_restaurant(unique_id: str):
     result = {}
     is_deleted = remove(unique_id)
     if is_deleted:

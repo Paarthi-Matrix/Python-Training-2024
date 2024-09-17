@@ -1,7 +1,7 @@
 import traceback
 
-from project.config.config import logger
-from project.constant.constant import (
+from config.config import logger
+from constant.constant import (
     PICK_CHOICE, INPUT_NAME, EXITING, INPUT_EMAIL, INPUT_LOCATION,
     INPUT_CONTACT, INVALID_CHOICE, INPUT_PASSWORD, NAME_UPDATED,
     EMAIL_UPDATED, INPUT_ID, MOBILE_NUMBER_KEY, MOBILE_NUMBER_UPDATED,
@@ -18,18 +18,25 @@ from project.constant.constant import (
     ORDER_NOT_PLACED, INVALID_RATING, RATING_UPDATED,
     DELIVERY_PARTNER_NOT_FOUND, CUSTOMER_DELETED, CUSTOMER_ADDED
 )
-from project.service.customer import (
+from service.customer import (
     get, update, add, get_cart_by_customer, add_to_cart, update_items_to_cart,
     remove_items_from_cart, place_order, get_customer_orders, remove
 )
-from project.service.delivery import get as get_delivery, update_ratings
-from project.service.restaurant import get_all, get_menu, get as get_restaurant
-from project.utils.utils import (
+from service.delivery import get as get_delivery, update_ratings
+from service.restaurant import get_all, get_menu, get as get_restaurant
+from validation.validation import (
     is_valid_email, is_valid_mobile, is_valid_name, is_valid_password,
-    update_entity, input_validation, continue_operations
+    update_entity, input_validation, continue_operations, is_valid_location
 )
 
-
+def update_customer_name(customer):
+    result = {}
+    name = input(INPUT_NAME)
+    valid_name = input_validation(name, is_valid_name, INVALID_NAME)
+    if valid_name == name:
+        if update(customer, NAME_KEY, valid_name.lower()):
+            result[200] = NAME_UPDATED
+            return result
 def update_customer():
     """
         Manages the update process for customer details based on user input.
@@ -52,8 +59,10 @@ def update_customer():
         customer = get(unique_id)
         if customer:
             if choice == ONE:
-                update_entity(customer, NAME_KEY, INPUT_NAME, is_valid_name, NAME_UPDATED, INVALID_NAME,
-                              update)
+                result = update_customer_name(customer)
+                key,value = result.popitem()
+                if key == 200:
+                    print(f"status: 200,\n success: OK,\n message: {value}")
             elif choice == TWO:
                 update_entity(customer, EMAIL_KEY, INPUT_EMAIL, is_valid_email, EMAIL_UPDATED, INVALID_EMAIL,
                               update)
@@ -86,7 +95,7 @@ def create_customer(name: str, password: str, email: str, mobile_number: str, lo
         customer_password = input_validation(password, is_valid_password, INVALID_PASSWORD)
         customer_email = input_validation(email, is_valid_email, INVALID_EMAIL)
         customer_mobile_number = input_validation(mobile_number, is_valid_mobile, INVALID_CONTACT)
-        customer_location = input_validation(location, is_valid_name, INVALID_LOCATION)
+        customer_location = input_validation(location, is_valid_location, INVALID_LOCATION)
         if customer_name != name:
             result.setdefault(400, []).append(customer_name)
         if customer_password != password:

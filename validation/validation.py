@@ -1,10 +1,10 @@
 import re
 
-from project.constant.constant import (
+from constant.constant import (
     EMAIL_REGEX, MOBILE_NUMBER_REGEX,
     NAME_REGEX, PASSWORD_REGEX, LICENSE_REGEX, LOCATION_REGEX
 )
-from project.config.config import logger
+from config.config import logger
 
 
 def is_valid_email(email):
@@ -135,7 +135,6 @@ def input_validation(value, validation_func, error_msg):
         return value
     else:
         return error_msg
-
 
 def continue_operations(operation_func):
     choice = input("Do you want to continue ? (yes/no): ").lower()

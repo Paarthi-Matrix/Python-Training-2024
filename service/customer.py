@@ -1,9 +1,9 @@
 import uuid
 
-from project.constant.constant import (
+from constant.constant import (
     STATUS, STATUS_PLACED, SIX, PASSWORD_KEY,
     IS_DELETE, LOCATION_KEY)
-from project.service.restaurant import get as get_restaurant
+from service.restaurant import get as get_restaurant
 
 customers = {}
 
