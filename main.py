@@ -294,9 +294,9 @@ def manage_admin_tasks():
         elif choice == TEN:
             if check_if_recycler_registered():
                 total_waste, bio_waste_weight, non_bio_waste_weight = report_to_recycler()
-                print(PROMPT_TOTAL_WASTE, " : ", total_waste, end=" ")
-                print(PROMPT_BIO_WASTE_WEIGHT, " : ", bio_waste_weight, end=" ")
-                print(PROMPT_NON_BIO_WASTE_WEIGHT, " : ", non_bio_waste_weight)
+                print(PROMPT_TOTAL_WASTE, total_waste, end=" ")
+                print(PROMPT_BIO_WASTE_WEIGHT, bio_waste_weight, end=" ")
+                print(PROMPT_NON_BIO_WASTE_WEIGHT, non_bio_waste_weight)
             else:
                 print(RECYCLER_NOT_REGISTERED)
         elif choice == ELEVEN:
@@ -355,9 +355,10 @@ def perform_driver_actions():
             bin_details = get_bin_details(bin_id)
             bio_weight, non_bio_weight = collect_details_to_update(bin_details[WASTE_TYPE])
             status = input(PROMPT_BIN_STATUS)
-            if not give_work_report(bin_id, bin_details, status, bio_weight, non_bio_weight):
+            is_report_added = give_work_report(bin_id, bin_details, status, bio_weight, non_bio_weight)
+            if is_report_added == "False":
                 print(ERROR_INVALID_STATUS)
-            else:
+            elif is_report_added == "True":
                 print(WORK_REPORT_ADDED)
         elif choice == FOUR:
             email = input(PROMPT_EMAIL)
