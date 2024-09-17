@@ -1,10 +1,10 @@
 import uuid
 
 
-from Utils.constants import (LOAN_PENDING, LOAN_APPROVED, LOAN_REJECTED, POOL_NOT_FOUND, ERROR_REQUEST,
-                             MSG_LOAN_APPROVAL, USER_PENDING_LOAN, ERROR_LOAN_APPROVAL, MSG_LOAN_REJECTED,
-                             USER_LOAN_SUCCESS)
-from Utils.log_configuration import setup_logger
+from constant.constant import (LOAN_PENDING, LOAN_APPROVED, LOAN_REJECTED, POOL_NOT_FOUND, ERROR_REQUEST,
+                               MSG_LOAN_APPROVAL, USER_PENDING_LOAN, ERROR_LOAN_APPROVAL, MSG_LOAN_REJECTED,
+                               USER_LOAN_SUCCESS)
+from resource.log_configuration import setup_logger
 
 logger = setup_logger()
 

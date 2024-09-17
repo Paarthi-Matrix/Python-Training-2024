@@ -14,36 +14,41 @@ USER_CONTRIBUTION = "The user {} has successfully contributed {} to the pool"
 INSUFFICIENT_FUND = "The user {} has insufficient funds to contribute to the pool"
 USER_BALANCE = "Your balance is currently {}"
 ERROR_BALANCE_CHECK = "Error checking the balance for the user"
+ERROR_LOAN_REQUEST = "Loan request unsuccessful"
+
 
 #User Related ERRORS
 ERROR_USER_EXISTS = "The user {} already exists"
-ERROR_USER_CREATION = "Error Creating User: {} with error: {}"
+ERROR_USER_CREATION = "Error creating user {}"
 ERROR_USER_LOGIN = "Please enter the correct username or password."
 ERROR_USER_NOT_FOUND = "User not found!"
 INVALID_CREDENTIALS = "Username and password doesn't match. Please try again!"
 ERROR_ADD_MONEY = "Error adding money."
 
 #Loan Related Details
-LOAN_PENDING = "Pending"
-LOAN_APPROVED = "Approved"
-LOAN_REJECTED = "Rejected"
+LOAN_PENDING = "Loan Pending"
+LOAN_APPROVED = "Loan Approved"
+LOAN_REJECTED = "Loan Rejected"
 POOL_NOT_FOUND = "No active pool found"
-ERROR_REQUEST = "We have encountered an error while requesting your loan"
+ERROR_REQUEST_LOAN = "We have encountered an error while requesting your loan"
 MSG_LOAN_APPROVAL = "The loan {} requested by {} has been successfully approved"
 ERROR_LOAN_APPROVAL = "Error accepting the loan"
 MSG_LOAN_REJECTED = "The loan {} requested by {} has been successfully rejected"
+ERROR_LOAN_REJECT = "Error rejecting the loan"
 
-"""Pool related details"""
+#Pool related details
 POOL_THRESHOLD = 10000
 MSG_POOL_CREATION = "New pool has been created with the id {}"
 POOL_BALANCE = "The total funds available in the pool is {}"
 ERROR_POOL_BALANCE = "Error displaying the pool balance"
 ERROR_POOL_CONTRIBUTION = "Error contributing to the pool"
 
+#User related messages
 USER_PENDING_LOAN = "User {} already has a pending loan."
 USER_LOAN_SUCCESS = "Your loan request has been successfully initiated and the loan id is {}"
 USER_CONTRIBUTION_SUCCESS = "The user {} has successfully contributed {} to the pool"
-USER_CONTRIBUTION_FAILURE ="The user {} has insufficient funds to contribute to the pool"
+USER_CONTRIBUTION_FAILURE = "The user {} has insufficient funds to contribute to the pool"
 USER_NOT_FOUND = "User not found!"
 USER_CREATION_SUCCESS = "User {} has been created with ID {} successfully"
 USER_LOGIN_SUCCESS = "User {} has been successfully logged in"
+
