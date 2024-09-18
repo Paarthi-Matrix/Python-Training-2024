@@ -1,6 +1,17 @@
-from controller.user import user_creation_controller, user_login_controller, add_money_controller
-from controller.loan import request_loan_controller, approve_loan_controller, reject_loan_controller
-from service.pool import create_new_pool, contribute, get_pool_balance
+from controller.loan import request_amount, sanction, deny
+from controller.user import sign_in, login, add_amount
+
+
+from constant.constant import (MAIN_CHOICE, USER_CHOICE, EXIT, INVALID_CHOICE, ONE, TWO, THREE, FOUR, FIVE,
+                               USER_LOGIN_SUCCESS, MAIN_MENU, ADD_AMT_SUCCESS, ADD_AMT_FAILURE,
+                               ADD_AMT_CONTRIBUTE, CONTRIBUTION_FAILURE, INPUT_LOAN_AMT, LOAN_REQUEST_FAIL,
+                               USER_MENU, ADMIN_MENU, INPUT_USERNAME, INPUT_PASS, INPUT_EMAIL, INPUT_AMT,
+                               CONTRIBUTION_SUCCESS, LOAN_REQUEST, EXIT_MAIN, DISPLAY_BALANCE, ERROR_BALANCE,
+                               LOGIN_FAIL, USER_CREATION_FAIL, POOL_CREATION_SUCCESS, POOL_BALANCE,
+                               POOL_BALANCE_FAIL, INPUT_LOAN_APPROVE, INPUT_LOAN_REJECT, LOAN_APPROVE_SUCCESS,
+                               LOAN_APPROVE_FAILURE, LOAN_REJECT_SUCCESS, LOAN_REJECT_FAILURE)
+
+from service.pool import create_new, contribute_current, get_pool_balance
 from service.user import get_user_balance
 
 
@@ -13,22 +24,19 @@ def main_menu():
     '3' - Exits from the application
     :return: Returns a function of other menu as per user's choice
     """
-    print("Welcome to IDEAS2IT Lending System")
-    print("1. User")
-    print("2. Admin")
-    print("3. Exit")
+    print(MAIN_MENU)
 
     while True:
-        choice = input("Enter choice: ")
-        if choice == '1':
+        choice = input(MAIN_CHOICE)
+        if choice == ONE:
             user_menu()
-        elif choice == '2':
+        elif choice == TWO:
             admin_menu()
-        elif choice == '3':
-            print("Exiting the application.")
+        elif choice == THREE:
+            print(EXIT)
             break
         else:
-            print("Invalid choice. Please enter 1, 2, or 3.")
+            print(INVALID_CHOICE)
 
 
 def user_menu():
@@ -40,62 +48,53 @@ def user_menu():
     :return: None
     """
     try:
-        username = input("Enter username: ")
-        password = input("Enter password: ")
-        email = input("Enter email: ")
+        username = input(INPUT_USERNAME)
+        password = input(INPUT_PASS)
+        email = input(INPUT_EMAIL)
 
-        user_id = user_creation_controller(username, password, email)
+        user_id = sign_in(username, password, email)
         if user_id:
-            print("User created with ID: {}".format(user_id))
-
-            if user_login_controller(username, password):
-                print("Login successful.")
+            if login(username, password):
+                print(USER_LOGIN_SUCCESS.format(user_id))
                 while True:
-                    print(" USER MENU ")
-                    print("-----------------------------")
-                    print("1. Add Money")
-                    print("2. Contribute to Pool")
-                    print("3. Request Loan")
-                    print("4. Check Balance")
-                    print("5. Exit")
-                    print("-----------------------------")
+                    print(USER_MENU)
+                    choice = input(USER_CHOICE)
 
-                    choice = input("Enter choice (1-5): ")
-
-                    if choice == '1':
-                        amount = float(input("Enter amount to add: "))
-                        if add_money_controller(user_id, amount):
-                            print("Money added successfully.")
+                    if choice == ONE:
+                        amount = float(input(INPUT_AMT))
+                        if add_amount(user_id, amount):
+                            print(ADD_AMT_SUCCESS)
                         else:
-                            print("Failed to add money.")
-                    elif choice == '2':
-                        amount = float(input("Enter amount to contribute: "))
-                        if contribute(user_id, amount):
-                            print("Contribution successful.")
+                            print(ADD_AMT_FAILURE)
+                    elif choice == TWO:
+                        amount = float(input(ADD_AMT_CONTRIBUTE))
+                        if contribute_current(user_id, amount):
+                            print(CONTRIBUTION_SUCCESS)
                         else:
-                            print("Failed to contribute.")
-                    elif choice == '3':
-                        amount = float(input("Enter loan amount: "))
-                        loan_id = request_loan_controller(user_id, amount, pools={})
+                            print(CONTRIBUTION_FAILURE)
+                    elif choice == THREE:
+                        amount = float(input(INPUT_LOAN_AMT))
+                        loan_id = request_amount(user_id, amount)
                         if loan_id:
-                            print(f"Loan requested with ID: {loan_id}")
+                            print(LOAN_REQUEST.format(loan_id))
                         else:
-                            print("Loan request failed.")
-                    elif choice == '4':
+                            print(LOAN_REQUEST_FAIL)
+                    elif choice == FOUR:
                         balance = get_user_balance(user_id)
                         if balance is not None:
-                            print(f"Your Balance: {balance}")
+                            print(DISPLAY_BALANCE.format(balance))
                         else:
-                            print("Failed to fetch balance.")
-                    elif choice == '5':
-                        print("Exiting to main menu.")
+                            print(ERROR_BALANCE)
+                    elif choice == FIVE:
+                        print(EXIT_MAIN)
+                        print(MAIN_MENU)
                         break
                     else:
-                        print("Invalid choice. Please enter a number between 1 and 5.")
+                        print(INVALID_CHOICE)
             else:
-                print("Login failed.")
+                print(LOGIN_FAIL)
         else:
-            print("User creation failed.")
+            print(USER_CREATION_FAIL)
     except ValueError as e:
         print(f"Error: {e}")
 
@@ -112,44 +111,37 @@ def admin_menu():
     :return: None
     """
     while True:
-        print(" ADMIN MENU ")
-        print("-----------------------------")
-        print("1. Create New Pool")
-        print("2. Get Pool Balance")
-        print("3. Approve Loan")
-        print("4. Reject Loan")
-        print("5. Exit")
-        print("-----------------------------")
-
-        choice = input("Enter choice (1-5): ")
+        print(ADMIN_MENU)
+        choice = input(USER_CHOICE)
 
         try:
-            if choice == '1':
-                create_new_pool()
-                print("New pool created successfully.")
-            elif choice == '2':
+            if choice == ONE:
+                create_new()
+                print(POOL_CREATION_SUCCESS)
+            elif choice == TWO:
                 balance = get_pool_balance()
                 if balance is not None:
-                    print(f"Pool Balance: {balance}")
+                    print(POOL_BALANCE.format(balance))
                 else:
-                    print("Failed to fetch pool balance.")
-            elif choice == '3':
-                loan_id = input("Enter loan ID to approve: ")
-                if approve_loan_controller(loan_id):
-                    print("Loan approved successfully.")
+                    print(POOL_BALANCE_FAIL)
+            elif choice == THREE:
+                loan_id = input(INPUT_LOAN_APPROVE)
+                if sanction(loan_id):
+                    print(LOAN_APPROVE_SUCCESS)
                 else:
-                    print("Failed to approve loan.")
-            elif choice == '4':
-                loan_id = input("Enter loan ID to reject: ")
-                if reject_loan_controller(loan_id):
-                    print("Loan rejected successfully.")
+                    print(LOAN_APPROVE_FAILURE)
+            elif choice == FOUR:
+                loan_id = input(INPUT_LOAN_REJECT)
+                if deny(loan_id):
+                    print(LOAN_REJECT_SUCCESS)
                 else:
-                    print("Failed to reject loan.")
-            elif choice == '5':
-                print("Exiting to main menu.")
+                    print(LOAN_REJECT_FAILURE)
+            elif choice == FIVE:
+                print(EXIT_MAIN)
+                print(MAIN_MENU)
                 break
             else:
-                print("Invalid choice. Please enter a number between 1 and 5.")
+                print(INVALID_CHOICE)
         except ValueError as e:
             print(f"Error: {e}")
 

@@ -1,17 +1,18 @@
 import uuid
 
+from constant.constant import (LOAN_PENDING, LOAN_APPROVED, LOAN_REJECTED, MSG_LOAN_APPROVAL, USER_PENDING_LOAN,
+                               ERROR_LOAN_APPROVAL, MSG_LOAN_REJECTED, USER_LOAN_SUCCESS,
+                               POOL_INSUFFICIENT_FUND, USER_NOT_FOUND)
 
-from constant.constant import (LOAN_PENDING, LOAN_APPROVED, LOAN_REJECTED, POOL_NOT_FOUND, ERROR_REQUEST,
-                               MSG_LOAN_APPROVAL, USER_PENDING_LOAN, ERROR_LOAN_APPROVAL, MSG_LOAN_REJECTED,
-                               USER_LOAN_SUCCESS)
-from resource.log_configuration import setup_logger
+from service.pool import pools
+
+from resources.log_configuration import setup_logger
 
 logger = setup_logger()
-
 loans = {}
 
 
-def request_loan(user_id, amount, pools):
+def request_money(user_id, amount):
     """
     User Can request loan:
     - User enters the user login, selects request loan choice in console
@@ -36,19 +37,19 @@ def request_loan(user_id, amount, pools):
             logger.info(USER_LOAN_SUCCESS.format(loan_id))
             return loan_id
         else:
-            logger.info(POOL_NOT_FOUND)
-            return POOL_NOT_FOUND
+            logger.info(POOL_INSUFFICIENT_FUND)
+            return None
     except ValueError:
-        logger.error(ERROR_REQUEST)
+        logger.error(USER_NOT_FOUND)
         return None
 
 
-def accept_loan(loan_id):
+def accept(loan_id):
     """
     Admin Controller:
     - Admin enters and accepts the loan by entering loan id
     - Checks if the loan id is available in the loan dict
-    - If loan id doesnt exists value error is handled
+    - If loan id doesn't exist value error is handled
     :param loan_id: Generated UUID
     :return: Returns Loan_id
     """
@@ -63,7 +64,7 @@ def accept_loan(loan_id):
         return False
 
 
-def reject_loan(loan_id):
+def reject(loan_id):
     """
     Reject Loan requested by user
     - Admin rejects the users loan request by entering the loan_id

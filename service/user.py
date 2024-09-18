@@ -3,7 +3,9 @@ import uuid
 
 
 from constant.constant import (USERNAME_REGEX, PASSWORD_REGEX, EMAIL_REGEX, ERROR_USER_EXISTS, INITIAL_BALANCE,
-                               USER_MONEY_ADDED, USER_LOGIN_SUCCESS, USER_BALANCE, ERROR_USER_NOT_FOUND)
+                               USER_MONEY_ADDED, USER_LOGIN_SUCCESS, USER_BALANCE, ERROR_USER_NOT_FOUND,
+                               ERROR_USER_PASS)
+
 from resources.log_configuration import setup_logger
 
 logger = setup_logger()
@@ -51,7 +53,7 @@ def login_user(username, password):
         if (user_details['username'] == username) and (user_details['password'] == password):
             logger.info(USER_LOGIN_SUCCESS.format(user_id))
             return user_id
-    return None
+        return ERROR_USER_PASS
 
 
 def add_money(user_id, amount):

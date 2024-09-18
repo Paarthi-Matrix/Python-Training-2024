@@ -39,7 +39,6 @@ ERROR_LOAN_REJECT = "Error rejecting the loan"
 #Pool related details
 POOL_THRESHOLD = 10000
 MSG_POOL_CREATION = "New pool has been created with the id {}"
-POOL_BALANCE = "The total funds available in the pool is {}"
 ERROR_POOL_BALANCE = "Error displaying the pool balance"
 ERROR_POOL_CONTRIBUTION = "Error contributing to the pool"
 
@@ -51,4 +50,75 @@ USER_CONTRIBUTION_FAILURE = "The user {} has insufficient funds to contribute to
 USER_NOT_FOUND = "User not found!"
 USER_CREATION_SUCCESS = "User {} has been created with ID {} successfully"
 USER_LOGIN_SUCCESS = "User {} has been successfully logged in"
+ERROR_USER_PASS = "Invalid username or password"
+USER_CREATED = "User created with ID: {}"
+POOL_INSUFFICIENT_FUND = "Pool has insufficient fund"
 
+
+#main function constants
+MAIN_CHOICE = "Enter choice: (1,3) "
+USER_CHOICE = "Enter choice (1-5): "
+EXIT = "Exiting the application."
+INVALID_CHOICE = "Invalid choice!"
+INPUT_USERNAME = "Enter username: "
+INPUT_PASS = "Enter password: "
+INPUT_EMAIL = "Enter email: "
+INPUT_AMT = "Enter amount to add: "
+INPUT_LOAN_APPROVE = "Enter loan ID to approve: "
+INPUT_LOAN_REJECT = "Enter loan ID to reject: "
+ADD_AMT_SUCCESS = "Money added successfully."
+ADD_AMT_FAILURE = "Failed to add money."
+ADD_AMT_CONTRIBUTE = "Enter amount to contribute: "
+CONTRIBUTION_SUCCESS = "Contribution successful."
+CONTRIBUTION_FAILURE = "Failed to contribute."
+INPUT_LOAN_AMT = "Enter loan amount: "
+LOAN_REQUEST = "Loan requested with ID: {}"
+LOAN_REQUEST_FAIL = "Loan request failed."
+EXIT_MAIN = "Exiting to main menu."
+DISPLAY_BALANCE = "Your Balance: {}"
+ERROR_BALANCE = "Failed to fetch balance."
+LOGIN_FAIL = "Login failed."
+USER_CREATION_FAIL = "User creation failed."
+POOL_CREATION_SUCCESS = "New pool created successfully."
+POOL_BALANCE = "The total funds available in the pool is {}"
+POOL_BALANCE_FAIL = "Failed to fetch pool balance."
+LOAN_APPROVE_SUCCESS = "Loan approved successfully."
+LOAN_APPROVE_FAILURE = "Failed to approve loan."
+LOAN_REJECT_SUCCESS = "Loan rejected successfully."
+LOAN_REJECT_FAILURE = "Failed to reject loan."
+
+ONE = '1'
+TWO = '2'
+THREE = '3'
+FOUR = '4'
+FIVE = '5'
+SIX = '6'
+SEVEN = '7'
+
+MAIN_MENU = '''   -----------------------------------
+    WELCOME TO IDEAS2IT LENDING SYSTEM
+   -----------------------------------
+    1. User
+    2. Admin
+    3. Exit
+    ----------------------------------'''
+
+USER_MENU = '''   --------------------------------
+             USER MENU
+   --------------------------------
+    1. Add Money
+    2. Contribute to Pool
+    3. Request Loan
+    4. Check Balance
+    5. Exit
+   --------------------------------'''
+
+ADMIN_MENU = '''   --------------------------------
+             ADMIN MENU
+    --------------------------------
+    1. Create New Pool
+    2. Get Pool Balance
+    3. Approve Loan
+    4. Reject Loan
+    5. Exit
+    --------------------------------'''

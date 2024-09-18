@@ -1,9 +1,11 @@
 import uuid
 
-
 from constant.constant import (POOL_THRESHOLD, MSG_POOL_CREATION, POOL_BALANCE, ERROR_POOL_BALANCE,
                                USER_CONTRIBUTION_SUCCESS, ERROR_POOL_CONTRIBUTION,
                                USER_NOT_FOUND)
+
+from service.user import users_db
+
 from resources.log_configuration import setup_logger
 
 logger = setup_logger()
@@ -12,7 +14,7 @@ pools = {}
 current_pool_id = None
 
 
-def create_new_pool():
+def create_new():
     """Create a new pool.
     - New pool which collects the amount is created.
     - Once reaches threshold automatically new pool is created
@@ -27,7 +29,7 @@ def create_new_pool():
     logger.info(MSG_POOL_CREATION.format(pool_id))
 
 
-def contribute(user_id, amount, users_db):
+def contribute_current(user_id, amount):
     """
     Contribution of amount to pool
     - User enters the user_id
@@ -41,7 +43,7 @@ def contribute(user_id, amount, users_db):
     if user_id in users_db:
         if users_db[user_id]["amount"] > amount:
             if (current_pool_id is None) or (pools[current_pool_id]["total_funds"] > POOL_THRESHOLD):
-                create_new_pool()
+                create_new()
             pools[current_pool_id]["current_pool"].append((user_id, amount))
             pools[current_pool_id]["total_funds"] += amount
             users_db[user_id]["amount"] -= amount
